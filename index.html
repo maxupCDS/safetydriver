@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<link rel="manifest" href="manifest.json">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="UTF-8">
+    <title>안전운행팀_자율주행 데이터 보고</title>
+    <style>
+        body { font-family: 'Malgun Gothic', sans-serif; margin: 40px; line-height: 1.6; background-color: #f0f2f5; }
+        .container { max-width: 1100px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); position: relative; }
+        h2 { text-align: center; color: #1a73e8; margin-bottom: 30px; font-size: 24px; border-bottom: 2px solid #1a73e8; padding-bottom: 15px; }
+        .excel-box { position: absolute; top: 30px; right: 30px; }
+        .btn-excel { padding: 8px 12px; background-color: #495057; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; transition: 0.2s; }
+        .btn-excel:hover { background-color: #212529; }
+        .section { margin-bottom: 20px; padding: 20px; border: 1px solid #e9ecef; border-radius: 8px; background-color: #f8f9fa; }
+        label { display: block; margin-bottom: 15px; font-weight: bold; font-size: 1.1em; color: #333; }
+        .btn-grid { display: grid; gap: 10px; }
+        .grid-5 { grid-template-columns: repeat(5, 1fr); }
+        .grid-3 { grid-template-columns: repeat(3, 1fr); }
+        .grid-2 { grid-template-columns: repeat(2, 1fr); }
+        .flex-container { display: flex; gap: 15px; align-items: flex-start; }
+        .flex-item { flex: 1; }
+        .select-btn { padding: 12px 8px; border: 1px solid #ced4da; background: #fff; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; color: #495057; transition: all 0.2s ease; }
+        .select-btn:hover { background-color: #e9ecef; }
+        .select-btn.selected { background-color: #1a73e8; color: white !important; }
+        .text-input { width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 6px; box-sizing: border-box; font-size: 16px; font-weight: bold; }
+        .textarea-input { width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 6px; box-sizing: border-box; min-height: 80px; resize: vertical; }
+        
+        .category-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .category-item { background: white; padding: 8px; border-radius: 6px; border: 1px solid #dee2e6; display: flex; align-items: center; justify-content: space-between; }
+        .counter-group { display: flex; align-items: center; gap: 3px; }
+        .counter-val { width: 30px; text-align: center; font-weight: bold; border: none; background: transparent; }
+        .btn-sm { padding: 4px 8px; cursor: pointer; border: 1px solid #dee2e6; border-radius: 4px; background: #f8f9fa; }
+        
+        .hard-table { width: 100%; border-collapse: collapse; background: white; }
+        .hard-table th, .hard-table td { border: 1px solid #dee2e6; padding: 6px; text-align: center; font-size: 12px; }
+        .hard-table th { background: #f1f3f5; }
+
+        .add-box { display: flex; justify-content: center; margin: 30px 0; }
+        .btn-add { width: 250px; padding: 15px; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: bold; color: white; background-color: #28a745; }
+        
+        .table-wrapper { overflow-x: auto; margin-top: 20px; }
+        table#recordTable { width: 100%; border-collapse: collapse; background: white; min-width: 1600px; }
+        table#recordTable th, table#recordTable td { border: 1px solid #dee2e6; padding: 6px; text-align: center; font-size: 9px; white-space: nowrap; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="excel-box"><button class="btn-excel" onclick="downloadExcel()">📊 엑셀 저장</button></div>
+    <h2>📋 안전운행팀_자율주행 데이터 보고</h2>
+    
+    <div class="section">
+        <label>1. 보고 작성자 선택</label>
+        <div class="btn-grid grid-5" id="userBtnGroup">
+            <script>
+                const users = ['황금철', '윤길홍', '예준우', '길광림', '전재훈', '오진혁', '김준혁', '박승규', '유승민', '최대섭'];
+                users.forEach(u => document.write(`<button class="select-btn" onclick="selectUser(this, '${u}')">${u}</button>`));
+            </script>
+        </div>
+    </div>
+
+    <div class="flex-container">
+        <div class="section flex-item"><label>2. 업무 형식</label>
+            <div class="btn-grid grid-3" id="typeBtnGroup">
+                <button class="select-btn" onclick="selectType(this)">운행</button>
+                <button class="select-btn" onclick="selectType(this)">동승</button>
+                <button class="select-btn" onclick="selectType(this)">내근</button>
+            </div>
+        </div>
+        <div class="section flex-item" style="flex: 2;"><label>3. 차량 번호 선택</label>
+            <div class="btn-grid grid-5" id="carBtnGroup">
+                <script>
+                    for(let i=801; i<=810; i++) document.write(`<button class="select-btn" onclick="selectCar(this)">gs${i}</button>`);
+                </script>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex-container">
+        <div class="section flex-item"><label>4. 근무 시간대</label>
+            <div class="btn-grid grid-2" id="shiftBtnGroup">
+                <button class="select-btn" onclick="selectShift(this)">주간</button>
+                <button class="select-btn" onclick="selectShift(this)">야간</button>
+            </div>
+        </div>
+        <div class="section flex-item"><label>5. SSD 카드 버전</label><input type="text" id="ssdVersion" class="text-input" placeholder="버전 입력"></div>
+    </div>
+
+    <div class="flex-container">
+        <div class="section flex-item"><label>6. 자율거리(km)</label><input type="number" id="autoDist" class="text-input" placeholder="0"></div>
+        <div class="section flex-item"><label>7. 자율시간(6자리)</label><input type="text" id="autoTime" class="text-input" maxlength="6" placeholder="033219"></div>
+        <div class="section flex-item"><label>8. 누적 ODO(km)</label><input type="number" id="totalOdo" class="text-input" placeholder="계기판 숫자"></div>
+    </div>
+
+    <div class="section">
+        <label>9. 소프트 테이크오버 상세 분류</label>
+        <div class="category-grid" id="softContainer"></div>
+        <div style="text-align:right; margin-top:10px; font-weight:bold; color:#1a73e8;">소프트 합계: <span id="softTotalDisp">0</span> 건</div>
+    </div>
+
+    <div class="section">
+        <label>10. 하드 테이크오버 상세 분류</label>
+        <table class="hard-table">
+            <thead>
+                <tr><th>구분 (원인)</th><th>브레이크</th><th>핸들</th><th>엑셀</th><th>시스템</th></tr>
+            </thead>
+            <tbody id="hardBody"></tbody>
+        </table>
+        <div style="text-align:right; margin-top:10px; font-weight:bold; color:#e03131;">하드 합계: <span id="hardTotalDisp">0</span> 건</div>
+    </div>
+
+    <div class="section">
+        <label>11. 업무 이슈 사항</label>
+        <textarea id="workIssue" class="textarea-input" placeholder="특이사항 작성"></textarea>
+    </div>
+
+    <div class="add-box"><button class="btn-add" onclick="addRecord()">기록하기</button></div>
+
+    <div class="table-wrapper">
+        <table id="recordTable">
+            <thead id="recordHead"></thead>
+            <tbody id="recordBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    let count = 1;
+    let selectedUser = "", selectedType = "", selectedCar = "", selectedShift = "";
+    
+    const softList = ["운전자 판단", "시스템 이상", "교통약자보호", "신호 위반", "신호등 지시", "교차로 딜레마", "도로 상황", "차선 변경", "급정지/서행", "보호 의무"];
+    const hardCauses = ["시스템 이상", "신호 위반/지시", "교차로 딜레마", "도로 상황", "운전자 실수"];
+    const actionKeys = ["B", "H", "A", "S"];
+
+    window.onload = function() {
+        const softContainer = document.getElementById('softContainer');
+        softList.forEach((item, i) => {
+            softContainer.innerHTML += `<div class="category-item"><span>${i+1}. ${item}</span><div class="counter-group"><button class="btn-sm" onclick="stepSoft('s${i+1}',-1)">-</button><input id="s${i+1}" class="counter-val" value="0" readonly><button class="btn-sm" onclick="stepSoft('s${i+1}',1)">+</button></div></div>`;
+        });
+
+        const hardBody = document.getElementById('hardBody');
+        hardCauses.forEach((cause, i) => {
+            let row = `<tr><td style="font-weight:bold;">${cause}</td>`;
+            actionKeys.forEach(a => {
+                row += `<td><div class="counter-group" style="justify-content:center;"><button class="btn-sm" onclick="stepHard('h${i}_${a}',-1)">-</button><input id="h${i}_${a}" class="counter-val" value="0" readonly><button class="btn-sm" onclick="stepHard('h${i}_${a}',1)">+</button></div></td>`;
+            });
+            row += `</tr>`;
+            hardBody.innerHTML += row;
+        });
+
+        const head = document.getElementById('recordHead');
+        let headerRow = `<tr><th>순번</th><th>날짜</th><th>작성자</th><th>업무</th><th>차량</th><th>근무</th><th>SSD</th><th>거리</th><th>시간</th><th>ODO</th><th>소프트(총)</th>`;
+        softList.forEach(name => headerRow += `<th>소프트(${name})</th>`);
+        headerRow += `<th>하드(총)</th>`;
+        hardCauses.forEach(cause => ["브레이크", "핸들", "엑셀", "시스템"].forEach(act => headerRow += `<th>하드(${cause}-${act})</th>`));
+        headerRow += `<th>이슈</th></tr>`;
+        head.innerHTML = headerRow;
+    }
+
+    function selectUser(btn, name) { document.querySelectorAll('#userBtnGroup .select-btn').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); selectedUser = name; }
+    function selectType(btn) { document.querySelectorAll('#typeBtnGroup .select-btn').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); selectedType = btn.innerText; }
+    function selectCar(btn) { document.querySelectorAll('#carBtnGroup .select-btn').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); selectedCar = btn.innerText; }
+    function selectShift(btn) { document.querySelectorAll('#shiftBtnGroup .select-btn').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); selectedShift = btn.innerText; }
+
+    function stepSoft(id, val) { const el = document.getElementById(id); el.value = Math.max(0, (parseInt(el.value) || 0) + val); updateSoftTotal(); }
+    function updateSoftTotal() { let sum = 0; for(let i=1; i<=10; i++) sum += parseInt(document.getElementById('s'+i).value) || 0; document.getElementById('softTotalDisp').innerText = sum; return sum; }
+    function stepHard(id, val) { const el = document.getElementById(id); el.value = Math.max(0, (parseInt(el.value) || 0) + val); updateHardTotal(); }
+    function updateHardTotal() { let sum = 0; for(let i=0; i<5; i++) actionKeys.forEach(a => sum += parseInt(document.getElementById(`h${i}_${a}`).value) || 0); document.getElementById('hardTotalDisp').innerText = sum; return sum; }
+
+    function formatTimeString(str) { let clean = str.replace(/[^0-9]/g, '').padStart(6, '0'); return `${clean.substring(0,2)}:${clean.substring(2,4)}:${clean.substring(4,6)}`; }
+    function formatComma(num) { return num ? num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "0"; }
+
+    function addRecord() {
+        if (!selectedUser || !selectedCar || !document.getElementById('totalOdo').value) { alert('작성자, 차량번호, 누적 ODO는 필수입니다.'); return; }
+        const tableBody = document.getElementById('recordBody');
+        const newRow = tableBody.insertRow();
+        
+        let cellIdx = 0;
+        newRow.insertCell(cellIdx++).innerText = count++;
+        // 날짜만 표시 (시간 제외)
+        newRow.insertCell(cellIdx++).innerText = new Date().toLocaleDateString(); 
+        newRow.insertCell(cellIdx++).innerText = selectedUser;
+        newRow.insertCell(cellIdx++).innerText = selectedType;
+        newRow.insertCell(cellIdx++).innerText = selectedCar;
+        newRow.insertCell(cellIdx++).innerText = selectedShift;
+        newRow.insertCell(cellIdx++).innerText = document.getElementById('ssdVersion').value;
+        newRow.insertCell(cellIdx++).innerText = formatComma(document.getElementById('autoDist').value) + "km";
+        newRow.insertCell(cellIdx++).innerText = formatTimeString(document.getElementById('autoTime').value);
+        newRow.insertCell(cellIdx++).innerText = formatComma(document.getElementById('totalOdo').value) + "km";
+        
+        newRow.insertCell(cellIdx++).innerText = updateSoftTotal();
+        for(let i=1; i<=10; i++) newRow.insertCell(cellIdx++).innerText = document.getElementById('s'+i).value;
+
+        newRow.insertCell(cellIdx++).innerText = updateHardTotal();
+        for(let i=0; i<5; i++) actionKeys.forEach(a => newRow.insertCell(cellIdx++).innerText = document.getElementById(`h${i}_${a}`).value);
+        
+        newRow.insertCell(cellIdx++).innerText = document.getElementById('workIssue').value;
+        resetForm();
+    }
+
+    function resetForm() {
+        document.querySelectorAll('.counter-val').forEach(el => el.value = 0);
+        document.querySelectorAll('.text-input, .textarea-input').forEach(el => el.value = "");
+        document.querySelectorAll('.select-btn').forEach(b => b.classList.remove('selected'));
+        document.getElementById('softTotalDisp').innerText = 0;
+        document.getElementById('hardTotalDisp').innerText = 0;
+        selectedUser = ""; selectedType = ""; selectedCar = ""; selectedShift = "";
+    }
+
+    function downloadExcel() {
+        const table = document.getElementById("recordTable");
+        let csv = ["\uFEFF"];
+        for (let i = 0; i < table.rows.length; i++) {
+            let row = [];
+            for (let j = 0; j < table.rows[i].cells.length; j++) row.push('"' + table.rows[i].cells[j].innerText.replace(/\n/g, " ") + '"');
+            csv.push(row.join(","));
+        }
+        const blob = new Blob([csv.join("\n")], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "안전운행팀_자율주행_보고서.csv";
+        link.click();
+    }
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
+</script>
+</body>
+</html>

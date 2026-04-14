@@ -1,0 +1,15 @@
+{
+  "name": "안전운행팀 데이터 보고",
+  "short_name": "자율주행보고",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1a73e8",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2555/2555013.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
