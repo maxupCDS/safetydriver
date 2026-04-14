@@ -191,7 +191,7 @@
             hardFullData: hardDetails.join(", ")
         };
 
-        const scriptURL = 'https://script.google.com/macros/s/AKfycby5Nq_lqBkbFN4KoBHs7sSsQR8sGHBxyzrdkSSoFGtcNiGpoMsxtc35sx9J9T80n0qE/exec'; 
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbw8udQFHRkdjUJ1BgOeUD31l-ox5rve57woGAWwiuxjFiVrDxjFEkeSi7dOWfDlkLiq/exec'; 
 
         fetch(scriptURL, { method: 'POST', mode: 'no-cors', cache: 'no-cache', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(reportData) })
         .then(() => { alert('기록 및 구글 시트 전송 완료!'); count++; resetForm(); })
