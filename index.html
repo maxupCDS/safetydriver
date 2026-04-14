@@ -45,8 +45,9 @@
         .hard-table { width: 100%; border-collapse: collapse; min-width: 350px; }
         .hard-table th { font-size: 11px; background: #f1f3f5; padding: 8px; border: 1px solid #eee; }
         .hard-table td { padding: 8px 3px; border: 1px solid #eee; text-align: center; }
-        .table-wrapper { overflow-x: auto; margin-top: 30px; border-radius: 10px; border: 1px solid #e2e8f0; }
-        table#recordTable { width: 100%; border-collapse: collapse; min-width: 800px; font-size: 11px; }
+        
+        #recordTableWrapper { display: none; }
+
         .add-box { position: sticky; bottom: 20px; display: flex; justify-content: center; z-index: 100; margin-top: 20px; }
         .btn-add { 
             width: 90%; padding: 18px; border: none; border-radius: 15px; 
@@ -105,13 +106,14 @@
 
     <div class="section">
         <label>6. 자율시간(6자리)</label>
-        <input type="text" id="autoTime" class="text-input" placeholder="예: 033000">
+        <input type="text" id="autoTime" class="text-input" placeholder="예: 033617">
     </div>
 
     <div class="section">
         <label>7. 누적 ODO(km)</label>
         <input type="number" id="totalOdo" class="text-input" placeholder="계기판 주행거리">
     </div>
+
     <div class="section">
         <label>8. 소프트 테이크오버</label>
         <div class="category-grid" id="softContainer"></div>
@@ -136,7 +138,7 @@
 
     <div class="add-box"><button class="btn-add" onclick="addRecord()">보고서 기록하기</button></div>
 
-    <div class="table-wrapper">
+    <div id="recordTableWrapper">
         <table id="recordTable"><thead id="recordHead"></thead><tbody id="recordBody"></tbody></table>
     </div>
 </div>
@@ -161,9 +163,29 @@
             actionKeys.forEach(a => { row += `<td><button class="btn-sm" style="width:28px; height:28px; font-size:14px; margin-bottom:2px;" onclick="stepHard('h${i}_${a}',1)">+</button><br><input id="h${i}_${a}" class="counter-val" style="width:20px; font-size:12px;" value="0" readonly></td>`; });
             hardBody.innerHTML += row + `</tr>`;
         });
+        
         const head = document.getElementById('recordHead');
-        let hr = `<tr><th>순번</th><th>날짜</th><th>작성자</th><th>업무</th><th>차량</th><th>근무</th><th>소프트</th><th>하드</th><th>이슈</th></tr>`;
+        let hr = `<tr><th>순번</th><th>날짜</th><th>작성자</th><th>업무</th><th>차량</th><th>근무</th><th>SSD버전</th><th>자율거리</th><th>자율시간</th><th>누적ODO</th><th>소프트(합계)</th>`;
+        softList.forEach(name => hr += `<th>소프트(${name})</th>`);
+        hr += `<th>하드(합계)</th>`;
+        hardCauses.forEach(cause => {
+            ["브레이크", "핸들", "엑셀", "시스템"].forEach(act => hr += `<th>하드(${cause}-${act})</th>`);
+        });
+        hr += `<th>이슈사항</th></tr>`;
         head.innerHTML = hr;
+    }
+
+    function formatTime(val) {
+        if (val.length === 6 && !isNaN(val)) {
+            return val.replace(/(\d{2})(\d{2})(\d{2})/, '$1:$2:$3');
+        }
+        return val;
+    }
+    function formatNumber(val) {
+        if (!isNaN(val) && val !== "") {
+            return Number(val).toLocaleString();
+        }
+        return val;
     }
 
     function selectUser(btn, name) { document.querySelectorAll('#userBtnGroup .select-btn').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); selectedUser = name; }
@@ -176,20 +198,72 @@
     function updateHardTotal() { let sum = 0; for(let i=0; i<5; i++) actionKeys.forEach(a => sum += parseInt(document.getElementById(`h${i}_${a}`).value) || 0); document.getElementById('hardTotalDisp').innerText = sum; return sum; }
     
     function addRecord() {
-        if (!selectedUser || !selectedCar || !document.getElementById('totalOdo').value) { alert('필수 항목(작성자, 차량번호, ODO)을 확인하세요!'); return; }
+        if (!selectedUser || !selectedCar || !document.getElementById('totalOdo').value) {
+            alert('필수 항목(작성자, 차량번호, ODO)을 확인하세요!');
+            return;
+        }
+
+        const formattedTime = formatTime(document.getElementById('autoTime').value);
+        const formattedOdo = formatNumber(document.getElementById('totalOdo').value);
+
+        // 엑셀(숨겨진 테이블)용 데이터 기록
         const tableBody = document.getElementById('recordBody');
         const newRow = tableBody.insertRow(0);
-        newRow.insertCell(0).innerText = count++;
-        newRow.insertCell(1).innerText = new Date().toLocaleDateString();
-        newRow.insertCell(2).innerText = selectedUser;
-        newRow.insertCell(3).innerText = selectedType;
-        newRow.insertCell(4).innerText = selectedCar;
-        newRow.insertCell(5).innerText = selectedShift;
-        newRow.insertCell(6).innerText = updateSoftTotal();
-        newRow.insertCell(7).innerText = updateHardTotal();
-        newRow.insertCell(8).innerText = document.getElementById('workIssue').value;
-        alert('보고서가 기록되었습니다.');
-        resetForm();
+        let cellIdx = 0;
+        newRow.insertCell(cellIdx++).innerText = count;
+        newRow.insertCell(cellIdx++).innerText = new Date().toLocaleDateString();
+        newRow.insertCell(cellIdx++).innerText = selectedUser;
+        newRow.insertCell(cellIdx++).innerText = selectedType;
+        newRow.insertCell(cellIdx++).innerText = selectedCar;
+        newRow.insertCell(cellIdx++).innerText = selectedShift;
+        newRow.insertCell(cellIdx++).innerText = document.getElementById('ssdVersion').value;
+        newRow.insertCell(cellIdx++).innerText = document.getElementById('autoDist').value;
+        newRow.insertCell(cellIdx++).innerText = formattedTime;
+        newRow.insertCell(cellIdx++).innerText = formattedOdo;
+        newRow.insertCell(cellIdx++).innerText = updateSoftTotal();
+        for(let i=1; i<=10; i++) newRow.insertCell(cellIdx++).innerText = document.getElementById('s'+i).value;
+        newRow.insertCell(cellIdx++).innerText = updateHardTotal();
+        for(let i=0; i<5; i++) actionKeys.forEach(a => newRow.insertCell(cellIdx++).innerText = document.getElementById(`h${i}_${a}`).value);
+        newRow.insertCell(cellIdx++).innerText = document.getElementById('workIssue').value;
+
+        // 구글 시트 전송용 세부 데이터 수집
+        let softDetails = [];
+        for(let i=1; i<=10; i++) softDetails.push(document.getElementById('s'+i).value);
+        let hardDetails = [];
+        for(let i=0; i<5; i++) actionKeys.forEach(a => hardDetails.push(document.getElementById(`h${i}_${a}`).value));
+
+        const reportData = {
+            count: count++,
+            date: new Date().toLocaleDateString(),
+            user: selectedUser,
+            type: selectedType,
+            car: selectedCar,
+            shift: selectedShift,
+            ssd: document.getElementById('ssdVersion').value,
+            dist: document.getElementById('autoDist').value,
+            time: formattedTime,
+            odo: formattedOdo,
+            softTotal: updateSoftTotal(),
+            hardTotal: updateHardTotal(),
+            issue: document.getElementById('workIssue').value,
+            softFullData: softDetails.join(", "),
+            hardFullData: hardDetails.join(", ")
+        };
+
+        const scriptURL = 'https://script.google.com/macros/s/AKfycby5Nq_lqBkbFN4KoBHs7sSsQR8sGHBxyzrdkSSoFGtcNiGpoMsxtc35sx9J9T80n0qE/exec'; 
+
+        fetch(scriptURL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify(reportData)
+        })
+        .then(() => {
+            alert('구글 시트 및 내부 기록 완료!');
+            resetForm();
+        })
+        .catch(error => {
+            alert('전송 오류: ' + error.message);
+        });
     }
 
     function resetForm() {
@@ -203,16 +277,19 @@
 
     function downloadExcel() {
         const table = document.getElementById("recordTable");
+        if (table.rows.length <= 1) { alert('저장할 데이터가 없습니다.'); return; }
         let csv = ["\uFEFF"];
         for (let i = 0; i < table.rows.length; i++) {
             let row = [];
-            for (let j = 0; j < table.rows[i].cells.length; j++) row.push('"' + table.rows[i].cells[j].innerText.replace(/\n/g, " ") + '"');
+            for (let j = 0; j < table.rows[i].cells.length; j++) {
+                row.push('"' + table.rows[i].cells[j].innerText.replace(/\n/g, " ") + '"');
+            }
             csv.push(row.join(","));
         }
         const blob = new Blob([csv.join("\n")], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = "안전운행_데이터.csv";
+        link.download = "안전운행팀_상세데이터_" + new Date().toLocaleDateString() + ".csv";
         link.click();
     }
 </script>
