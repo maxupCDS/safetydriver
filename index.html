@@ -195,7 +195,7 @@
             hardDetails: hardVals
         };
 
-        const scriptURL = 'https://script.google.com/macros/s/AKfycby5Nq_lqBkbFN4KoBHs7sSsQR8sGHBxyzrdkSSoFGtcNiGpoMsxtc35sx9J9T80n0qE/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbz4m6iYFSneHsJunhwpjsM9Z-NmuJzmyNzjpcZtryJa_xZkJAOwWqrRWknjmhTOHJX3/exec';
 
         fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
         .then(() => { alert('기록 완료!'); count++; resetForm(); })
