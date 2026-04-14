@@ -136,7 +136,7 @@
         <textarea id="workIssue" class="textarea-input" placeholder="특이사항 작성"></textarea>
     </div>
 
-    <div class="add-box"><button class="btn-add" onclick="addRecord()">보고서 기록하기</button></div>
+    <div class="add-box"><button class="btn-add" id="submitBtn" onclick="addRecord()">보고서 기록하기</button></div>
 
     <div id="recordTableWrapper">
         <table id="recordTable"><thead id="recordHead"></thead><tbody id="recordBody"></tbody></table>
@@ -203,10 +203,14 @@
             return;
         }
 
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.innerText = "전송 중...";
+
         const formattedTime = formatTime(document.getElementById('autoTime').value);
         const formattedOdo = formatNumber(document.getElementById('totalOdo').value);
 
-        // 엑셀(숨겨진 테이블)용 데이터 기록
+        // 숨겨진 테이블 기록 (엑셀용)
         const tableBody = document.getElementById('recordBody');
         const newRow = tableBody.insertRow(0);
         let cellIdx = 0;
@@ -226,14 +230,14 @@
         for(let i=0; i<5; i++) actionKeys.forEach(a => newRow.insertCell(cellIdx++).innerText = document.getElementById(`h${i}_${a}`).value);
         newRow.insertCell(cellIdx++).innerText = document.getElementById('workIssue').value;
 
-        // 구글 시트 전송용 세부 데이터 수집
+        // 세부 항목 문자열 생성
         let softDetails = [];
         for(let i=1; i<=10; i++) softDetails.push(document.getElementById('s'+i).value);
         let hardDetails = [];
         for(let i=0; i<5; i++) actionKeys.forEach(a => hardDetails.push(document.getElementById(`h${i}_${a}`).value));
 
         const reportData = {
-            count: count++,
+            count: count,
             date: new Date().toLocaleDateString(),
             user: selectedUser,
             type: selectedType,
@@ -252,17 +256,26 @@
 
         const scriptURL = 'https://script.google.com/macros/s/AKfycby5Nq_lqBkbFN4KoBHs7sSsQR8sGHBxyzrdkSSoFGtcNiGpoMsxtc35sx9J9T80n0qE/exec'; 
 
+        // 모바일 최적화 fetch 전송
         fetch(scriptURL, {
             method: 'POST',
             mode: 'no-cors',
+            cache: 'no-cache',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(reportData)
         })
         .then(() => {
-            alert('구글 시트 및 내부 기록 완료!');
+            alert('기록 및 시트 전송 완료!');
+            count++;
             resetForm();
         })
         .catch(error => {
-            alert('전송 오류: ' + error.message);
+            alert('전송 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+            console.error(error);
+        })
+        .finally(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerText = "보고서 기록하기";
         });
     }
 
