@@ -44,18 +44,18 @@
         <label>1. 작성자 선택</label>
         <div class="btn-grid grid-5" id="userBtnGroup">
             <script>
-                // 성함과 이메일 매칭 (실제 이메일로 수정하여 사용하세요)
+                // 제공해주신 이메일 데이터 반영
                 const userList = [
-                    { name: '황금철', email: 'gold@example.com' },
-                    { name: '윤길홍', email: 'gilhong@example.com' },
-                    { name: '예준우', email: 'junwoo@example.com' },
-                    { name: '길광림', email: 'gl@example.com' },
-                    { name: '전재훈', email: 'jh@example.com' },
-                    { name: '오진혁', email: 'jh_oh@example.com' },
-                    { name: '김준혁', email: 'junhyuk@example.com' },
-                    { name: '박승규', email: 'sg@example.com' },
-                    { name: '유승민', email: 'sm@example.com' },
-                    { name: '최대섭', email: 'ds@example.com' }
+                    { name: '황금철', email: 'kchwang@future-link.ai' },
+                    { name: '윤길홍', email: 'khyoon@future-link.ai' },
+                    { name: '예준우', email: 'star7760@future-link.ai' },
+                    { name: '길광림', email: 'volfgangk@future-link.ai' },
+                    { name: '전재훈', email: 'level5@future-link.ai' },
+                    { name: '오진혁', email: 'dhwlstnwkd@future-link.ai' },
+                    { name: '김준혁', email: 'kirk@future-link.ai' },
+                    { name: '박승규', email: 'jeffstyle@future-link.ai' },
+                    { name: '유승민', email: 'max0825@future-link.ai' },
+                    { name: '최대섭', email: 'chleotjq1@future-link.ai' }
                 ];
                 userList.forEach(u => {
                     document.write(`<button class="select-btn" onclick="selectUser(this, '${u.name}', '${u.email}')">${u.name}</button>`);
@@ -116,13 +116,10 @@
         head.innerHTML = hr;
     }
 
-    // 마침표 제거된 날짜 생성 함수
+    // 날짜 뒤 마침표 제거
     function getCleanDate() {
         let date = new Date().toLocaleDateString();
-        if (date.endsWith('.')) {
-            date = date.slice(0, -1);
-        }
-        return date;
+        return date.endsWith('.') ? date.slice(0, -1) : date;
     }
 
     function selectUser(btn, name, email) { 
@@ -150,7 +147,7 @@
         const formattedTime = formatTime(document.getElementById('autoTime').value);
         const formattedOdo = formatNumber(document.getElementById('totalOdo').value);
 
-        // 엑셀용 데이터 기록
+        // 로컬 테이블 기록 (엑셀용)
         const tableBody = document.getElementById('recordBody');
         const newRow = tableBody.insertRow(0);
         let cellIdx = 0;
@@ -171,7 +168,7 @@
         for(let i=0; i<5; i++) actionKeys.forEach(a => newRow.insertCell(cellIdx++).innerText = document.getElementById(`h${i}_${a}`).value);
         newRow.insertCell(cellIdx++).innerText = document.getElementById('workIssue').value;
 
-        // 구글 전송 데이터
+        // 전송 데이터
         let softDetails = []; for(let i=1; i<=10; i++) softDetails.push(document.getElementById('s'+i).value);
         let hardDetails = []; for(let i=0; i<5; i++) actionKeys.forEach(a => hardDetails.push(document.getElementById(`h${i}_${a}`).value));
 
