@@ -4,32 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>안전운행팀 보고서</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a73e8">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2555/2555013.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="자율주행보고">
+
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 12px; background-color: #f5f7fa; color: #333; -webkit-tap-highlight-color: transparent; }
+        /* 기본 스타일 초기화 */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 12px; background-color: #f5f7fa; color: #333; }
         .container { max-width: 100%; margin: auto; background: white; padding: 15px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         h2 { text-align: center; color: #1a73e8; font-size: 1.2rem; margin-top: 0; padding-bottom: 12px; border-bottom: 2px solid #eef2f8; }
+        
         .excel-box { display: flex; justify-content: flex-end; margin-bottom: 10px; }
         .btn-excel { padding: 6px 12px; background: #495057; color: white; border: none; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }
+        
         .section { margin-bottom: 15px; padding: 12px; border: 1px solid #edf2f7; border-radius: 12px; background-color: #fdfdfe; }
         label { display: block; margin-bottom: 10px; font-weight: bold; font-size: 14px; color: #4a5568; }
+        
         .btn-grid { display: grid; gap: 6px; }
         .grid-5 { grid-template-columns: repeat(2, 1fr); } 
         .grid-3 { grid-template-columns: repeat(3, 1fr); }
         .grid-2 { grid-template-columns: repeat(2, 1fr); }
+        
         .select-btn { padding: 12px 5px; border: 1px solid #e2e8f0; background: #fff; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #4a5568; }
-        .select-btn.selected { background-color: #1a73e8; color: white !important; border-color: #1a73e8; }
-        .text-input, .textarea-input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; box-sizing: border-box; font-size: 15px; background: #fff; }
+        .select-btn.selected { background-color: #1a73e8 !important; color: white !important; border-color: #1a73e8; }
+        
+        .text-input, .textarea-input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; box-sizing: border-box; font-size: 16px; background: #fff; }
+        
+        /* 소프트 테이크오버 레이아웃 */
         .category-item { background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #eef2f8; display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
         .btn-sm { width: 32px; height: 32px; border-radius: 50%; border: none; background: #1a73e8; color: white; font-size: 18px; font-weight: bold; }
         .counter-val { width: 25px; text-align: center; font-weight: bold; font-size: 15px; border: none; background: transparent; }
         
-        /* 하드 테이크오버 가로폭 초밀착 최적화 */
-        .hard-scroll { width: 100%; overflow-x: hidden; } /* 가로 스크롤 방지 */
+        /* 하드 테이크오버 초밀착 최적화 */
+        .hard-scroll { width: 100%; overflow-x: hidden; }
         .hard-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         .hard-table th { font-size: 9px; background: #f1f3f5; padding: 6px 0; border: 1px solid #eee; color: #666; }
         .hard-table td { padding: 5px 0; border: 1px solid #eee; text-align: center; vertical-align: middle; }
-        
-        .hard-title-cell { width: 65px; font-size: 11px !important; font-weight: bold; color: #333; line-height: 1.1; word-break: keep-all; padding-left: 2px !important; }
+        .hard-title-cell { width: 65px; font-size: 12px !important; font-weight: bold; color: #333; line-height: 1.1; word-break: keep-all; }
         .hard-btn-sm { width: 26px; height: 26px; border-radius: 50%; border: none; background: #1a73e8; color: white; font-size: 15px; font-weight: bold; display: inline-block; margin-bottom: 2px; }
         .hard-val-input { width: 20px; text-align: center; font-weight: bold; font-size: 13px; border: none; background: transparent; display: block; margin: 0 auto; }
 
@@ -48,16 +64,11 @@
         <div class="btn-grid grid-5" id="userBtnGroup">
             <script>
                 const userList = [
-                    { name: '황금철', email: 'kchwang@future-link.ai' },
-                    { name: '윤길홍', email: 'khyoon@future-link.ai' },
-                    { name: '예준우', email: 'star7760@future-link.ai' },
-                    { name: '길광림', email: 'volfgangk@future-link.ai' },
-                    { name: '전재훈', email: 'level5@future-link.ai' },
-                    { name: '오진혁', email: 'dhwlstnwkd@future-link.ai' },
-                    { name: '김준혁', email: 'kirk@future-link.ai' },
-                    { name: '박승규', email: 'jeffstyle@future-link.ai' },
-                    { name: '유승민', email: 'max0825@future-link.ai' },
-                    { name: '최대섭', email: 'chleotjq1@future-link.ai' }
+                    { name: '황금철', email: 'kchwang@future-link.ai' }, { name: '윤길홍', email: 'khyoon@future-link.ai' },
+                    { name: '예준우', email: 'star7760@future-link.ai' }, { name: '길광림', email: 'volfgangk@future-link.ai' },
+                    { name: '전재훈', email: 'level5@future-link.ai' }, { name: '오진혁', email: 'dhwlstnwkd@future-link.ai' },
+                    { name: '김준혁', email: 'kirk@future-link.ai' }, { name: '박승규', email: 'jeffstyle@future-link.ai' },
+                    { name: '유승민', email: 'max0825@future-link.ai' }, { name: '최대섭', email: 'chleotjq1@future-link.ai' }
                 ];
                 userList.forEach(u => document.write(`<button class="select-btn" onclick="selectUser(this, '${u.name}', '${u.email}')">${u.name}</button>`));
             </script>
@@ -84,19 +95,19 @@
 
     <div class="section">
         <label>8. 소프트 테이크오버</label>
-        <div class="category-grid" id="softContainer"></div>
-        <div style="text-align:right; margin-top:10px; font-weight:bold; color:#1a73e8;">소프트 합계: <span id="softTotalDisp">0</span></div>
+        <div id="softContainer"></div>
+        <div style="text-align:right; margin-top:10px; font-weight:bold; color:#1a73e8; font-size:14px;">소프트 합계: <span id="softTotalDisp">0</span></div>
     </div>
 
     <div class="section">
         <label>9. 하드 테이크오버</label>
         <div class="hard-scroll">
             <table class="hard-table">
-                <thead><tr><th>구분</th><th>브레이크</th><th>핸들</th><th>엑셀</th><th>시스템</th></tr></thead>
+                <thead><tr><th style="width:65px;">구분</th><th>브레이크</th><th>핸들</th><th>엑셀</th><th>시스템</th></tr></thead>
                 <tbody id="hardBody"></tbody>
             </table>
         </div>
-        <div style="text-align:right; margin-top:10px; font-weight:bold; color:#e03131;">하드 합계: <span id="hardTotalDisp">0</span></div>
+        <div style="text-align:right; margin-top:10px; font-weight:bold; color:#e03131; font-size:14px;">하드 합계: <span id="hardTotalDisp">0</span></div>
     </div>
 
     <div class="section"><label>10. 업무 이슈 사항</label><textarea id="workIssue" class="textarea-input" placeholder="특이사항 작성"></textarea></div>
@@ -104,10 +115,7 @@
     <button class="btn-add" id="submitBtn" onclick="addRecord()">보고서 기록하기</button>
     
     <div id="recordTableWrapper">
-        <table id="recordTable">
-            <thead id="recordHead"></thead>
-            <tbody id="recordBody"></tbody>
-        </table>
+        <table id="recordTable"><thead id="recordHead"></thead><tbody id="recordBody"></tbody></table>
     </div>
 </div>
 
@@ -116,7 +124,7 @@
     let selectedUser = "", selectedEmail = "", selectedType = "", selectedCar = "", selectedShift = "";
     const softNames = ["운전자 판단", "시스템 이상", "교통약자보호", "신호 위반", "신호등 지시", "교차로 딜레마", "도로 상황", "차선 변경", "급정지/서행", "보호 의무"];
     const hardCauses = ["시스템 이상", "신호 위반/지시", "교차로 딜레마", "도로 상황", "운전자 실수"];
-    const actions = ["B", "H", "A", "S"];
+    const actions = ["브레이크", "핸들", "엑셀", "시스템"];
 
     window.onload = function() {
         const sc = document.getElementById('softContainer');
@@ -125,8 +133,10 @@
         });
         const hb = document.getElementById('hardBody');
         hardCauses.forEach((c, i) => {
-            let row = `<tr><td style="font-size:11px; font-weight:bold;">${c}</td>`;
-            actions.forEach(a => { row += `<td><button class="btn-sm" style="width:28px; height:28px; font-size:14px;" onclick="stepHard('${i}_${a}',1)">+</button><br><input id="h${i}_${a}" class="counter-val" style="width:20px; font-size:12px;" value="0" readonly></td>`; });
+            let row = `<tr><td class="hard-title-cell">${c}</td>`;
+            actions.forEach((a, idx) => { 
+                row += `<td><button class="hard-btn-sm" onclick="stepHard('${i}_${idx}',1)">+</button><input id="h${i}_${idx}" class="hard-val-input" value="0" readonly></td>`; 
+            });
             hb.innerHTML += row + `</tr>`;
         });
 
@@ -138,20 +148,61 @@
         hardCauses.forEach(cause => { actions.forEach(act => hr += `<th>하드(${cause}-${act})</th>`); });
         hr += `<th>이슈사항</th></tr>`;
         head.innerHTML = hr;
+
+        loadTempData(); // 임시 데이터 불러오기
+        
+        // 실시간 임시 저장 이벤트 등록
+        const inputs = document.querySelectorAll('.text-input, .textarea-input');
+        inputs.forEach(input => input.addEventListener('input', saveTempData));
     }
 
-    function selectUser(btn, n, e) { document.querySelectorAll('#userBtnGroup .select-btn').forEach(b=>b.classList.remove('selected')); btn.classList.add('selected'); selectedUser=n; selectedEmail=e; }
-    function selectType(btn) { document.querySelectorAll('#typeBtnGroup .select-btn').forEach(b=>b.classList.remove('selected')); btn.classList.add('selected'); selectedType=btn.innerText; }
-    function selectCar(btn) { document.querySelectorAll('#carBtnGroup .select-btn').forEach(b=>b.classList.remove('selected')); btn.classList.add('selected'); selectedCar=btn.innerText; }
-    function selectShift(btn) { document.querySelectorAll('#shiftBtnGroup .select-btn').forEach(b=>b.classList.remove('selected')); btn.classList.add('selected'); selectedShift=btn.innerText; }
+    // --- 임시 저장 로직 ---
+    function saveTempData() {
+        const softVals = []; for(let i=0; i<10; i++) softVals.push(document.getElementById('s'+i).value);
+        const hardVals = []; for(let i=0; i<5; i++) { for(let j=0; j<4; j++) hardVals.push(document.getElementById(`h${i}_${j}`).value); }
+        const tempData = {
+            ssd: document.getElementById('ssdVersion').value, dist: document.getElementById('autoDist').value,
+            time: document.getElementById('autoTime').value, odo: document.getElementById('totalOdo').value,
+            issue: document.getElementById('workIssue').value, softVals, hardVals,
+            selectedUser, selectedEmail, selectedType, selectedCar, selectedShift
+        };
+        localStorage.setItem('report_temp', JSON.stringify(tempData));
+    }
+
+    function loadTempData() {
+        const saved = localStorage.getItem('report_temp');
+        if (!saved) return;
+        const data = JSON.parse(saved);
+        document.getElementById('ssdVersion').value = data.ssd || "";
+        document.getElementById('autoDist').value = data.dist || "";
+        document.getElementById('autoTime').value = data.time || "";
+        document.getElementById('totalOdo').value = data.odo || "";
+        document.getElementById('workIssue').value = data.issue || "";
+        if(data.softVals) data.softVals.forEach((v, i) => { const el = document.getElementById('s'+i); if(el) el.value = v; });
+        if(data.hardVals) {
+            let idx = 0;
+            for(let i=0; i<5; i++) { for(let j=0; j<4; j++) { const el = document.getElementById(`h${i}_${j}`); if(el) el.value = data.hardVals[idx++]; } }
+        }
+        // 버튼 선택 복구
+        if(data.selectedUser) document.querySelectorAll('#userBtnGroup .select-btn').forEach(b => { if(b.innerText === data.selectedUser) selectUser(b, data.selectedUser, data.selectedEmail); });
+        if(data.selectedType) document.querySelectorAll('#typeBtnGroup .select-btn').forEach(b => { if(b.innerText === data.selectedType) selectType(b); });
+        if(data.selectedCar) document.querySelectorAll('#carBtnGroup .select-btn').forEach(b => { if(b.innerText === data.selectedCar) selectCar(b); });
+        if(data.selectedShift) document.querySelectorAll('#shiftBtnGroup .select-btn').forEach(b => { if(b.innerText === data.selectedShift) selectShift(b); });
+        updateTotals();
+    }
+
+    function selectUser(btn, n, e) { document.querySelectorAll('#userBtnGroup .select-btn').forEach(b=>b.classList.remove('selected')); btn.classList.add('selected'); selectedUser=n; selectedEmail=e; saveTempData(); }
+    function selectType(btn) { document.querySelectorAll('#typeBtnGroup .select-btn').forEach(b=>b.classList.remove('selected')); btn.classList.add('selected'); selectedType=btn.innerText; saveTempData(); }
+    function selectCar(btn) { document.querySelectorAll('#carBtnGroup .select-btn').forEach(b=>b.classList.remove('selected')); btn.classList.add('selected'); selectedCar=btn.innerText; saveTempData(); }
+    function selectShift(btn) { document.querySelectorAll('#shiftBtnGroup .select-btn').forEach(b=>b.classList.remove('selected')); btn.classList.add('selected'); selectedShift=btn.innerText; saveTempData(); }
     
-    function stepSoft(i, v) { const el = document.getElementById('s'+i); el.value = Math.max(0, parseInt(el.value)+v); updateTotals(); }
-    function stepHard(id, v) { const el = document.getElementById('h'+id); el.value = Math.max(0, parseInt(el.value)+v); updateTotals(); }
+    function stepSoft(i, v) { const el = document.getElementById('s'+i); el.value = Math.max(0, parseInt(el.value)+v); updateTotals(); saveTempData(); }
+    function stepHard(id, v) { const el = document.getElementById('h'+id); el.value = Math.max(0, parseInt(el.value)+v); updateTotals(); saveTempData(); }
     
     function updateTotals() {
         let st = 0; for(let i=0; i<10; i++) st += parseInt(document.getElementById('s'+i).value) || 0;
         document.getElementById('softTotalDisp').innerText = st;
-        let ht = 0; for(let i=0; i<5; i++) actions.forEach(a => ht += parseInt(document.getElementById(`h${i}_${a}`).value) || 0);
+        let ht = 0; for(let i=0; i<5; i++) { for(let j=0; j<4; j++) ht += parseInt(document.getElementById(`h${i}_${j}`).value) || 0; }
         document.getElementById('hardTotalDisp').innerText = ht;
     }
 
@@ -164,9 +215,8 @@
         if(date.endsWith('.')) date = date.slice(0, -1);
 
         const softVals = []; for(let i=0; i<10; i++) softVals.push(document.getElementById('s'+i).value);
-        const hardVals = []; for(let i=0; i<5; i++) actions.forEach(a => hardVals.push(document.getElementById(`h${i}_${a}`).value));
+        const hardVals = []; for(let i=0; i<5; i++) { for(let j=0; j<4; j++) hardVals.push(document.getElementById(`h${i}_${j}`).value); }
 
-        // 엑셀용 숨겨진 테이블에 행 추가 (각 항목 개별 셀로 분리)
         const tableBody = document.getElementById('recordBody');
         const newRow = tableBody.insertRow(0);
         let c = 0;
@@ -182,58 +232,10 @@
         newRow.insertCell(c++).innerText = (v => v.length===6 ? v.replace(/(\d{2})(\d{2})(\d{2})/, '$1:$2:$3') : v)(document.getElementById('autoTime').value);
         newRow.insertCell(c++).innerText = Number(document.getElementById('totalOdo').value).toLocaleString();
         newRow.insertCell(c++).innerText = document.getElementById('softTotalDisp').innerText;
-        softVals.forEach(v => newRow.insertCell(c++).innerText = v); // 소프트 개별 항목들
+        softVals.forEach(v => newRow.insertCell(c++).innerText = v);
         newRow.insertCell(c++).innerText = document.getElementById('hardTotalDisp').innerText;
-        hardVals.forEach(v => newRow.insertCell(c++).innerText = v); // 하드 개별 항목들
+        hardVals.forEach(v => newRow.insertCell(c++).innerText = v);
         newRow.insertCell(c++).innerText = document.getElementById('workIssue').value;
 
-        // 구글 시트 전송용 페이로드
         const payload = {
-            date: date, user: selectedUser, email: selectedEmail, type: selectedType, car: selectedCar,
-            shift: selectedShift, ssd: document.getElementById('ssdVersion').value, dist: document.getElementById('autoDist').value,
-            time: (v => v.length===6 ? v.replace(/(\d{2})(\d{2})(\d{2})/, '$1:$2:$3') : v)(document.getElementById('autoTime').value),
-            odo: Number(document.getElementById('totalOdo').value).toLocaleString(),
-            softTotal: document.getElementById('softTotalDisp').innerText,
-            hardTotal: document.getElementById('hardTotalDisp').innerText,
-            issue: document.getElementById('workIssue').value,
-            softDetails: softVals,
-            hardDetails: hardVals
-        };
-
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbz4m6iYFSneHsJunhwpjsM9Z-NmuJzmyNzjpcZtryJa_xZkJAOwWqrRWknjmhTOHJX3/exec';
-
-        fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
-        .then(() => { alert('기록 완료!'); count++; resetForm(); })
-        .catch(() => alert('전송 오류'))
-        .finally(() => { btn.disabled = false; btn.innerText = "보고서 기록하기"; });
-    }
-
-    function resetForm() {
-        document.querySelectorAll('.counter-val').forEach(el => el.value = 0);
-        document.querySelectorAll('.text-input, .textarea-input').forEach(el => el.value = "");
-        document.querySelectorAll('.select-btn').forEach(b => b.classList.remove('selected'));
-        document.getElementById('softTotalDisp').innerText = 0;
-        document.getElementById('hardTotalDisp').innerText = 0;
-        selectedUser = ""; selectedEmail = ""; selectedType = ""; selectedCar = ""; selectedShift = "";
-    }
-
-    function downloadExcel() {
-        const table = document.getElementById("recordTable");
-        if (table.rows.length <= 1) { alert('데이터가 없습니다.'); return; }
-        let csv = ["\uFEFF"];
-        for (let i = 0; i < table.rows.length; i++) {
-            let row = [];
-            for (let j = 0; j < table.rows[i].cells.length; j++) {
-                row.push('"' + table.rows[i].cells[j].innerText.replace(/\n/g, " ") + '"');
-            }
-            csv.push(row.join(","));
-        }
-        const blob = new Blob([csv.join("\n")], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = "안전운행팀_보고서_" + new Date().toLocaleDateString().replace(/\. /g, "-").replace(".", "") + ".csv";
-        link.click();
-    }
-</script>
-</body>
-</html>
+            date, user: selectedUser, email: selectedEmail, type: selectedType, car: selected
