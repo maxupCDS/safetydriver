@@ -24,12 +24,19 @@
         .counter-group { display: flex; align-items: center; gap: 10px; }
         .btn-sm { width: 35px; height: 35px; border-radius: 50%; border: none; background: #1a73e8; color: white; font-size: 20px; font-weight: bold; }
         .counter-val { width: 30px; text-align: center; font-weight: bold; font-size: 16px; border: none; background: transparent; }
+        
+        /* 하드 테이크오버 테이블 모바일 최적화 */
         .hard-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .hard-table { width: 100%; border-collapse: collapse; min-width: 350px; }
-        .hard-table th { font-size: 11px; background: #f1f3f5; padding: 8px; border: 1px solid #eee; }
-        .hard-table td { padding: 8px 3px; border: 1px solid #eee; text-align: center; }
+        .hard-table { width: 100%; border-collapse: collapse; min-width: 380px; }
+        .hard-table th { font-size: 10px; background: #f1f3f5; padding: 10px 2px; border: 1px solid #eee; }
+        .hard-table td { padding: 8px 1px; border: 1px solid #eee; text-align: center; }
+        /* 구분 칸 좁히고 글씨 키우기 */
+        .hard-title-cell { width: 70px; font-size: 12px !important; font-weight: bold; color: #333; line-height: 1.2; word-break: keep-all; }
+        .hard-btn-sm { width: 30px; height: 30px; border-radius: 50%; border: none; background: #1a73e8; color: white; font-size: 16px; font-weight: bold; }
+        .hard-val-input { width: 25px; text-align: center; font-weight: bold; font-size: 14px; border: none; background: transparent; }
+
         .btn-add { width: 100%; padding: 18px; border: none; border-radius: 15px; font-size: 18px; font-weight: bold; color: white; background: #28a745; margin-top: 10px; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); }
-        #recordTableWrapper { display: none; } /* 엑셀용 데이터 보관소 */
+        #recordTableWrapper { display: none; }
     </style>
 </head>
 <body>
@@ -87,7 +94,7 @@
         <label>9. 하드 테이크오버</label>
         <div class="hard-scroll">
             <table class="hard-table">
-                <thead><tr><th>구분</th><th>B</th><th>H</th><th>A</th><th>S</th></tr></thead>
+                <thead><tr><th style="width:70px;">구분</th><th>브레이크</th><th>핸들</th><th>엑셀</th><th>시스템</th></tr></thead>
                 <tbody id="hardBody"></tbody>
             </table>
         </div>
@@ -111,7 +118,7 @@
     let selectedUser = "", selectedEmail = "", selectedType = "", selectedCar = "", selectedShift = "";
     const softNames = ["운전자 판단", "시스템 이상", "교통약자보호", "신호 위반", "신호등 지시", "교차로 딜레마", "도로 상황", "차선 변경", "급정지/서행", "보호 의무"];
     const hardCauses = ["시스템 이상", "신호 위반/지시", "교차로 딜레마", "도로 상황", "운전자 실수"];
-    const actions = ["B", "H", "A", "S"];
+    const actions = ["브레이크", "핸들", "엑셀", "시스템"]; // 한글로 변경
 
     window.onload = function() {
         const sc = document.getElementById('softContainer');
@@ -120,12 +127,13 @@
         });
         const hb = document.getElementById('hardBody');
         hardCauses.forEach((c, i) => {
-            let row = `<tr><td style="font-size:11px; font-weight:bold;">${c}</td>`;
-            actions.forEach(a => { row += `<td><button class="btn-sm" style="width:28px; height:28px; font-size:14px;" onclick="stepHard('${i}_${a}',1)">+</button><br><input id="h${i}_${a}" class="counter-val" style="width:20px; font-size:12px;" value="0" readonly></td>`; });
+            let row = `<tr><td class="hard-title-cell">${c}</td>`;
+            actions.forEach((a, idx) => { 
+                row += `<td><button class="hard-btn-sm" onclick="stepHard('${i}_${idx}',1)">+</button><br><input id="h${i}_${idx}" class="hard-val-input" value="0" readonly></td>`; 
+            });
             hb.innerHTML += row + `</tr>`;
         });
 
-        // 엑셀 헤더 생성
         const head = document.getElementById('recordHead');
         let hr = `<tr><th>순번</th><th>날짜</th><th>작성자</th><th>이메일</th><th>업무</th><th>차량</th><th>근무</th><th>SSD버전</th><th>자율거리</th><th>자율시간</th><th>누적ODO</th><th>소프트합계</th>`;
         softNames.forEach(name => hr += `<th>소프트(${name})</th>`);
@@ -146,7 +154,7 @@
     function updateTotals() {
         let st = 0; for(let i=0; i<10; i++) st += parseInt(document.getElementById('s'+i).value) || 0;
         document.getElementById('softTotalDisp').innerText = st;
-        let ht = 0; for(let i=0; i<5; i++) actions.forEach(a => ht += parseInt(document.getElementById(`h${i}_${a}`).value) || 0);
+        let ht = 0; for(let i=0; i<5; i++) { for(let j=0; j<4; j++) ht += parseInt(document.getElementById(`h${i}_${j}`).value) || 0; }
         document.getElementById('hardTotalDisp').innerText = ht;
     }
 
@@ -159,9 +167,8 @@
         if(date.endsWith('.')) date = date.slice(0, -1);
 
         const softVals = []; for(let i=0; i<10; i++) softVals.push(document.getElementById('s'+i).value);
-        const hardVals = []; for(let i=0; i<5; i++) actions.forEach(a => hardVals.push(document.getElementById(`h${i}_${a}`).value));
+        const hardVals = []; for(let i=0; i<5; i++) { for(let j=0; j<4; j++) hardVals.push(document.getElementById(`h${i}_${j}`).value); }
 
-        // 엑셀용 숨겨진 테이블에 행 추가 (각 항목 개별 셀로 분리)
         const tableBody = document.getElementById('recordBody');
         const newRow = tableBody.insertRow(0);
         let c = 0;
@@ -177,12 +184,11 @@
         newRow.insertCell(c++).innerText = (v => v.length===6 ? v.replace(/(\d{2})(\d{2})(\d{2})/, '$1:$2:$3') : v)(document.getElementById('autoTime').value);
         newRow.insertCell(c++).innerText = Number(document.getElementById('totalOdo').value).toLocaleString();
         newRow.insertCell(c++).innerText = document.getElementById('softTotalDisp').innerText;
-        softVals.forEach(v => newRow.insertCell(c++).innerText = v); // 소프트 개별 항목들
+        softVals.forEach(v => newRow.insertCell(c++).innerText = v);
         newRow.insertCell(c++).innerText = document.getElementById('hardTotalDisp').innerText;
-        hardVals.forEach(v => newRow.insertCell(c++).innerText = v); // 하드 개별 항목들
+        hardVals.forEach(v => newRow.insertCell(c++).innerText = v);
         newRow.insertCell(c++).innerText = document.getElementById('workIssue').value;
 
-        // 구글 시트 전송용 페이로드
         const payload = {
             date: date, user: selectedUser, email: selectedEmail, type: selectedType, car: selectedCar,
             shift: selectedShift, ssd: document.getElementById('ssdVersion').value, dist: document.getElementById('autoDist').value,
@@ -195,7 +201,7 @@
             hardDetails: hardVals
         };
 
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbz4m6iYFSneHsJunhwpjsM9Z-NmuJzmyNzjpcZtryJa_xZkJAOwWqrRWknjmhTOHJX3/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycby5Nq_lqBkbFN4KoBHs7sSsQR8sGHBxyzrdkSSoFGtcNiGpoMsxtc35sx9J9T80n0qE/exec';
 
         fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
         .then(() => { alert('기록 완료!'); count++; resetForm(); })
@@ -204,7 +210,7 @@
     }
 
     function resetForm() {
-        document.querySelectorAll('.counter-val').forEach(el => el.value = 0);
+        document.querySelectorAll('.counter-val, .hard-val-input').forEach(el => el.value = 0);
         document.querySelectorAll('.text-input, .textarea-input').forEach(el => el.value = "");
         document.querySelectorAll('.select-btn').forEach(b => b.classList.remove('selected'));
         document.getElementById('softTotalDisp').innerText = 0;
