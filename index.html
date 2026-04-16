@@ -64,21 +64,21 @@
         .select-btn.selected { background-color: #1a73e8 !important; color: white !important; border-color: #1a73e8; }
         .text-input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; outline: none; }
 
-        /* 8. 소프트 테이크오버 스타일 (수정됨) */
+        /* 8. 소프트 테이크오버 스타일 (원형 버튼 적용) */
         .category-item { background: #f8fafc; padding: 10px 12px; border-radius: 10px; border: 1px solid #eef2f8; display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
         .category-item span { font-size: 14px; font-weight: 500; color: #4a5568; }
-        .counter-group { display: flex; align-items: center; gap: 8px; }
-        .btn-sm { width: 34px; height: 34px; border-radius: 8px; border: none; background: #1a73e8; color: white; font-size: 20px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .btn-sm:active { background: #1557b0; transform: scale(0.95); }
-        .counter-val { width: 30px; text-align: center; font-weight: 800; font-size: 16px; border: none; background: transparent; color: #1a73e8; }
+        .counter-group { display: flex; align-items: center; gap: 10px; }
+        .btn-sm { width: 34px; height: 34px; border-radius: 50%; border: none; background: #1a73e8; color: white; font-size: 20px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-sm:active { background: #1557b0; transform: scale(0.9); }
+        .counter-val { width: 28px; text-align: center; font-weight: 800; font-size: 16px; border: none; background: transparent; color: #333; } /* 숫자 검은색으로 변경 */
 
-        /* 9. 하드 테이크오버 스타일 (수정됨) */
+        /* 9. 하드 테이크오버 스타일 */
         .hard-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         .hard-table th { font-size: 11px; background: #f1f3f5; padding: 8px 0; border: 1px solid #eee; color: #333; font-weight: bold; }
         .hard-table td { padding: 5px 0; border: 1px solid #eee; text-align: center; vertical-align: middle; }
         .hard-title-cell { width: 65px; font-size: 10px !important; font-weight: 600; color: #555; line-height: 1.2; word-break: keep-all; background-color: #fcfcfc; }
         .hard-btn-plus { border: none; background: #1a73e8; color: white; border-radius: 50%; width: 24px; height: 24px; font-weight: bold; cursor: pointer; margin-bottom: 2px; }
-        .hard-val-input { width: 20px; text-align: center; border: none; font-weight: bold; font-size: 13px; background: transparent; }
+        .hard-val-input { width: 20px; text-align: center; border: none; font-weight: bold; font-size: 13px; background: transparent; color: #333; }
 
         .btn-add { width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 17px; font-weight: bold; color: white; background: #28a745; margin-top: 10px; }
     </style>
@@ -132,7 +132,7 @@
     <div class="section"><label>3. 근무방식</label><div class="btn-grid grid-2" id="shiftBtnGroup"><button class="select-btn" onclick="selectShift(this)">주간</button><button class="select-btn" onclick="selectShift(this)">야간</button></div></div>
     <div class="section"><label>4. SSD 카드 버전</label><input type="text" id="ssdVersion" class="text-input" placeholder="버전 입력"></div>
     <div class="section"><label>5. 자율거리(km)</label><input type="number" id="autoDist" class="text-input" placeholder="숫자만 입력"></div>
-    <div class="section"><label>6. 자율시간(6자리)</label><input type="text" id="autoTime" class="text-input" placeholder="예: 033617"></div>
+    <div class="section"><label>6. 자율시간(6자리)</label><input type="number" id="autoTime" class="text-input" placeholder="예: 045130"></div>
     <div class="section"><label>7. 누적 ODO(km)</label><input type="number" id="totalOdo" class="text-input" placeholder="계기판 주행거리"></div>
 
     <div class="section">
@@ -175,7 +175,7 @@
     const hardCauses = ["시스템 이상", "신호 위반/지시", "교차로 딜레마", "도로 상황", "운전자 실수"];
     const actions = ["브레이크", "핸들", "엑셀", "시스템"];
 
-    // 1. 로그인 (이메일 기반 이름 연동)
+    // 1. 로그인
     function checkLogin() {
         const input = document.getElementById('emailInput').value.trim().toLowerCase();
         if (!input) { alert("이메일을 입력해주세요."); return; }
@@ -197,7 +197,6 @@
         const currentName = sessionStorage.getItem('userName') || "익명";
         const chats = JSON.parse(localStorage.getItem('team_chats') || "[]");
         chats.push({ user: currentName, text: input.value, time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
-        if(chats.length > 50) chats.shift();
         localStorage.setItem('team_chats', JSON.stringify(chats));
         input.value = ""; displayChats();
     }
@@ -208,10 +207,9 @@
         container.scrollTop = container.scrollHeight;
     }
 
-    // 3. 화면 초기화 (소프트 테이크오버 버튼 스타일 수정 적용)
+    // 3. 화면 초기화
     window.onload = function() {
         if (sessionStorage.getItem('isLoggedIn') === 'true') showApp();
-        
         const sc = document.getElementById('softContainer');
         sc.innerHTML = "";
         softNames.forEach((n, i) => {
@@ -225,7 +223,6 @@
                     </div>
                 </div>`;
         });
-
         const hb = document.getElementById('hardBody');
         hb.innerHTML = "";
         hardCauses.forEach((c, i) => {
@@ -240,15 +237,24 @@
     function selectType(btn) { document.querySelectorAll('#typeBtnGroup .select-btn').forEach(b=>b.classList.remove('selected')); btn.classList.add('selected'); selectedType=btn.innerText; saveTempData(); }
     function selectCar(btn) { document.querySelectorAll('#carBtnGroup .select-btn').forEach(b=>b.classList.remove('selected')); btn.classList.add('selected'); selectedCar=btn.innerText; saveTempData(); }
     function selectShift(btn) { document.querySelectorAll('#shiftBtnGroup .select-btn').forEach(b=>b.classList.remove('selected')); btn.classList.add('selected'); selectedShift=btn.innerText; saveTempData(); }
-    
     function stepSoft(i, v) { const el = document.getElementById('s'+i); el.value = Math.max(0, parseInt(el.value)+v); updateTotals(); saveTempData(); }
     function stepHard(id, v) { const el = document.getElementById('h'+id); el.value = Math.max(0, parseInt(el.value)+v); updateTotals(); saveTempData(); }
-    
     function updateTotals() {
         let st = 0; for(let i=0; i<10; i++) st += parseInt(document.getElementById('s'+i).value) || 0;
         document.getElementById('softTotalDisp').innerText = st;
         let ht = 0; for(let i=0; i<5; i++) { for(let j=0; j<4; j++) ht += parseInt(document.getElementById(`h${i}_${j}`).value) || 0; }
         document.getElementById('hardTotalDisp').innerText = ht;
+    }
+
+    // 데이터 가공 함수 (자율시간 : 추가 / ODO 콤마 추가)
+    function formatAutoTime(val) {
+        if(!val) return "";
+        let s = val.toString().padStart(6, '0');
+        return `${s.substring(0,2)}:${s.substring(2,4)}:${s.substring(4,6)}`;
+    }
+    function formatComma(val) {
+        if(!val) return "";
+        return Number(val).toLocaleString();
     }
 
     function saveTempData() {
@@ -283,11 +289,17 @@
         if(!selectedUser || !selectedCar || !document.getElementById('totalOdo').value) { alert('필수 항목을 확인하세요!'); return; }
         const btn = document.getElementById('submitBtn');
         btn.disabled = true; btn.innerText = "전송 중...";
+        
+        // 포맷팅 적용
+        const formattedTime = formatAutoTime(document.getElementById('autoTime').value);
+        const formattedOdo = formatComma(document.getElementById('totalOdo').value);
+
         const payload = {
             date: new Date().toLocaleDateString().replace(/\.$/, ""),
             user: selectedUser, email: selectedEmail, type: selectedType, car: selectedCar,
             shift: selectedShift, ssd: document.getElementById('ssdVersion').value, dist: document.getElementById('autoDist').value,
-            time: document.getElementById('autoTime').value, odo: document.getElementById('totalOdo').value,
+            time: formattedTime, // 04:51:30 형식
+            odo: formattedOdo,   // 123,456 형식
             softTotal: document.getElementById('softTotalDisp').innerText,
             hardTotal: document.getElementById('hardTotalDisp').innerText,
             issue: document.getElementById('workIssue').value
