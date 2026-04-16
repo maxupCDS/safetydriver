@@ -4,15 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>안전운행팀 보고서</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a73e8">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="logo_app.png">
+
     <style>
-        /* 기존 모든 디자인 스타일 유지 */
+        /* [기존 디자인 스타일 완벽 복구] */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 12px; background-color: #f5f7fa; color: #333; }
+        
+        /* 헤더 디자인 복구 */
+        .header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 5px; }
+        .header-title { color: #1a73e8; font-size: 1.1rem; font-weight: bold; margin: 0; }
+        .btn-chat-open { background: none; border: none; font-size: 26px; cursor: pointer; padding: 5px; }
+
+        /* 로그인 카드 */
         #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f5f7fa; display: flex; align-items: center; justify-content: center; z-index: 9999; }
         .login-card { background: white; padding: 40px 30px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); text-align: center; width: 92%; max-width: 380px; }
         .team-title { color: #1a73e8; font-size: 1.2rem; font-weight: 800; margin-bottom: 25px; }
         .login-input { width: 100%; padding: 16px; margin: 15px 0; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 16px; text-align: center; outline: none; }
         .btn-login { width: 100%; padding: 16px; background: #1a73e8; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; }
+
+        /* 채팅 레이어 복구 */
+        #chatOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 10000; display: none; flex-direction: column; }
+        .chat-nav { padding: 18px 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; background: #1a73e8; color: white; }
+        .btn-back { background: none; border: none; color: white; font-size: 22px; margin-right: 15px; }
+        .chat-content { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; background: #f1f3f5; }
+        .chat-msg { background: white; padding: 10px 14px; border-radius: 18px; max-width: 85%; font-size: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .chat-msg b { color: #1a73e8; font-size: 12px; display: block; margin-bottom: 4px; }
+        .chat-input-bar { padding: 12px 15px; border-top: 1px solid #eee; display: flex; gap: 10px; background: white; padding-bottom: env(safe-area-inset-bottom, 20px); }
+        .chat-input-bar input { flex: 1; border: 1px solid #e2e8f0; border-radius: 25px; padding: 12px 18px; outline: none; background: #f8fafc; }
+        .btn-send { background: #1a73e8; color: white; border: none; border-radius: 50%; width: 44px; height: 44px; }
+
+        /* 메인 앱 레이아웃 */
         #mainApp { display: none; background: white; padding: 15px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .section { margin-bottom: 15px; padding: 12px; border: 1px solid #edf2f7; border-radius: 12px; background-color: #fdfdfe; }
         label { display: block; margin-bottom: 10px; font-weight: bold; font-size: 14px; color: #4a5568; }
@@ -21,15 +47,15 @@
         .grid-3 { grid-template-columns: repeat(3, 1fr); }
         .grid-2 { grid-template-columns: repeat(2, 1fr); }
         .select-btn { padding: 12px 5px; border: 1px solid #e2e8f0; background: #fff; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #4a5568; }
-        .select-btn.selected { background-color: #1a73e8 !important; color: white !important; border-color: #1a73e8; }
+        .select-btn.selected { background-color: #1a73e8 !important; color: white !important; }
         .text-input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; outline: none; }
         
-        /* 8. 소프트 테이크오버 (원형 버튼 & 검은색 숫자 유지) */
+        /* 8. 소프트 테이크오버 (원형 버튼 디자인 복구) */
         .category-item { background: #f8fafc; padding: 10px 12px; border-radius: 10px; border: 1px solid #eef2f8; display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
         .btn-sm { width: 34px; height: 34px; border-radius: 50%; border: none; background: #1a73e8; color: white; font-size: 20px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .counter-val { width: 28px; text-align: center; font-weight: 800; font-size: 16px; border: none; background: transparent; color: #333; }
 
-        /* 9. 하드 테이크오버 테이블 디자인 유지 */
+        /* 9. 하드 테이크오버 테이블 디자인 */
         .hard-table { width: 100%; border-collapse: collapse; }
         .hard-table th { font-size: 11px; background: #f1f3f5; padding: 8px 0; border: 1px solid #eee; }
         .hard-title-cell { width: 70px; font-size: 10px; font-weight: 600; background-color: #fcfcfc; text-align: center; border: 1px solid #eee; }
@@ -44,13 +70,18 @@
 
 <div id="loginOverlay">
     <div class="login-card">
-        <p class="team-title">안전운행팀 보고서</p>
+        <p class="team-title">안전운행팀</p>
         <input type="email" id="emailInput" class="login-input" placeholder="이메일을 입력하세요">
         <button class="btn-login" onclick="checkLogin()">로그인</button>
     </div>
 </div>
 
 <div id="mainApp">
+    <div class="header-area">
+        <h2 class="header-title">안전운행팀 자율주행보고</h2>
+        <button class="btn-chat-open" onclick="openChat()">💬</button>
+    </div>
+
     <div class="section">
         <label>1. 작성자 선택</label>
         <div class="btn-grid grid-5" id="userBtnGroup">
@@ -104,28 +135,66 @@
     <button class="btn-add" id="submitBtn" onclick="addRecord()">보고서 기록하기</button>
 </div>
 
+<div id="chatOverlay">
+    <div class="chat-nav"><button class="btn-back" onclick="closeChat()">←</button><b>팀 소통방</b></div>
+    <div id="chatContent" class="chat-content"></div>
+    <div class="chat-input-bar">
+        <input type="text" id="chatInput" placeholder="메세지 입력..." onkeypress="if(event.keyCode==13) sendChat()">
+        <button class="btn-send" onclick="sendChat()">➤</button>
+    </div>
+</div>
+
 <script>
     let selectedUser = "", selectedEmail = "", selectedType = "", selectedCar = "", selectedShift = "";
     
-    // [데이터 키 매칭 리스트 - 정확히 수정됨]
+    // [데이터 전송용 키값 설정]
     const softKeys = ["운전자판단", "시스템이상", "교통약자보호", "신호위반", "신호등지시", "교차로딜레마", "도로상황", "차선변경", "급정지/서행", "보호의무"];
     const hardCauses = ["시스템 이상", "신호 위반/지시", "교차로 딜레마", "도로 상황", "운전자 실수"];
     const hardActions = ["B", "H", "A", "S"];
 
     function checkLogin() {
         const input = document.getElementById('emailInput').value.trim().toLowerCase();
-        if (userList.some(u => u.email.toLowerCase() === input)) {
+        const user = userList.find(u => u.email.toLowerCase() === input);
+        if (user) {
             sessionStorage.setItem('isLoggedIn', 'true');
+            sessionStorage.setItem('userName', user.name);
             showApp();
         } else { alert('이메일을 확인해주세요.'); }
     }
     function showApp() { document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('mainApp').style.display = 'block'; }
 
+    // 채팅 기능 복구
+    function openChat() { document.getElementById('chatOverlay').style.display = 'flex'; displayChats(); }
+    function closeChat() { document.getElementById('chatOverlay').style.display = 'none'; }
+    function sendChat() {
+        const input = document.getElementById('chatInput');
+        if(!input.value.trim()) return;
+        const currentName = sessionStorage.getItem('userName') || "익명";
+        const chats = JSON.parse(localStorage.getItem('team_chats') || "[]");
+        chats.push({ user: currentName, text: input.value, time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
+        localStorage.setItem('team_chats', JSON.stringify(chats));
+        input.value = ""; displayChats();
+    }
+    function displayChats() {
+        const container = document.getElementById('chatContent');
+        const chats = JSON.parse(localStorage.getItem('team_chats') || "[]");
+        container.innerHTML = chats.map(m => `<div class="chat-msg"><b>${m.user}</b>${m.text}</div>`).join('');
+        container.scrollTop = container.scrollHeight;
+    }
+
     window.onload = function() {
         if (sessionStorage.getItem('isLoggedIn') === 'true') showApp();
         const sc = document.getElementById('softContainer');
         softKeys.forEach((n, i) => {
-            sc.innerHTML += `<div class="category-item"><span>${i+1}. ${n}</span><div class="counter-group"><button class="btn-sm" onclick="stepSoft(${i},-1)">-</button><input id="s${i}" class="counter-val" value="0" readonly><button class="btn-sm" onclick="stepSoft(${i},1)">+</button></div></div>`;
+            sc.innerHTML += `
+                <div class="category-item">
+                    <span>${i+1}. ${n}</span>
+                    <div class="counter-group">
+                        <button class="btn-sm" onclick="stepSoft(${i},-1)">-</button>
+                        <input id="s${i}" class="counter-val" value="0" readonly>
+                        <button class="btn-sm" onclick="stepSoft(${i},1)">+</button>
+                    </div>
+                </div>`;
         });
         const hb = document.getElementById('hardBody');
         hardCauses.forEach((cause, i) => {
@@ -166,10 +235,7 @@
             issue: document.getElementById('workIssue').value
         };
 
-        // 지정하신 소프트 항목 키 매칭
         softKeys.forEach((key, i) => { payload[key] = document.getElementById('s' + i).value; });
-
-        // 지정하신 하드 항목 키 매칭 (하드(원인-약어) 형식)
         hardCauses.forEach((cause, i) => {
             hardActions.forEach((action, j) => {
                 const keyName = `하드(${cause}-${action})`;
