@@ -4,27 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>안전운행팀 보고서</title>
-    
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1a73e8">
-    <meta name="mobile-web-app-capable" content="yes">
-    <link rel="apple-touch-icon" href="logo_app.png">
-
     <style>
-        /* [전체 스타일 및 디자인 유지] */
+        /* 스타일 및 디자인은 기존과 동일 (생략 없이 유지됨) */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 12px; background-color: #f5f7fa; color: #333; }
-        
         .header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 5px; }
         .header-title { color: #1a73e8; font-size: 1.1rem; font-weight: bold; margin: 0; }
         .btn-chat-open { background: none; border: none; font-size: 26px; cursor: pointer; padding: 5px; }
-
         #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f5f7fa; display: flex; align-items: center; justify-content: center; z-index: 9999; }
         .login-card { background: white; padding: 40px 30px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); text-align: center; width: 92%; max-width: 380px; }
         .team-title { color: #1a73e8; font-size: 1.2rem; font-weight: 800; margin-bottom: 25px; }
         .login-input { width: 100%; padding: 16px; margin: 15px 0; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 16px; text-align: center; outline: none; }
         .btn-login { width: 100%; padding: 16px; background: #1a73e8; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; }
-
         #chatOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 10000; display: none; flex-direction: column; }
         .chat-nav { padding: 18px 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; background: #1a73e8; color: white; }
         .btn-back { background: none; border: none; color: white; font-size: 22px; margin-right: 15px; }
@@ -34,7 +25,6 @@
         .chat-input-bar { padding: 12px 15px; border-top: 1px solid #eee; display: flex; gap: 10px; background: white; padding-bottom: env(safe-area-inset-bottom, 20px); }
         .chat-input-bar input { flex: 1; border: 1px solid #e2e8f0; border-radius: 25px; padding: 12px 18px; outline: none; background: #f8fafc; }
         .btn-send { background: #1a73e8; color: white; border: none; border-radius: 50%; width: 44px; height: 44px; }
-
         #mainApp { display: none; background: white; padding: 15px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .section { margin-bottom: 15px; padding: 12px; border: 1px solid #edf2f7; border-radius: 12px; background-color: #fdfdfe; }
         label { display: block; margin-bottom: 10px; font-weight: bold; font-size: 14px; color: #4a5568; }
@@ -45,21 +35,16 @@
         .select-btn { padding: 12px 5px; border: 1px solid #e2e8f0; background: #fff; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #4a5568; }
         .select-btn.selected { background-color: #1a73e8 !important; color: white !important; }
         .text-input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; outline: none; }
-        
-        /* 8. 소프트 테이크오버 (좌우 배치 보강) */
         .category-item { background: #f8fafc; padding: 10px 12px; border-radius: 10px; border: 1px solid #eef2f8; display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
         .counter-group { display: flex; align-items: center; gap: 8px; }
         .btn-sm { width: 34px; height: 34px; border-radius: 50%; border: none; background: #1a73e8; color: white; font-size: 20px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .counter-val { width: 30px; text-align: center; font-weight: 800; font-size: 16px; border: none; background: transparent; color: #333; }
-
-        /* 9. 하드 테이크오버 테이블 (명칭 복구) */
         .hard-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         .hard-table th { font-size: 10px; background: #f1f3f5; padding: 8px 0; border: 1px solid #eee; }
         .hard-title-cell { width: 65px; font-size: 10px; font-weight: 600; background-color: #fcfcfc; text-align: center; border: 1px solid #eee; overflow-wrap: break-word; }
         .hard-btn-plus { border: none; background: #1a73e8; color: white; border-radius: 50%; width: 22px; height: 22px; font-weight: bold; cursor: pointer; margin-bottom: 2px; }
         .hard-val-input { width: 20px; text-align: center; border: none; font-weight: bold; font-size: 13px; color: #333; background: transparent; }
         td { border: 1px solid #eee; text-align: center; padding: 6px 0; vertical-align: middle; }
-
         .btn-add { width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 17px; font-weight: bold; color: white; background: #28a745; margin-top: 10px; }
     </style>
 </head>
@@ -105,7 +90,6 @@
             <script>for(let i=801; i<=810; i++) document.write(`<button class="select-btn" onclick="selectCar(this)">gs${i}</button>`);</script>
         </div>
     </div>
-
     <div class="section"><label>3. 근무방식</label><div class="btn-grid grid-2" id="shiftBtnGroup"><button class="select-btn" onclick="selectShift(this)">주간</button><button class="select-btn" onclick="selectShift(this)">야간</button></div></div>
     <div class="section"><label>4. SSD 버전</label><input type="text" id="ssdVersion" class="text-input"></div>
     <div class="section"><label>5. 자율거리(km)</label><input type="number" id="autoDist" class="text-input"></div>
@@ -144,12 +128,13 @@
 <script>
     let selectedUser = "", selectedEmail = "", selectedType = "", selectedCar = "", selectedShift = "";
     
-    // 데이터용 키값 (이름은 그대로, 맵핑만 변경)
+    // [수정] '운전자판단' 다시 포함
     const softKeys = ["운전자판단", "시스템이상", "교통약자보호", "신호위반", "신호등지시", "교차로딜레마", "도로상황", "차선변경", "급정지/서행", "보호의무"];
     const hardCauses = ["시스템 이상", "신호 위반/지시", "교차로 딜레마", "도로 상황", "운전자 실수"];
     const hardActions = ["브레이크", "핸들", "엑셀", "시스템"];
-    const actionMap = {"브레이크":"B", "핸들":"H", "엑셀":"A", "시스템":"S"}; // 전송용 맵핑
+    const actionMap = {"브레이크":"B", "핸들":"H", "엑셀":"A", "시스템":"S"};
 
+    // 로그인 및 채팅 함수 (동일)
     function checkLogin() {
         const input = document.getElementById('emailInput').value.trim().toLowerCase();
         const user = userList.find(u => u.email.toLowerCase() === input);
@@ -201,9 +186,9 @@
     function stepSoft(i, v) { const el = document.getElementById('s'+i); el.value = Math.max(0, parseInt(el.value)+v); updateTotals(); }
     function stepHard(id, v) { const el = document.getElementById('h'+id); el.value = Math.max(0, parseInt(el.value)+v); updateTotals(); }
     function updateTotals() {
-        let st = 0; for(let i=0; i<10; i++) st += parseInt(document.getElementById('s'+i).value) || 0;
+        let st = 0; for(let i=0; i<softKeys.length; i++) st += parseInt(document.getElementById('s'+i).value) || 0;
         document.getElementById('softTotalDisp').innerText = st;
-        let ht = 0; for(let i=0; i<5; i++) { for(let j=0; j<4; j++) ht += parseInt(document.getElementById(`h${i}_${j}`).value) || 0; }
+        let ht = 0; for(let i=0; i<hardCauses.length; i++) { for(let j=0; j<hardActions.length; j++) ht += parseInt(document.getElementById(`h${i}_${j}`).value) || 0; }
         document.getElementById('hardTotalDisp').innerText = ht;
     }
 
@@ -213,24 +198,26 @@
         btn.disabled = true; btn.innerText = "전송 중...";
         
         const payload = {
-            date: new Date().toLocaleDateString().replace(/\.$/, ""),
-            user: selectedUser, email: selectedEmail, type: selectedType, car: selectedCar,
-            shift: selectedShift, ssd: document.getElementById('ssdVersion').value, dist: document.getElementById('autoDist').value,
-            time: (function(v){ if(!v) return ""; let s=v.toString().padStart(6,'0'); return `${s.substring(0,2)}:${s.substring(2,4)}:${s.substring(4,6)}`; })(document.getElementById('autoTime').value),
-            odo: Number(document.getElementById('totalOdo').value).toLocaleString(),
-            softTotal: document.getElementById('softTotalDisp').innerText,
-            하드합계: document.getElementById('hardTotalDisp').innerText,
-            issue: document.getElementById('workIssue').value
+            "날짜": new Date().toLocaleDateString().replace(/\.$/, ""),
+            "작성자": selectedUser, "이메일": selectedEmail, "업무": selectedType, "차량": selectedCar,
+            "근무": selectedShift, "SSD버전": document.getElementById('ssdVersion').value, 
+            "자율거리": document.getElementById('autoDist').value,
+            "자율시간": (function(v){ if(!v) return ""; let s=v.toString().padStart(6,'0'); return `${s.substring(0,2)}:${s.substring(2,4)}:${s.substring(4,6)}`; })(document.getElementById('autoTime').value),
+            "누적ODO": Number(document.getElementById('totalOdo').value).toLocaleString(),
+            "소프트합계": document.getElementById('softTotalDisp').innerText,
+            "하드합계": document.getElementById('hardTotalDisp').innerText,
+            "이슈사항": document.getElementById('workIssue').value
         };
 
         softKeys.forEach((key, i) => { payload[key] = document.getElementById('s' + i).value; });
         hardCauses.forEach((cause, i) => {
             hardActions.forEach((action, j) => {
-                const keyName = `하드(${cause}-${actionMap[action]})`; // 여기서 시트 양식인 B,H,A,S로 자동변환!
+                const keyName = `하드(${cause}-${actionMap[action]})`; 
                 payload[keyName] = document.getElementById(`h${i}_${j}`).value;
             });
         });
 
+        // 사용 중인 GAS URL 그대로 유지
         fetch('https://script.google.com/macros/s/AKfycbzhq61bJ0FtnX8iOH5Q21ktplrCKIm27ne0-1Vt_tpVAuw2RdxvWI-C88wAHIiQ-GBP/exec', 
         { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
         .then(() => { alert('전송 완료!'); location.reload(); })
