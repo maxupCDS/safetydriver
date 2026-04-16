@@ -193,37 +193,57 @@
     }
 
     function addRecord() {
-        if(!selectedUser || !selectedCar || !document.getElementById('totalOdo').value) { alert('필수 항목을 확인하세요!'); return; }
-        const btn = document.getElementById('submitBtn');
-        btn.disabled = true; btn.innerText = "전송 중...";
-        
-        const payload = {
-            "날짜": new Date().toLocaleDateString().replace(/\.$/, ""),
-            "작성자": selectedUser, "이메일": selectedEmail, "업무": selectedType, "차량": selectedCar,
-            "근무": selectedShift, "SSD버전": document.getElementById('ssdVersion').value, 
-            "자율거리": document.getElementById('autoDist').value,
-            "자율시간": (function(v){ if(!v) return ""; let s=v.toString().padStart(6,'0'); return `${s.substring(0,2)}:${s.substring(2,4)}:${s.substring(4,6)}`; })(document.getElementById('autoTime').value),
-            "누적ODO": Number(document.getElementById('totalOdo').value).toLocaleString(),
-            "소프트합계": document.getElementById('softTotalDisp').innerText,
-            "하드합계": document.getElementById('hardTotalDisp').innerText,
-            "이슈사항": document.getElementById('workIssue').value
-        };
-
-        softKeys.forEach((key, i) => { payload[key] = document.getElementById('s' + i).value; });
-        hardCauses.forEach((cause, i) => {
-            hardActions.forEach((action, j) => {
-                const keyName = `하드(${cause}-${actionMap[action]})`; 
-                payload[keyName] = document.getElementById(`h${i}_${j}`).value;
-            });
-        });
-
-        // 사용 중인 GAS URL 그대로 유지
-        fetch('https://script.google.com/macros/s/AKfycbzhq61bJ0FtnX8iOH5Q21ktplrCKIm27ne0-1Vt_tpVAuw2RdxvWI-C88wAHIiQ-GBP/exec', 
-        { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
-        .then(() => { alert('전송 완료!'); location.reload(); })
-        .catch(() => alert('전송 오류'))
-        .finally(() => { btn.disabled = false; btn.innerText = "보고서 기록하기"; });
+function addRecord() {
+    if(!selectedUser || !selectedCar || !document.getElementById('totalOdo').value) { 
+        alert('필수 항목을 확인하세요!'); return; 
     }
+    
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true; btn.innerText = "전송 중...";
+    
+    // [핵심] 시트 헤더와 100% 일치하는 한글 키값 매칭
+    const payload = {
+        "날짜": new Date().toLocaleDateString().replace(/\.$/, ""),
+        "작성자": selectedUser,
+        "이메일": selectedEmail,
+        "업무": selectedType,
+        "차량": selectedCar,
+        "근무": selectedShift,
+        "SSD버전": document.getElementById('ssdVersion').value,
+        "자율거리": document.getElementById('autoDist').value,
+        "자율시간": (function(v){ 
+            if(!v) return ""; 
+            let s=v.toString().padStart(6,'0'); 
+            return `${s.substring(0,2)}:${s.substring(2,4)}:${s.substring(4,6)}`; 
+        })(document.getElementById('autoTime').value),
+        "누적ODO": Number(document.getElementById('totalOdo').value).toLocaleString(),
+        "소프트합계": document.getElementById('softTotalDisp').innerText,
+        "하드합계": document.getElementById('hardTotalDisp').innerText,
+        "이슈사항": document.getElementById('workIssue').value
+    };
+
+    // 소프트 항목 추가
+    softKeys.forEach((key, i) => { 
+        payload[key] = document.getElementById('s' + i).value; 
+    });
+
+    // 하드 항목 추가
+    hardCauses.forEach((cause, i) => {
+        hardActions.forEach((action, j) => {
+            const keyName = `하드(${cause}-${actionMap[action]})`; 
+            payload[keyName] = document.getElementById(`h${i}_${j}`).value;
+        });
+    });
+
+    fetch('https://script.google.com/macros/s/AKfycbztv7Y8YeiCXyaFe806fCfkSAxFZGb0NOaBJ_jp9ut6opwyA2ZS-qcM1x55KI_rkTUP/exec', { 
+        method: 'POST', 
+        mode: 'no-cors', 
+        body: JSON.stringify(payload) 
+    })
+    .then(() => { alert('전송 완료!'); location.reload(); })
+    .catch(() => alert('전송 오류'))
+    .finally(() => { btn.disabled = false; btn.innerText = "보고서 기록하기"; });
+}
 </script>
 </body>
 </html>
