@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>안전운행팀 보고서</title>
     <style>
-        /* [기존 스타일 유지] */
+        /* 기존 모든 디자인 스타일 유지 */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 12px; background-color: #f5f7fa; color: #333; }
         #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f5f7fa; display: flex; align-items: center; justify-content: center; z-index: 9999; }
         .login-card { background: white; padding: 40px 30px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); text-align: center; width: 92%; max-width: 380px; }
         .team-title { color: #1a73e8; font-size: 1.2rem; font-weight: 800; margin-bottom: 25px; }
-        .login-input { width: 100%; padding: 16px; margin: 15px 0; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 16px; text-align: center; }
-        .btn-login { width: 100%; padding: 16px; background: #1a73e8; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; }
+        .login-input { width: 100%; padding: 16px; margin: 15px 0; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 16px; text-align: center; outline: none; }
+        .btn-login { width: 100%; padding: 16px; background: #1a73e8; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; }
         #mainApp { display: none; background: white; padding: 15px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .section { margin-bottom: 15px; padding: 12px; border: 1px solid #edf2f7; border-radius: 12px; background-color: #fdfdfe; }
         label { display: block; margin-bottom: 10px; font-weight: bold; font-size: 14px; color: #4a5568; }
@@ -20,21 +20,23 @@
         .grid-5 { grid-template-columns: repeat(2, 1fr); } 
         .grid-3 { grid-template-columns: repeat(3, 1fr); }
         .grid-2 { grid-template-columns: repeat(2, 1fr); }
-        .select-btn { padding: 12px 5px; border: 1px solid #e2e8f0; background: #fff; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; }
-        .select-btn.selected { background-color: #1a73e8 !important; color: white !important; }
+        .select-btn { padding: 12px 5px; border: 1px solid #e2e8f0; background: #fff; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #4a5568; }
+        .select-btn.selected { background-color: #1a73e8 !important; color: white !important; border-color: #1a73e8; }
         .text-input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; outline: none; }
         
-        /* 8. 소프트 테이크오버 (원형 버튼 & 숫자 검은색) */
+        /* 8. 소프트 테이크오버 (원형 버튼 & 검은색 숫자 유지) */
         .category-item { background: #f8fafc; padding: 10px 12px; border-radius: 10px; border: 1px solid #eef2f8; display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
         .btn-sm { width: 34px; height: 34px; border-radius: 50%; border: none; background: #1a73e8; color: white; font-size: 20px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .counter-val { width: 28px; text-align: center; font-weight: 800; font-size: 16px; border: none; background: transparent; color: #333; }
 
-        /* 9. 하드 테이크오버 */
+        /* 9. 하드 테이크오버 테이블 디자인 유지 */
         .hard-table { width: 100%; border-collapse: collapse; }
         .hard-table th { font-size: 11px; background: #f1f3f5; padding: 8px 0; border: 1px solid #eee; }
-        .hard-title-cell { width: 65px; font-size: 10px; font-weight: 600; background-color: #fcfcfc; }
-        .hard-btn-plus { border: none; background: #1a73e8; color: white; border-radius: 50%; width: 24px; height: 24px; font-weight: bold; }
-        .hard-val-input { width: 20px; text-align: center; border: none; font-weight: bold; font-size: 13px; color: #333; }
+        .hard-title-cell { width: 70px; font-size: 10px; font-weight: 600; background-color: #fcfcfc; text-align: center; border: 1px solid #eee; }
+        .hard-btn-plus { border: none; background: #1a73e8; color: white; border-radius: 50%; width: 24px; height: 24px; font-weight: bold; cursor: pointer; }
+        .hard-val-input { width: 20px; text-align: center; border: none; font-weight: bold; font-size: 13px; color: #333; background: transparent; }
+        td { border: 1px solid #eee; text-align: center; padding: 4px 0; }
+
         .btn-add { width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 17px; font-weight: bold; color: white; background: #28a745; margin-top: 10px; }
     </style>
 </head>
@@ -42,7 +44,7 @@
 
 <div id="loginOverlay">
     <div class="login-card">
-        <p class="team-title">안전운행팀</p>
+        <p class="team-title">안전운행팀 보고서</p>
         <input type="email" id="emailInput" class="login-input" placeholder="이메일을 입력하세요">
         <button class="btn-login" onclick="checkLogin()">로그인</button>
     </div>
@@ -75,57 +77,62 @@
             <script>for(let i=801; i<=810; i++) document.write(`<button class="select-btn" onclick="selectCar(this)">gs${i}</button>`);</script>
         </div>
     </div>
+
     <div class="section"><label>3. 근무방식</label><div class="btn-grid grid-2" id="shiftBtnGroup"><button class="select-btn" onclick="selectShift(this)">주간</button><button class="select-btn" onclick="selectShift(this)">야간</button></div></div>
     <div class="section"><label>4. SSD 버전</label><input type="text" id="ssdVersion" class="text-input"></div>
     <div class="section"><label>5. 자율거리(km)</label><input type="number" id="autoDist" class="text-input"></div>
-    <div class="section"><label>6. 자율시간(6자리)</label><input type="number" id="autoTime" class="text-input" placeholder="045130"></div>
+    <div class="section"><label>6. 자율시간(6자리)</label><input type="number" id="autoTime" class="text-input" placeholder="예: 045130"></div>
     <div class="section"><label>7. 누적 ODO(km)</label><input type="number" id="totalOdo" class="text-input"></div>
 
     <div class="section">
         <label>8. 소프트 테이크오버</label>
         <div id="softContainer"></div>
-        <div style="text-align:right; font-weight:bold;">소프트 합계: <span id="softTotalDisp">0</span></div>
+        <div style="text-align:right; font-weight:bold; color:#1a73e8;">소프트 합계: <span id="softTotalDisp">0</span></div>
     </div>
 
     <div class="section">
         <label>9. 하드 테이크오버</label>
         <table class="hard-table">
-            <thead><tr><th>구분</th><th>브레이크</th><th>핸들</th><th>엑셀</th><th>시스템</th></tr></thead>
+            <thead><tr><th>구분</th><th>B</th><th>H</th><th>A</th><th>S</th></tr></thead>
             <tbody id="hardBody"></tbody>
         </table>
-        <div style="text-align:right; font-weight:bold;">하드 합계: <span id="hardTotalDisp">0</span></div>
+        <div style="text-align:right; font-weight:bold; color:#e03131;">하드 합계: <span id="hardTotalDisp">0</span></div>
     </div>
 
-    <div class="section"><label>10. 이슈 사항</label><textarea id="workIssue" style="width:100%; height:60px;"></textarea></div>
+    <div class="section"><label>10. 이슈 사항</label><textarea id="workIssue" style="width:100%; height:60px; border:1px solid #e2e8f0; border-radius:10px; outline:none; padding:8px;"></textarea></div>
 
     <button class="btn-add" id="submitBtn" onclick="addRecord()">보고서 기록하기</button>
 </div>
 
 <script>
     let selectedUser = "", selectedEmail = "", selectedType = "", selectedCar = "", selectedShift = "";
-    const softNames = ["운전자 판단", "시스템 이상", "교통약자보호", "신호 위반", "신호등 지시", "교차로 딜레마", "도로 상황", "차선 변경", "급정지/서행", "보호 의무"];
+    
+    // [데이터 키 매칭 리스트 - 정확히 수정됨]
+    const softKeys = ["운전자판단", "시스템이상", "교통약자보호", "신호위반", "신호등지시", "교차로딜레마", "도로상황", "차선변경", "급정지/서행", "보호의무"];
     const hardCauses = ["시스템 이상", "신호 위반/지시", "교차로 딜레마", "도로 상황", "운전자 실수"];
-    const actions = ["브레이크", "핸들", "엑셀", "시스템"];
+    const hardActions = ["B", "H", "A", "S"];
 
     function checkLogin() {
         const input = document.getElementById('emailInput').value.trim().toLowerCase();
         if (userList.some(u => u.email.toLowerCase() === input)) {
             sessionStorage.setItem('isLoggedIn', 'true');
             showApp();
-        } else { alert('인증 실패'); }
+        } else { alert('이메일을 확인해주세요.'); }
     }
     function showApp() { document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('mainApp').style.display = 'block'; }
 
     window.onload = function() {
         if (sessionStorage.getItem('isLoggedIn') === 'true') showApp();
         const sc = document.getElementById('softContainer');
-        softNames.forEach((n, i) => {
-            sc.innerHTML += `<div class="category-item"><span>${i+1}. ${n}</span><div class="counter-group"><button class="btn-sm" onclick="stepSoft(${i},-1)">-</button><input id="s${i}" data-name="${n}" class="counter-val" value="0" readonly><button class="btn-sm" onclick="stepSoft(${i},1)">+</button></div></div>`;
+        softKeys.forEach((n, i) => {
+            sc.innerHTML += `<div class="category-item"><span>${i+1}. ${n}</span><div class="counter-group"><button class="btn-sm" onclick="stepSoft(${i},-1)">-</button><input id="s${i}" class="counter-val" value="0" readonly><button class="btn-sm" onclick="stepSoft(${i},1)">+</button></div></div>`;
         });
         const hb = document.getElementById('hardBody');
-        hardCauses.forEach((c, i) => {
-            let row = `<tr><td class="hard-title-cell">${c}</td>`;
-            actions.forEach((a, idx) => { row += `<td><button class="hard-btn-plus" onclick="stepHard('${i}_${idx}',1)">+</button><input id="h${i}_${idx}" data-cause="${c}" data-action="${a}" class="hard-val-input" value="0" readonly></td>`; });
+        hardCauses.forEach((cause, i) => {
+            let row = `<tr><td class="hard-title-cell">${cause}</td>`;
+            hardActions.forEach((action, j) => {
+                row += `<td><button class="hard-btn-plus" onclick="stepHard('${i}_${j}',1)">+</button><br><input id="h${i}_${j}" class="hard-val-input" value="0" readonly></td>`;
+            });
             hb.innerHTML += row + `</tr>`;
         });
     }
@@ -148,36 +155,31 @@
         const btn = document.getElementById('submitBtn');
         btn.disabled = true; btn.innerText = "전송 중...";
         
-        // 시트 기록용 기본 페이로드
         const payload = {
             date: new Date().toLocaleDateString().replace(/\.$/, ""),
             user: selectedUser, email: selectedEmail, type: selectedType, car: selectedCar,
             shift: selectedShift, ssd: document.getElementById('ssdVersion').value, dist: document.getElementById('autoDist').value,
-            time: (function(v){ let s=v.toString().padStart(6,'0'); return `${s.substring(0,2)}:${s.substring(2,4)}:${s.substring(4,6)}`; })(document.getElementById('autoTime').value),
+            time: (function(v){ if(!v) return ""; let s=v.toString().padStart(6,'0'); return `${s.substring(0,2)}:${s.substring(2,4)}:${s.substring(4,6)}`; })(document.getElementById('autoTime').value),
             odo: Number(document.getElementById('totalOdo').value).toLocaleString(),
             softTotal: document.getElementById('softTotalDisp').innerText,
-            hardTotal: document.getElementById('hardTotalDisp').innerText,
+            하드합계: document.getElementById('hardTotalDisp').innerText,
             issue: document.getElementById('workIssue').value
         };
 
-        // --- 중요: 시트의 열 제목(Header)과 일치하도록 데이터 이름 전송 ---
-        
-        // 8. 소프트 항목들 (이름으로 매칭)
-        softNames.forEach((name, i) => {
-            payload[name] = document.getElementById('s' + i).value;
-        });
+        // 지정하신 소프트 항목 키 매칭
+        softKeys.forEach((key, i) => { payload[key] = document.getElementById('s' + i).value; });
 
-        // 9. 하드 항목들 (원인_행동 으로 매칭 시도)
+        // 지정하신 하드 항목 키 매칭 (하드(원인-약어) 형식)
         hardCauses.forEach((cause, i) => {
-            actions.forEach((action, j) => {
-                // 시트 제목이 "시스템 이상_브레이크" 같은 형식일 경우를 대비
-                payload[cause + "_" + action] = document.getElementById(`h${i}_${j}`).value;
+            hardActions.forEach((action, j) => {
+                const keyName = `하드(${cause}-${action})`;
+                payload[keyName] = document.getElementById(`h${i}_${j}`).value;
             });
         });
 
         fetch('https://script.google.com/macros/s/AKfycbz4m6iYFSneHsJunhwpjsM9Z-NmuJzmyNzjpcZtryJa_xZkJAOwWqrRWknjmhTOHJX3/exec', 
         { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
-        .then(() => { alert('기록 완료!'); location.reload(); })
+        .then(() => { alert('전송 완료!'); location.reload(); })
         .catch(() => alert('전송 오류'))
         .finally(() => { btn.disabled = false; btn.innerText = "보고서 기록하기"; });
     }
