@@ -64,13 +64,13 @@
         .select-btn.selected { background-color: #1a73e8 !important; color: white !important; border-color: #1a73e8; }
         .text-input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; outline: none; }
 
-        /* 8. 소프트 테이크오버 스타일 (원형 버튼 적용) */
+        /* 8. 소프트 테이크오버 스타일 (원형 버튼) */
         .category-item { background: #f8fafc; padding: 10px 12px; border-radius: 10px; border: 1px solid #eef2f8; display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
         .category-item span { font-size: 14px; font-weight: 500; color: #4a5568; }
         .counter-group { display: flex; align-items: center; gap: 10px; }
         .btn-sm { width: 34px; height: 34px; border-radius: 50%; border: none; background: #1a73e8; color: white; font-size: 20px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .btn-sm:active { background: #1557b0; transform: scale(0.9); }
-        .counter-val { width: 28px; text-align: center; font-weight: 800; font-size: 16px; border: none; background: transparent; color: #333; } /* 숫자 검은색으로 변경 */
+        .counter-val { width: 28px; text-align: center; font-weight: 800; font-size: 16px; border: none; background: transparent; color: #333; }
 
         /* 9. 하드 테이크오버 스타일 */
         .hard-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
@@ -168,17 +168,14 @@
 </div>
 
 <script>
-    // --- 초기 설정 ---
     const CORRECT_EMAILS = userList.map(u => u.email.toLowerCase());
     let selectedUser = "", selectedEmail = "", selectedType = "", selectedCar = "", selectedShift = "";
     const softNames = ["운전자 판단", "시스템 이상", "교통약자보호", "신호 위반", "신호등 지시", "교차로 딜레마", "도로 상황", "차선 변경", "급정지/서행", "보호 의무"];
     const hardCauses = ["시스템 이상", "신호 위반/지시", "교차로 딜레마", "도로 상황", "운전자 실수"];
     const actions = ["브레이크", "핸들", "엑셀", "시스템"];
 
-    // 1. 로그인
     function checkLogin() {
         const input = document.getElementById('emailInput').value.trim().toLowerCase();
-        if (!input) { alert("이메일을 입력해주세요."); return; }
         if (CORRECT_EMAILS.includes(input)) {
             const user = userList.find(u => u.email.toLowerCase() === input);
             sessionStorage.setItem('isLoggedIn', 'true');
@@ -188,7 +185,6 @@
     }
     function showApp() { document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('mainApp').style.display = 'block'; displayChats(); }
 
-    // 2. 채팅
     function openChat() { document.getElementById('chatOverlay').style.display = 'flex'; displayChats(); }
     function closeChat() { document.getElementById('chatOverlay').style.display = 'none'; }
     function sendChat() {
@@ -207,24 +203,13 @@
         container.scrollTop = container.scrollHeight;
     }
 
-    // 3. 화면 초기화
     window.onload = function() {
         if (sessionStorage.getItem('isLoggedIn') === 'true') showApp();
         const sc = document.getElementById('softContainer');
-        sc.innerHTML = "";
         softNames.forEach((n, i) => {
-            sc.innerHTML += `
-                <div class="category-item">
-                    <span>${i+1}. ${n}</span>
-                    <div class="counter-group">
-                        <button class="btn-sm" onclick="stepSoft(${i},-1)">-</button>
-                        <input id="s${i}" class="counter-val" value="0" readonly>
-                        <button class="btn-sm" onclick="stepSoft(${i},1)">+</button>
-                    </div>
-                </div>`;
+            sc.innerHTML += `<div class="category-item"><span>${i+1}. ${n}</span><div class="counter-group"><button class="btn-sm" onclick="stepSoft(${i},-1)">-</button><input id="s${i}" class="counter-val" value="0" readonly><button class="btn-sm" onclick="stepSoft(${i},1)">+</button></div></div>`;
         });
         const hb = document.getElementById('hardBody');
-        hb.innerHTML = "";
         hardCauses.forEach((c, i) => {
             let row = `<tr><td class="hard-title-cell">${c}</td>`;
             actions.forEach((a, idx) => { row += `<td><button class="hard-btn-plus" onclick="stepHard('${i}_${idx}',1)">+</button><input id="h${i}_${idx}" class="hard-val-input" value="0" readonly></td>`; });
@@ -246,7 +231,6 @@
         document.getElementById('hardTotalDisp').innerText = ht;
     }
 
-    // 데이터 가공 함수 (자율시간 : 추가 / ODO 콤마 추가)
     function formatAutoTime(val) {
         if(!val) return "";
         let s = val.toString().padStart(6, '0');
@@ -276,8 +260,8 @@
         document.getElementById('autoTime').value = data.time || "";
         document.getElementById('totalOdo').value = data.odo || "";
         document.getElementById('workIssue').value = data.issue || "";
-        if(data.softVals) data.softVals.forEach((v, i) => document.getElementById('s'+i).value = v);
-        if(data.hardVals) { let idx = 0; for(let i=0; i<5; i++) { for(let j=0; j<4; j++) document.getElementById(`h${i}_${j}`).value = data.hardVals[idx++]; } }
+        if(data.softVals) data.softVals.forEach((v, i) => { if(document.getElementById('s'+i)) document.getElementById('s'+i).value = v; });
+        if(data.hardVals) { let idx = 0; for(let i=0; i<5; i++) { for(let j=0; j<4; j++) { if(document.getElementById(`h${i}_${j}`)) document.getElementById(`h${i}_${j}`).value = data.hardVals[idx++]; } } }
         if(data.selectedUser) document.querySelectorAll('#userBtnGroup .select-btn').forEach(b => { if(b.innerText === data.selectedUser) selectUser(b, data.selectedUser, data.selectedEmail); });
         if(data.selectedType) document.querySelectorAll('#typeBtnGroup .select-btn').forEach(b => { if(b.innerText === data.selectedType) selectType(b); });
         if(data.selectedCar) document.querySelectorAll('#carBtnGroup .select-btn').forEach(b => { if(b.innerText === data.selectedCar) selectCar(b); });
@@ -290,20 +274,28 @@
         const btn = document.getElementById('submitBtn');
         btn.disabled = true; btn.innerText = "전송 중...";
         
-        // 포맷팅 적용
-        const formattedTime = formatAutoTime(document.getElementById('autoTime').value);
-        const formattedOdo = formatComma(document.getElementById('totalOdo').value);
-
         const payload = {
             date: new Date().toLocaleDateString().replace(/\.$/, ""),
             user: selectedUser, email: selectedEmail, type: selectedType, car: selectedCar,
             shift: selectedShift, ssd: document.getElementById('ssdVersion').value, dist: document.getElementById('autoDist').value,
-            time: formattedTime, // 04:51:30 형식
-            odo: formattedOdo,   // 123,456 형식
+            time: formatAutoTime(document.getElementById('autoTime').value),
+            odo: formatComma(document.getElementById('totalOdo').value),
             softTotal: document.getElementById('softTotalDisp').innerText,
             hardTotal: document.getElementById('hardTotalDisp').innerText,
             issue: document.getElementById('workIssue').value
         };
+
+        // --- 수정된 부분: 개별 항목 값들을 payload에 추가 ---
+        for(let i=0; i<10; i++) {
+            payload['soft' + i] = document.getElementById('s' + i).value;
+        }
+        for(let i=0; i<5; i++) {
+            for(let j=0; j<4; j++) {
+                payload['hard' + i + '_' + j] = document.getElementById('h' + i + '_' + j).value;
+            }
+        }
+        // ----------------------------------------------
+
         fetch('https://script.google.com/macros/s/AKfycbz4m6iYFSneHsJunhwpjsM9Z-NmuJzmyNzjpcZtryJa_xZkJAOwWqrRWknjmhTOHJX3/exec', 
         { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
         .then(() => { alert('기록 완료!'); localStorage.removeItem('report_temp'); location.reload(); })
