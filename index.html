@@ -328,4 +328,11 @@
     function resetForm() {
         document.querySelectorAll('.counter-val, .hard-val-input').forEach(el => el.value = 0);
         document.querySelectorAll('.text-input, .textarea-input').forEach(el => el.value = "");
-        document.querySelectorAll('.select
+        document.querySelectorAll('.select-btn').forEach(b => b.classList.remove('selected'));
+        document.getElementById('softTotalDisp').innerText = 0;
+        document.getElementById('hardTotalDisp').innerText = 0;
+        selectedUser = ""; selectedEmail = ""; selectedType = ""; selectedCar = ""; selectedShift = "";
+    }
+</script>
+</body>
+</html>
