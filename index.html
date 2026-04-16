@@ -52,7 +52,7 @@
         .chat-input-bar input { flex: 1; border: 1px solid #e2e8f0; border-radius: 25px; padding: 12px 18px; font-size: 15px; outline: none; background: #f8fafc; }
         .btn-send { background: #1a73e8; color: white; border: none; border-radius: 50%; width: 44px; height: 44px; font-weight: bold; }
 
-        /* 보고서 컨텐츠 */
+        /* 보고서 본문 */
         #mainApp { display: none; max-width: 100%; margin: auto; background: white; padding: 15px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .section { margin-bottom: 15px; padding: 12px; border: 1px solid #edf2f7; border-radius: 12px; background-color: #fdfdfe; }
         label { display: block; margin-bottom: 10px; font-weight: bold; font-size: 14px; color: #4a5568; }
@@ -62,13 +62,16 @@
         .grid-2 { grid-template-columns: repeat(2, 1fr); }
         .select-btn { padding: 12px 5px; border: 1px solid #e2e8f0; background: #fff; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #4a5568; }
         .select-btn.selected { background-color: #1a73e8 !important; color: white !important; border-color: #1a73e8; }
-        .text-input, .textarea-input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; }
-        .category-item { background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #eef2f8; display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
-        .btn-sm { width: 32px; height: 32px; border-radius: 50%; border: none; background: #1a73e8; color: white; font-size: 18px; font-weight: bold; }
-        .counter-val { width: 25px; text-align: center; font-weight: bold; font-size: 15px; border: none; background: transparent; }
-        .hard-table { width: 100%; border-collapse: collapse; }
-        .hard-table th { font-size: 9px; background: #f1f3f5; padding: 6px 0; border: 1px solid #eee; }
-        .hard-table td { padding: 5px 0; border: 1px solid #eee; text-align: center; }
+        .text-input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; outline: none; }
+        
+        /* 하드 테이블 스타일 */
+        .hard-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        .hard-table th { font-size: 11px; background: #f1f3f5; padding: 8px 0; border: 1px solid #eee; color: #333; font-weight: bold; }
+        .hard-table td { padding: 5px 0; border: 1px solid #eee; text-align: center; vertical-align: middle; }
+        .hard-title-cell { width: 65px; font-size: 10px !important; font-weight: 600; color: #555; line-height: 1.2; word-break: keep-all; background-color: #fcfcfc; }
+        .hard-btn-plus { border: none; background: #1a73e8; color: white; border-radius: 50%; width: 24px; height: 24px; font-weight: bold; cursor: pointer; margin-bottom: 2px; }
+        .hard-val-input { width: 20px; text-align: center; border: none; font-weight: bold; font-size: 13px; background: transparent; }
+
         .btn-add { width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 17px; font-weight: bold; color: white; background: #28a745; margin-top: 10px; }
     </style>
 </head>
@@ -76,7 +79,7 @@
 
 <div id="loginOverlay">
     <div class="login-card">
-        <img src="logo_app.png" alt="Company Logo" class="company-logo">
+        <img src="logo_app.png" alt="Logo" class="company-logo">
         <p class="team-title">안전운행팀</p>
         <p style="font-size: 14px; color: #777;">등록된 이메일을 입력해 주세요.</p>
         <input type="email" id="emailInput" class="login-input" placeholder="id@future-link.ai">
@@ -139,7 +142,10 @@
         <div style="text-align:right; margin-top:10px; font-weight:bold; color:#e03131;">하드 합계: <span id="hardTotalDisp">0</span></div>
     </div>
 
-    <div class="section"><label>10. 업무 이슈 사항</label><textarea id="workIssue" class="textarea-input" placeholder="특이사항 작성" style="width:100%; height:80px; border:1px solid #e2e8f0; border-radius:10px; padding:10px;"></textarea></div>
+    <div class="section">
+        <label>10. 업무 이슈 사항</label>
+        <textarea id="workIssue" placeholder="특이사항 작성" style="width:100%; height:80px; border:1px solid #e2e8f0; border-radius:10px; padding:10px; font-size:15px; outline:none;"></textarea>
+    </div>
 
     <button class="btn-add" id="submitBtn" onclick="addRecord()">보고서 기록하기</button>
 </div>
@@ -148,50 +154,40 @@
     <div class="chat-nav"><button class="btn-back" onclick="closeChat()">←</button><b>팀 소통방</b></div>
     <div id="chatContent" class="chat-content"></div>
     <div class="chat-input-bar">
-        <input type="text" id="chatInput" placeholder="메시지 입력..." onkeypress="if(event.keyCode==13) sendChat()">
+        <input type="text" id="chatInput" placeholder="메세지 입력..." onkeypress="if(event.keyCode==13) sendChat()">
         <button class="btn-send" onclick="sendChat()">➤</button>
     </div>
 </div>
 
 <script>
-    // --- 1. 변수 및 리스트 선언 (최상단 배치) ---
     const CORRECT_EMAILS = userList.map(u => u.email.toLowerCase());
     let selectedUser = "", selectedEmail = "", selectedType = "", selectedCar = "", selectedShift = "";
     const softNames = ["운전자 판단", "시스템 이상", "교통약자보호", "신호 위반", "신호등 지시", "교차로 딜레마", "도로 상황", "차선 변경", "급정지/서행", "보호 의무"];
     const hardCauses = ["시스템 이상", "신호 위반/지시", "교차로 딜레마", "도로 상황", "운전자 실수"];
     const actions = ["브레이크", "핸들", "엑셀", "시스템"];
 
-    // --- 2. 로그인 로직 (강화된 오류 체크) ---
+    // 1. 로그인 (이메일 기반 이름 연동)
     function checkLogin() {
-        const inputEl = document.getElementById('emailInput');
-        const input = inputEl.value.trim().toLowerCase();
-        
+        const input = document.getElementById('emailInput').value.trim().toLowerCase();
         if (!input) { alert("이메일을 입력해주세요."); return; }
-
         if (CORRECT_EMAILS.includes(input)) {
             const user = userList.find(u => u.email.toLowerCase() === input);
             sessionStorage.setItem('isLoggedIn', 'true');
-            sessionStorage.setItem('userName', user.name);
+            sessionStorage.setItem('userName', user.name); // 사용자 이름 저장
             showApp();
-        } else {
-            alert('인증되지 않은 이메일입니다.');
-        }
+        } else { alert('인증되지 않은 이메일입니다.'); }
     }
+    function showApp() { document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('mainApp').style.display = 'block'; displayChats(); }
 
-    function showApp() {
-        document.getElementById('loginOverlay').style.display = 'none';
-        document.getElementById('mainApp').style.display = 'block';
-        displayChats();
-    }
-
-    // --- 3. 채팅 로직 ---
+    // 2. 채팅 (로그인 이름 사용)
     function openChat() { document.getElementById('chatOverlay').style.display = 'flex'; displayChats(); }
     function closeChat() { document.getElementById('chatOverlay').style.display = 'none'; }
     function sendChat() {
         const input = document.getElementById('chatInput');
         if(!input.value.trim()) return;
+        const currentName = sessionStorage.getItem('userName') || "익명";
         const chats = JSON.parse(localStorage.getItem('team_chats') || "[]");
-        chats.push({ user: sessionStorage.getItem('userName'), text: input.value, time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
+        chats.push({ user: currentName, text: input.value, time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
         if(chats.length > 50) chats.shift();
         localStorage.setItem('team_chats', JSON.stringify(chats));
         input.value = ""; displayChats();
@@ -203,18 +199,17 @@
         container.scrollTop = container.scrollHeight;
     }
 
-    // --- 4. 보고서 폼 로직 ---
+    // 3. 메인 기능
     window.onload = function() {
         if (sessionStorage.getItem('isLoggedIn') === 'true') showApp();
-        
         const sc = document.getElementById('softContainer');
         softNames.forEach((n, i) => {
-            sc.innerHTML += `<div class="category-item"><span>${i+1}. ${n}</span><div><button class="btn-sm" onclick="stepSoft(${i},-1)">-</button><input id="s${i}" class="counter-val" value="0" readonly><button class="btn-sm" onclick="stepSoft(${i},1)">+</button></div></div>`;
+            sc.innerHTML += `<div style="background:#f8fafc; padding:10px; border-radius:8px; border:1px solid #eef2f8; display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;"><span>${i+1}. ${n}</span><div><button class="btn-sm" onclick="stepSoft(${i},-1)">-</button><input id="s${i}" class="counter-val" value="0" readonly><button class="btn-sm" onclick="stepSoft(${i},1)">+</button></div></div>`;
         });
         const hb = document.getElementById('hardBody');
         hardCauses.forEach((c, i) => {
-            let row = `<tr><td>${c}</td>`;
-            actions.forEach((a, idx) => { row += `<td><button onclick="stepHard('${i}_${idx}',1)" style="border:none; background:#1a73e8; color:white; border-radius:50%; width:24px; height:24px; font-weight:bold; margin-bottom:2px;">+</button><input id="h${i}_${idx}" style="width:20px; text-align:center; border:none; font-weight:bold;" value="0" readonly></td>`; });
+            let row = `<tr><td class="hard-title-cell">${c}</td>`;
+            actions.forEach((a, idx) => { row += `<td><button class="hard-btn-plus" onclick="stepHard('${i}_${idx}',1)">+</button><input id="h${i}_${idx}" class="hard-val-input" value="0" readonly></td>`; });
             hb.innerHTML += row + `</tr>`;
         });
         loadTempData();
@@ -232,7 +227,6 @@
         let ht = 0; for(let i=0; i<5; i++) { for(let j=0; j<4; j++) ht += parseInt(document.getElementById(`h${i}_${j}`).value) || 0; }
         document.getElementById('hardTotalDisp').innerText = ht;
     }
-
     function saveTempData() {
         const softVals = []; for(let i=0; i<10; i++) softVals.push(document.getElementById('s'+i).value);
         const hardVals = []; for(let i=0; i<5; i++) { for(let j=0; j<4; j++) hardVals.push(document.getElementById(`h${i}_${j}`).value); }
@@ -243,10 +237,9 @@
             selectedUser, selectedEmail, selectedType, selectedCar, selectedShift
         }));
     }
-
     function loadTempData() {
         const data = JSON.parse(localStorage.getItem('report_temp') || "{}");
-        if (!data.ssd && !data.selectedUser) return;
+        if (!data.selectedUser && !data.ssd) return;
         document.getElementById('ssdVersion').value = data.ssd || "";
         document.getElementById('autoDist').value = data.dist || "";
         document.getElementById('autoTime').value = data.time || "";
@@ -260,12 +253,10 @@
         if(data.selectedShift) document.querySelectorAll('#shiftBtnGroup .select-btn').forEach(b => { if(b.innerText === data.selectedShift) selectShift(b); });
         updateTotals();
     }
-
     function addRecord() {
         if(!selectedUser || !selectedCar || !document.getElementById('totalOdo').value) { alert('필수 항목을 확인하세요!'); return; }
         const btn = document.getElementById('submitBtn');
         btn.disabled = true; btn.innerText = "전송 중...";
-        
         const payload = {
             date: new Date().toLocaleDateString().replace(/\.$/, ""),
             user: selectedUser, email: selectedEmail, type: selectedType, car: selectedCar,
@@ -275,7 +266,6 @@
             hardTotal: document.getElementById('hardTotalDisp').innerText,
             issue: document.getElementById('workIssue').value
         };
-
         fetch('https://script.google.com/macros/s/AKfycbz4m6iYFSneHsJunhwpjsM9Z-NmuJzmyNzjpcZtryJa_xZkJAOwWqrRWknjmhTOHJX3/exec', 
         { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
         .then(() => { alert('기록 완료!'); localStorage.removeItem('report_temp'); location.reload(); })
