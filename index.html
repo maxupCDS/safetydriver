@@ -11,7 +11,15 @@
     <meta name="theme-color" content="#1a73e8">
     
     <link rel="apple-touch-icon" href="logo_app.png">
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="/safetydriver/manifest.json">
+    <script>
+  if ('serviceWorker' in navigator) {
+    // 경로 앞에 /safetydriver/ 를 붙여야 깃허브가 파일을 찾습니다.
+    navigator.serviceWorker.register('/safetydriver/sw.js')
+      .then(reg => console.log("서비스 워커 등록 성공:", reg.scope))
+      .catch(err => console.log("등록 실패:", err));
+  }
+</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>안전운행팀 보고서</title>
     
