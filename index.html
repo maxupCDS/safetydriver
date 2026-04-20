@@ -220,36 +220,67 @@
     }
 
     function addRecord() {
-        if(!selectedUser || !selectedCar || !document.getElementById('totalOdo').value) { alert('필수 항목을 확인하세요!'); return; }
-        const btn = document.getElementById('submitBtn');
-        btn.disabled = true; btn.innerText = "전송 중...";
-        
-        const payload = {
-            "날짜": new Date().toLocaleDateString().replace(/\.$/, ""),
-            "작성자": selectedUser, "이메일": selectedEmail, "업무": selectedType, "차량": selectedCar,
-            "근무": selectedShift, "SSD버전": document.getElementById('ssdVersion').value, 
-            "자율거리": document.getElementById('autoDist').value,
-            "자율시간": (function(v){ if(!v) return ""; let s=v.toString().padStart(6,'0'); return `${s.substring(0,2)}:${s.substring(2,4)}:${s.substring(4,6)}`; })(document.getElementById('autoTime').value),
-            "누적ODO": Number(document.getElementById('totalOdo').value).toLocaleString(),
-            "소프트합계": document.getElementById('softTotalDisp').innerText,
-            "하드합계": document.getElementById('hardTotalDisp').innerText,
-            "이슈사항": document.getElementById('workIssue').value
-        };
-
-        softKeys.forEach((key, i) => { payload[key] = document.getElementById('s' + i).value; });
-        hardCauses.forEach((cause, i) => {
-            hardActions.forEach((action, j) => {
-                const keyName = `하드(${cause}-${actionMap[action]})`; 
-                payload[keyName] = document.getElementById(`h${i}_${j}`).value;
-            });
-        });
-
-        fetch('https://script.google.com/macros/s/AKfycbzhq61bJ0FtnX8iOH5Q21ktplrCKIm27ne0-1Vt_tpVAuw2RdxvWI-C88wAHIiQ-GBP/exec', 
-        { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
-        .then(() => { alert('전송 완료!'); location.reload(); })
-        .catch(() => alert('전송 오류'))
-        .finally(() => { btn.disabled = false; btn.innerText = "보고서 기록하기"; });
+function addRecord() {
+    // 1. 필수 공통 항목 (작성자는 무조건 있어야 함)
+    if (!selectedUser) { 
+        alert('작성자를 선택해주세요!'); 
+        return; 
     }
+
+    // 2. 업무 타입에 따른 유효성 검사 (운행일 때만 차량/ODO 필수)
+    if (selectedType === "운행") {
+        if (!selectedCar || !document.getElementById('totalOdo').value) {
+            alert('운행 시에는 [차량 선택]과 [누적 ODO] 입력이 필수입니다!');
+            return;
+        }
+    }
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true; 
+    btn.innerText = "전송 중...";
+    
+    // 데이터 정리 (선택 안 된 값들은 빈 문자열로 처리)
+    const payload = {
+        "날짜": new Date().toLocaleDateString().replace(/\.$/, ""),
+        "작성자": selectedUser, 
+        "이메일": selectedEmail, 
+        "업무": selectedType || "미선택", 
+        "차량": selectedCar || "",
+        "근무": selectedShift || "", 
+        "SSD버전": document.getElementById('ssdVersion').value || "", 
+        "자율거리": document.getElementById('autoDist').value || "0",
+        "자율시간": (function(v){ 
+            if(!v) return ""; 
+            let s=v.toString().padStart(6,'0'); 
+            return `${s.substring(0,2)}:${s.substring(2,4)}:${s.substring(4,6)}`; 
+        })(document.getElementById('autoTime').value),
+        "누적ODO": document.getElementById('totalOdo').value ? Number(document.getElementById('totalOdo').value).toLocaleString() : "0",
+        "소프트합계": document.getElementById('softTotalDisp').innerText,
+        "하드합계": document.getElementById('hardTotalDisp').innerText,
+        "이슈사항": document.getElementById('workIssue').value
+    };
+
+    // 소프트/하드 데이터 추가
+    softKeys.forEach((key, i) => { payload[key] = document.getElementById('s' + i).value; });
+    hardCauses.forEach((cause, i) => {
+        hardActions.forEach((action, j) => {
+            const keyName = `하드(${cause}-${actionMap[action]})`; 
+            payload[keyName] = document.getElementById(`h${i}_${j}`).value;
+        });
+    });
+
+    fetch('https://script.google.com/macros/s/AKfycbzhq61bJ0FtnX8iOH5Q21ktplrCKIm27ne0-1Vt_tpVAuw2RdxvWI-C88wAHIiQ-GBP/exec', 
+    { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
+    .then(() => { 
+        alert('보고서가 기록되었습니다!'); 
+        location.reload(); 
+    })
+    .catch(() => alert('전송 중 오류가 발생했습니다.'))
+    .finally(() => { 
+        btn.disabled = false; 
+        btn.innerText = "보고서 기록하기"; 
+    });
+}
 </script>
 </body>
 </html>
