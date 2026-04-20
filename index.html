@@ -44,12 +44,12 @@
         .btn-sm { width: 38px; height: 38px; border-radius: 50%; border: none; background: #1a73e8; color: white; font-size: 22px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
         .counter-val { width: 40px; text-align: center; font-weight: 800; font-size: 18px; border: none; background: transparent; color: #1a73e8; }
 
-        /* 9번 하드 항목 (명칭 수정 버전) */
+        /* 9번 하드 항목 (헤더 글자 크기 확대) */
         .hard-table-wrapper { width: 100%; border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
         .hard-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        .hard-table th { font-size: 10px; background: #f8fafc; padding: 12px 2px; border: 1px solid #eee; color: #718096; word-break: keep-all; }
+        .hard-table th { font-size: 12px; background: #f8fafc; padding: 12px 1px; border: 1px solid #eee; color: #4a5568; font-weight: bold; line-height: 1.1; }
         .hard-table td { border: 1px solid #eee; text-align: center; padding: 10px 0; background: #fff; vertical-align: middle; }
-        .hard-cause-label { font-size: 12.5px; font-weight: bold; color: #333; word-break: keep-all; }
+        .hard-cause-label { font-size: 12.5px; font-weight: bold; color: #333; }
         .hard-btn-plus { border: none; background: #1a73e8; color: white; border-radius: 50%; width: 26px; height: 26px; font-weight: bold; margin-bottom: 3px; }
         .hard-val-input { width: 100%; text-align: center; border: none; font-weight: 800; font-size: 17px; color: #1a73e8; background: transparent; }
 
@@ -65,7 +65,7 @@
         .chat-nav { padding: 18px; border-bottom: 1px solid #eee; display: flex; align-items: center; background: #1a73e8; color: white; }
     </style>
 </head>
-<body>
+<body onbeforeunload="return '작성 중인 내용이 사라질 수 있습니다.'">
 
 <div id="loginOverlay"><div class="login-card"><div class="team-title">FUTURE LINK</div><input type="email" id="emailInput" class="login-input" placeholder="사내 이메일 입력"><button class="btn-login" onclick="checkLogin()">시작하기</button></div></div>
 
@@ -159,7 +159,17 @@
     const hardActions=["브레이크","핸들","엑셀","시스템"];
     const actionMap={"브레이크":"B","핸들":"H","엑셀":"A","시스템":"S"};
 
-    function showModal(t,txt,type,onC){const m=document.getElementById('customModal');document.getElementById('modalTitle').innerText=t;document.getElementById('modalText').innerText=txt;const f=document.getElementById('modalFooter');m.style.display='flex';if(type==='confirm'){f.innerHTML=`<button class="modal-btn" style="color:#888; border-right:1px solid #eee;" onclick="closeModal()">취소</button><button class="modal-btn" style="color:#1a73e8;" id="mCBtn">확인</button>`;document.getElementById('mCBtn').onclick=()=>{closeModal();onC();};}else{f.innerHTML=`<button class="modal-btn" style="color:#1a73e8; width:100%;" onclick="closeModal(); if(window.finalReload) location.reload();">확인</button>`;}}
+    // [뒤로가기 방지 로직 추가]
+    history.pushState(null, null, location.href);
+    window.onpopstate = function () {
+        if(confirm("작성 중인 내용이 모두 사라집니다. 페이지를 나가시겠습니까?")) {
+            history.back();
+        } else {
+            history.pushState(null, null, location.href);
+        }
+    };
+
+    function showModal(t,txt,type,onC){const m=document.getElementById('customModal');document.getElementById('modalTitle').innerText=t;document.getElementById('modalText').innerText=txt;const f=document.getElementById('modalFooter');m.style.display='flex';if(type==='confirm'){f.innerHTML=`<button class="modal-btn" style="color:#888; border-right:1px solid #eee;" onclick="closeModal()">취소</button><button class="modal-btn" style="color:#1a73e8;" id="mCBtn">확인</button>`;document.getElementById('mCBtn').onclick=()=>{closeModal();onC();};}else{f.innerHTML=`<button class="modal-btn" style="color:#1a73e8; width:100%;" onclick="closeModal(); if(window.finalReload) { window.onbeforeunload = null; location.reload(); }">확인</button>`;}}
     function closeModal(){document.getElementById('customModal').style.display='none';}
 
     function checkLogin(){const i=document.getElementById('emailInput').value.trim().toLowerCase();const u=userList.find(x=>x.email.toLowerCase()===i);if(u){sessionStorage.setItem('isLoggedIn','true');sessionStorage.setItem('userName',u.name);showApp();}else{showModal("알림","이메일 오류","alert");}}
@@ -204,6 +214,8 @@
         const payload={"type":"report","날짜":new Date().toLocaleDateString().replace(/\.$/,""),"작성자":selectedUser,"이메일":selectedEmail,"업무":selectedType,"차량":selectedCar,"근무":selectedShift,"SSD버전":document.getElementById('ssdVersion').value,"자율거리":document.getElementById('autoDist').value||"0","자율시간":document.getElementById('autoTime').value||"000000","누적ODO":document.getElementById('totalOdo').value||"0","소프트합계":document.getElementById('softTotalDisp').innerText,"하드합계":document.getElementById('hardTotalDisp').innerText,"이슈사항":document.getElementById('workIssue').value};
         softKeys.forEach((k,i)=>payload[k]=document.getElementById('s'+i).value);
         hardCauses.forEach((c,i)=>{hardActions.forEach((a,j)=>payload[`하드(${c}-${actionMap[a]})`]=document.getElementById(`h${i}_${j}`).value);});
+        
+        window.onbeforeunload = null; // 전송 시에는 경고 해제
         fetch(GAS_URL,{method:'POST',mode:'no-cors',body:JSON.stringify(payload)}).then(()=>{window.finalReload=true;showModal("완료","보고서가 저장되었습니다.","alert");}).catch(()=>{showModal("오류","실패","alert");btn.disabled=false;});
     }
 </script>
