@@ -247,12 +247,11 @@
         if(!selectedUser)return showModal("알림","작성자를 선택하세요.","alert");
         const btn=document.getElementById('submitBtn');btn.disabled=true;btn.innerText="전송 중...";
 
-        // [날짜 조립: 2026.04.20 형식]
-        const now = new Date();
-        const formattedDate = now.getFullYear() + "." + 
-                              String(now.getMonth() + 1).padStart(2, '0') + "." + 
-                              String(now.getDate()).padStart(2, '0');
-
+// [날짜 조립: 2026. 4. 20 형식 (0 제거)]
+    const now = new Date();
+    const formattedDate = now.getFullYear() + ". " + 
+                          (now.getMonth() + 1) + ". " + 
+                          now.getDate();
         const payload={
             "type":"report",
             "날짜": formattedDate, 
