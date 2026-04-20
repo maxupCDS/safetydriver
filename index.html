@@ -280,6 +280,27 @@
         btn.disabled=false;
     });
 }
+    /* ... (기존 addRecord 함수의 마지막 부분) ... */
+    fetch(GAS_URL,{method:'POST',mode:'no-cors',body:JSON.stringify(payload)}).then(()=>{window.finalReload=true;showModal("완료","보고서가 저장되었습니다.","alert");}).catch(()=>{showModal("오류","실패","alert");btn.disabled=false;});
+}
+
+// 여기서부터 복사해서 넣으세요! 👇
+// [뒤로가기 방지 및 커스텀 모달 실행]
+window.history.pushState(null, null, window.location.href);
+
+window.onpopstate = function() {
+    window.history.pushState(null, null, window.location.href);
+    
+    showModal(
+        "경고", 
+        "작성 중인 내용이 모두 사라집니다. 정말 나가시겠습니까?", 
+        "confirm", 
+        function() {
+            window.onbeforeunload = null;
+            location.reload(); // 확인 누르면 초기 상태(로그인 전)로 새로고침
+        }
+    );
+};
 </script>
 </body>
 </html>
