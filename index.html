@@ -47,7 +47,7 @@
         .btn-sm { width: 38px; height: 38px; border-radius: 50%; border: none; background: #1a73e8; color: white; font-size: 22px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
         .counter-val { width: 40px; text-align: center; font-weight: 800; font-size: 18px; border: none; background: transparent; color: #1a73e8; }
 
-        /* [4. 하드 테이크오버 - 버튼 정렬 수정] */
+        /* [4. 하드 테이크오버] */
         .hard-table-wrapper { width: 100%; border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
         .hard-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         .hard-table th { font-size: 11px; background: #f8fafc; padding: 10px 2px; border: 1px solid #eee; color: #4a5568; font-weight: bold; }
@@ -71,9 +71,7 @@
         .modal-btn { flex: 1; padding: 15px; border: none; background: transparent; font-size: 16px; font-weight: bold; }
     </style>
 </head>
-<body onbeforeunload="return '작성 중인 내용이 사라질 수 있습니다.'">
-
-<div id="loginOverlay"><div class="login-card"><div class="team-title">FUTURE LINK</div><input type="email" id="emailInput" class="login-input" placeholder="사내 이메일 입력"><button class="btn-login" onclick="checkLogin()">시작하기</button></div></div>
+<body> <div id="loginOverlay"><div class="login-card"><div class="team-title">FUTURE LINK</div><input type="email" id="emailInput" class="login-input" placeholder="사내 이메일 입력"><button class="btn-login" onclick="checkLogin()">시작하기</button></div></div>
 
 <div id="customModal"><div class="modal-card"><div class="modal-body"><div id="modalTitle" style="font-weight:bold; color:#1a73e8; margin-bottom:8px; font-size:18px;">알림</div><div id="modalText" style="font-size:15px; color:#555;">내용</div></div><div class="modal-footer" id="modalFooter"></div></div></div>
 
@@ -148,16 +146,16 @@
         <button onclick="sendChat()" style="background:#1a73e8; color:white; border:none; border-radius:50%; width:45px; height:45px;">➤</button>
     </div>
 </div>
+
 <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('https://maxupcds.github.io/safetydriver/sw.js')
-        .then(reg => console.log('Service Worker 등록 성공!'))
-        .catch(err => console.log('Service Worker 등록 실패:', err));
-    });
-  }
-</script>
-<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('https://maxupcds.github.io/safetydriver/sw.js')
+            .then(reg => console.log('SW 등록됨'))
+            .catch(err => console.log('SW 등록실패', err));
+        });
+    }
+
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbytWBJz_pppLtwkCUmwIFG7olJL4HuCXJj7OIewyvNVP0TnVBeF63yklpmnwzFzvzgt/exec';
     let selectedUser="", selectedEmail="", selectedType="", selectedCar="", selectedShift="";
     const softKeys=["운전자판단","시스템이상","교통약자보호","신호위반","신호등지시","교차로딜레마","도로상황","차선변경","급정지/서행","보호의무"];
@@ -183,7 +181,20 @@
 
     function checkLogin(){const i=document.getElementById('emailInput').value.trim().toLowerCase();const u=userList.find(x=>x.email.toLowerCase()===i);if(u){sessionStorage.setItem('isLoggedIn','true');sessionStorage.setItem('userName',u.name);showApp();}else{showModal("알림","등록된 이메일이 아닙니다.","alert");}}
     function showApp(){document.getElementById('loginOverlay').style.display='none';document.getElementById('mainApp').style.display='block';}
-    function showModal(t,txt,type,onC){const m=document.getElementById('customModal');document.getElementById('modalTitle').innerText=t;document.getElementById('modalText').innerText=txt;const f=document.getElementById('modalFooter');m.style.display='flex';if(type==='confirm'){f.innerHTML=`<button class="modal-btn" style="color:#888; border-right:1px solid #eee;" onclick="closeModal()">취소</button><button class="modal-btn" style="color:#1a73e8;" id="mCBtn">확인</button>`;document.getElementById('mCBtn').onclick=()=>{closeModal();onC();};}else{f.innerHTML=`<button class="modal-btn" style="color:#1a73e8; width:100%;" onclick="closeModal(); if(window.finalReload) { window.onbeforeunload = null; location.reload(); }">확인</button>`;}}
+    
+    function showModal(t,txt,type,onC){
+        const m=document.getElementById('customModal');
+        document.getElementById('modalTitle').innerText=t;
+        document.getElementById('modalText').innerText=txt;
+        const f=document.getElementById('modalFooter');
+        m.style.display='flex';
+        if(type==='confirm'){
+            f.innerHTML=`<button class="modal-btn" style="color:#888; border-right:1px solid #eee;" onclick="closeModal()">취소</button><button class="modal-btn" style="color:#1a73e8;" id="mCBtn">확인</button>`;
+            document.getElementById('mCBtn').onclick=()=>{closeModal(); if(onC) onC();};
+        }else{
+            f.innerHTML=`<button class="modal-btn" style="color:#1a73e8; width:100%;" onclick="closeModal(); if(window.finalReload) { window.onbeforeunload = null; location.reload(); }">확인</button>`;
+        }
+    }
     function closeModal(){document.getElementById('customModal').style.display='none';}
 
     function selectUser(b,n,e){document.querySelectorAll('#userBtnGroup .select-btn').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');selectedUser=n;selectedEmail=e;}
@@ -201,7 +212,6 @@
 
     function startVoice(tid,bid){window.SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;if(!window.SpeechRecognition)return;const r=new window.SpeechRecognition();r.lang='ko-KR';r.onstart=()=>document.getElementById(bid).innerHTML="🔴";r.onresult=(e)=>document.getElementById(tid).value+=e.results[0][0].transcript;r.onend=()=>document.getElementById(bid).innerHTML="🎤";r.start();}
     
-    // [채팅 시스템 보강]
     function openChat(){
         if(!sessionStorage.getItem('userName')) { alert("로그인이 필요합니다."); return; }
         document.getElementById('chatOverlay').style.display='flex'; 
@@ -214,12 +224,9 @@
         const msg = input.value.trim();
         if(!msg) return;
         const name = sessionStorage.getItem('userName') || "익명";
-
-        // 화면에 즉시 표시
         const cont = document.getElementById('chatContent');
         cont.innerHTML += `<div style="background:#fff; padding:10px; border-radius:10px; align-self:flex-end; max-width:80%; border:1px solid #dcf8c6;"><b style="color:#28a745; font-size:11px;">나</b><br>${msg}</div>`;
         cont.scrollTop = cont.scrollHeight;
-
         fetch(GAS_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({type:'chat', user:name, message:msg})});
         input.value='';
         setTimeout(loadChat, 1000);
@@ -231,76 +238,72 @@
         .then(r=>r.json())
         .then(data=>{
             const cont = document.getElementById('chatContent');
-            // m.user와 m.message가 GAS JSON의 키와 일치해야 함
             cont.innerHTML = data.map(m=>`<div style="background:white; padding:10px; border-radius:10px; align-self:flex-start; max-width:80%; box-shadow:0 1px 2px rgba(0,0,0,0.1);"><b style="color:#1a73e8; font-size:11px;">${m.user || "익명"}</b><br>${m.message || "내용없음"}</div>`).join('');
             cont.scrollTop = cont.scrollHeight;
         }).catch(e=>console.log("로드 실패"));
     }
 
     function addRecord(){
-    if(!selectedUser)return showModal("알림","작성자를 선택하세요.","alert");
-    const btn=document.getElementById('submitBtn');btn.disabled=true;btn.innerText="전송 중...";
+        if(!selectedUser)return showModal("알림","작성자를 선택하세요.","alert");
+        const btn=document.getElementById('submitBtn');btn.disabled=true;btn.innerText="전송 중...";
 
-    // 날짜를 YYYY.MM.DD 형식으로 직접 생성
-    const now = new Date();
-    const formattedDate = now.getFullYear() + "." + 
-                          String(now.getMonth() + 1).padStart(2, '0') + "." + 
-                          String(now.getDate()).padStart(2, '0');
+        // [날짜 조립: 2026.04.20 형식]
+        const now = new Date();
+        const formattedDate = now.getFullYear() + "." + 
+                              String(now.getMonth() + 1).padStart(2, '0') + "." + 
+                              String(now.getDate()).padStart(2, '0');
 
-    const payload={
-        "type":"report",
-        "날짜": formattedDate, 
-        "작성자":selectedUser,
-        "이메일":selectedEmail,
-        "업무":selectedType,
-        "차량":selectedCar,
-        "근무":selectedShift,
-        "SSD버전":document.getElementById('ssdVersion').value,
-        "자율거리":document.getElementById('autoDist').value||"0",
-        "자율시간":document.getElementById('autoTime').value||"000000",
-        "누적ODO":document.getElementById('totalOdo').value||"0",
-        "소프트합계":document.getElementById('softTotalDisp').innerText,
-        "하드합계":document.getElementById('hardTotalDisp').innerText,
-        "이슈사항":document.getElementById('workIssue').value
-    };
+        const payload={
+            "type":"report",
+            "날짜": formattedDate, 
+            "작성자":selectedUser,
+            "이메일":selectedEmail,
+            "업무":selectedType,
+            "차량":selectedCar,
+            "근무":selectedShift,
+            "SSD버전":document.getElementById('ssdVersion').value,
+            "자율거리":document.getElementById('autoDist').value||"0",
+            "자율시간":document.getElementById('autoTime').value||"000000",
+            "누적ODO":document.getElementById('totalOdo').value||"0",
+            "소프트합계":document.getElementById('softTotalDisp').innerText,
+            "하드합계":document.getElementById('hardTotalDisp').innerText,
+            "이슈사항":document.getElementById('workIssue').value
+        };
 
-    softKeys.forEach((k,i)=>payload[k]=document.getElementById('s'+i).value);
-    hardCauses.forEach((c,i)=>{
-        hardActions.forEach((a,j)=>payload[`하드(${c}-${actionMap[a]})`]=document.getElementById(`h${i}_${j}`).value);
-    });
+        softKeys.forEach((k,i)=>payload[k]=document.getElementById('s'+i).value);
+        hardCauses.forEach((c,i)=>{
+            hardActions.forEach((a,j)=>payload[`하드(${c}-${actionMap[a]})`]=document.getElementById(`h${i}_${j}`).value);
+        });
 
-    window.onbeforeunload = null;
-    fetch(GAS_URL,{method:'POST',mode:'no-cors',body:JSON.stringify(payload)})
-    .then(()=>{
-        window.finalReload=true;
-        showModal("완료","보고서가 저장되었습니다.","alert");
-    })
-    .catch(()=>{
-        showModal("오류","실패","alert");
-        btn.disabled=false;
-    });
-}
-    /* ... (기존 addRecord 함수의 마지막 부분) ... */
-    fetch(GAS_URL,{method:'POST',mode:'no-cors',body:JSON.stringify(payload)}).then(()=>{window.finalReload=true;showModal("완료","보고서가 저장되었습니다.","alert");}).catch(()=>{showModal("오류","실패","alert");btn.disabled=false;});
-}
+        window.onbeforeunload = null;
+        fetch(GAS_URL,{method:'POST',mode:'no-cors',body:JSON.stringify(payload)})
+        .then(()=>{
+            window.finalReload=true;
+            showModal("완료","보고서가 저장되었습니다.","alert");
+        })
+        .catch(()=>{
+            showModal("오류","실패","alert");
+            btn.disabled=false;
+        });
+    }
 
-// 여기서부터 복사해서 넣으세요! 👇
-// [뒤로가기 방지 및 커스텀 모달 실행]
-window.history.pushState(null, null, window.location.href);
-
-window.onpopstate = function() {
+    // [뒤로가기 방지 및 이쁜 커스텀 모달 실행]
     window.history.pushState(null, null, window.location.href);
-    
-    showModal(
-        "경고", 
-        "작성 중인 내용이 모두 사라집니다. 정말 나가시겠습니까?", 
-        "confirm", 
-        function() {
-            window.onbeforeunload = null;
-            location.reload(); // 확인 누르면 초기 상태(로그인 전)로 새로고침
-        }
-    );
-};
+    window.onpopstate = function() {
+        // 일단 뒤로가기를 막기 위해 상태를 다시 밀어넣음
+        window.history.pushState(null, null, window.location.href);
+        
+        showModal(
+            "경고", 
+            "작성 중인 내용이 모두 사라집니다. 정말 나가시겠습니까?", 
+            "confirm", 
+            function() {
+                // 확인을 눌렀을 때만 로그아웃(새로고침) 처리
+                window.onbeforeunload = null;
+                location.reload(); 
+            }
+        );
+    };
 </script>
 </body>
 </html>
