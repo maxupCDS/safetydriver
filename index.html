@@ -16,23 +16,17 @@
     
     <title>안전운행팀 보고서</title>
     <style>
-        /* [전역 스타일] */
+        /* [기존 스타일 유지] */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 12px; background-color: #f5f7fa; color: #333; overflow-x: hidden; width: 100%; }
-        
-        /* [로그인] */
         #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%); display: flex; align-items: center; justify-content: center; z-index: 9999; }
         .login-card { background: white; padding: 40px 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; width: 90%; max-width: 350px; }
         .team-title { color: #1a73e8; font-size: 1.4rem; font-weight: 900; margin-bottom: 25px; }
         .login-input { width: 100%; padding: 14px; margin-bottom: 12px; border: 2px solid #edf2f7; border-radius: 12px; font-size: 16px; text-align: center; outline: none; }
         .btn-login { width: 100%; padding: 15px; background: #1a73e8; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; }
-
-        /* [메인 컨테이너] */
         #mainApp { display: none; width: 100%; max-width: 600px; margin: 0 auto; background: white; padding: 15px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 50px; }
         .header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #f1f3f5; padding-bottom: 10px; }
         .header-title { color: #1a73e8; font-size: 1.1rem; font-weight: bold; }
-
-        /* [섹션 및 라벨] */
         .section { margin-bottom: 15px; padding: 15px; border: 1px solid #edf2f7; border-radius: 12px; background-color: #fdfdfe; width: 100%; }
         label { display: block; margin-bottom: 12px; font-weight: bold; font-size: 16px; color: #333; }
         .btn-grid { display: grid; gap: 8px; width: 100%; }
@@ -41,33 +35,29 @@
         .select-btn { padding: 14px 2px; border: 1px solid #e2e8f0; background: #fff; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #4a5568; text-align: center; }
         .select-btn.selected { background-color: #1a73e8 !important; color: white !important; border-color: #1a73e8; }
         .text-input { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; outline: none; background: #fff; }
-
-        /* 8번 소프트 항목 */
         .category-item { background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid #eef2f8; display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-        .category-name { font-size: 14px; font-weight: 600; color: #333; flex: 1; margin-right: 10px; }
         .counter-group { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
         .btn-sm { width: 38px; height: 38px; border-radius: 50%; border: none; background: #1a73e8; color: white; font-size: 22px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
         .counter-val { width: 40px; text-align: center; font-weight: 800; font-size: 18px; border: none; background: transparent; color: #1a73e8; }
-
-        /* 9번 하드 항목 */
         .hard-table-wrapper { width: 100%; border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
         .hard-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         .hard-table th { font-size: 12px; background: #f8fafc; padding: 12px 1px; border: 1px solid #eee; color: #4a5568; font-weight: bold; }
         .hard-table td { border: 1px solid #eee; text-align: center; padding: 10px 0; background: #fff; vertical-align: middle; }
-        .hard-cause-label { font-size: 12.5px; font-weight: bold; color: #333; }
-        .hard-btn-plus { border: none; background: #1a73e8; color: white; border-radius: 50%; width: 26px; height: 26px; font-weight: bold; margin-bottom: 3px; }
         .hard-val-input { width: 100%; text-align: center; border: none; font-weight: 800; font-size: 17px; color: #1a73e8; background: transparent; }
-
         .btn-add { width: 100%; padding: 18px; border: none; border-radius: 14px; font-size: 18px; font-weight: bold; color: white; background: #28a745; margin-top: 15px; }
 
-        /* 모달 및 채팅 */
+        /* [채팅창 스타일 복구] */
+        #chatOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 10000; display: none; flex-direction: column; }
+        .chat-nav { padding: 18px; border-bottom: 1px solid #eee; display: flex; align-items: center; background: #1a73e8; color: white; }
+        #chatContent { flex: 1; overflow-y: auto; padding: 15px; background: #f1f3f5; display: flex; flex-direction: column; gap: 12px; }
+        .chat-footer { padding: 15px; display: flex; gap: 8px; background: white; padding-bottom: calc(15px + env(safe-area-inset-bottom)); }
+        
+        /* 모달 스타일 */
         #customModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 20000; padding: 20px; }
         .modal-card { background: white; border-radius: 20px; width: 100%; max-width: 320px; overflow: hidden; }
         .modal-body { padding: 25px 20px; text-align: center; border-bottom: 1px solid #eee; }
         .modal-footer { display: flex; }
         .modal-btn { flex: 1; padding: 15px; border: none; background: transparent; font-size: 16px; font-weight: bold; }
-        #chatOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 10000; display: none; flex-direction: column; }
-        .chat-nav { padding: 18px; border-bottom: 1px solid #eee; display: flex; align-items: center; background: #1a73e8; color: white; }
     </style>
 </head>
 <body onbeforeunload="return '작성 중인 내용이 사라질 수 있습니다.'">
@@ -139,6 +129,15 @@
     <button class="btn-add" id="submitBtn" onclick="addRecord()">보고서 기록하기</button>
 </div>
 
+<div id="chatOverlay">
+    <div class="chat-nav"><button onclick="closeChat()" style="background:none; border:none; color:white; font-size:22px; margin-right:15px;">←</button><b>팀 소통방</b></div>
+    <div id="chatContent"></div>
+    <div class="chat-footer">
+        <input type="text" id="chatInput" placeholder="메시지 입력..." style="flex:1; border:1px solid #eee; border-radius:25px; padding:12px 18px; outline:none;">
+        <button onclick="sendChat()" style="background:#1a73e8; color:white; border:none; border-radius:50%; width:45px; height:45px; font-weight:bold;">➤</button>
+    </div>
+</div>
+
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -157,33 +156,25 @@
     const hardActions=["브레이크","핸들","엑셀","시스템"];
     const actionMap={"브레이크":"B","핸들":"H","엑셀":"A","시스템":"S"};
 
-    history.pushState(null, null, location.href);
-    window.onpopstate = function () { if(confirm("작성 중인 내용이 사라집니다. 나가시겠습니까?")) history.back(); else history.pushState(null, null, location.href); };
-
-    function showModal(t,txt,type,onC){const m=document.getElementById('customModal');document.getElementById('modalTitle').innerText=t;document.getElementById('modalText').innerText=txt;const f=document.getElementById('modalFooter');m.style.display='flex';if(type==='confirm'){f.innerHTML=`<button class="modal-btn" style="color:#888; border-right:1px solid #eee;" onclick="closeModal()">취소</button><button class="modal-btn" style="color:#1a73e8;" id="mCBtn">확인</button>`;document.getElementById('mCBtn').onclick=()=>{closeModal();onC();};}else{f.innerHTML=`<button class="modal-btn" style="color:#1a73e8; width:100%;" onclick="closeModal(); if(window.finalReload) { window.onbeforeunload = null; location.reload(); }">확인</button>`;}}
-    function closeModal(){document.getElementById('customModal').style.display='none';}
-
-    function checkLogin(){const i=document.getElementById('emailInput').value.trim().toLowerCase();const u=userList.find(x=>x.email.toLowerCase()===i);if(u){sessionStorage.setItem('isLoggedIn','true');sessionStorage.setItem('userName',u.name);showApp();}else{showModal("알림","이메일 오류","alert");}}
-    function showApp(){document.getElementById('loginOverlay').style.display='none';document.getElementById('mainApp').style.display='block';}
-
+    // [기본 UI 초기화]
     window.onload=function(){
         if(sessionStorage.getItem('isLoggedIn')==='true')showApp();
         const sc=document.getElementById('softContainer');
         softKeys.forEach((n,i)=>{
-            sc.innerHTML+=`
-            <div class="category-item">
-                <span class="category-name">${i+1}. ${n}</span>
-                <div class="counter-group">
-                    <button class="btn-sm" onclick="stepSoft(${i},-1)">-</button>
-                    <input id="s${i}" class="counter-val" value="0" readonly>
-                    <button class="btn-sm" onclick="stepSoft(${i},1)">+</button>
-                </div>
-            </div>`;
+            sc.innerHTML+=`<div class="category-item"><span class="category-name">${i+1}. ${n}</span><div class="counter-group"><button class="btn-sm" onclick="stepSoft(${i},-1)">-</button><input id="s${i}" class="counter-val" value="0" readonly><button class="btn-sm" onclick="stepSoft(${i},1)">+</button></div></div>`;
         });
         const hb=document.getElementById('hardBody');
         hardCauses.forEach((c,i)=>{let row=`<tr><td class="hard-cause-label">${c}</td>`;hardActions.forEach((a,j)=>{row+=`<td><button class="hard-btn-plus" onclick="stepHard('${i}_${j}',1)">+</button><br><input id="h${i}_${j}" class="hard-val-input" value="0" readonly></td>`;});hb.innerHTML+=row+`</tr>`;});
+        setInterval(loadChat, 5000); // 5초마다 채팅 불러오기
     }
 
+    // [로그인 및 모달]
+    function checkLogin(){const i=document.getElementById('emailInput').value.trim().toLowerCase();const u=userList.find(x=>x.email.toLowerCase()===i);if(u){sessionStorage.setItem('isLoggedIn','true');sessionStorage.setItem('userName',u.name);showApp();}else{showModal("알림","이메일 오류","alert");}}
+    function showApp(){document.getElementById('loginOverlay').style.display='none';document.getElementById('mainApp').style.display='block';}
+    function showModal(t,txt,type,onC){const m=document.getElementById('customModal');document.getElementById('modalTitle').innerText=t;document.getElementById('modalText').innerText=txt;const f=document.getElementById('modalFooter');m.style.display='flex';if(type==='confirm'){f.innerHTML=`<button class="modal-btn" style="color:#888; border-right:1px solid #eee;" onclick="closeModal()">취소</button><button class="modal-btn" style="color:#1a73e8;" id="mCBtn">확인</button>`;document.getElementById('mCBtn').onclick=()=>{closeModal();onC();};}else{f.innerHTML=`<button class="modal-btn" style="color:#1a73e8; width:100%;" onclick="closeModal(); if(window.finalReload) { window.onbeforeunload = null; location.reload(); }">확인</button>`;}}
+    function closeModal(){document.getElementById('customModal').style.display='none';}
+
+    // [선택 및 카운터]
     function selectUser(b,n,e){document.querySelectorAll('#userBtnGroup .select-btn').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');selectedUser=n;selectedEmail=e;}
     function selectType(b){document.querySelectorAll('.grid-3 .select-btn').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');selectedType=b.innerText;}
     function selectCar(b){document.querySelectorAll('#carBtnGroup .select-btn').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');selectedCar=b.innerText;}
@@ -195,12 +186,34 @@
         let ht=0;for(let i=0;i<hardCauses.length;i++){for(let j=0;j<hardActions.length;j++)ht+=parseInt(document.getElementById(`h${i}_${j}`).value);}document.getElementById('hardTotalDisp').innerText=ht;
     }
 
+    // [음성 인식]
     function startVoice(tid,bid){window.SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;if(!window.SpeechRecognition)return;const r=new window.SpeechRecognition();r.lang='ko-KR';r.onstart=()=>document.getElementById(bid).innerHTML="🔴";r.onresult=(e)=>document.getElementById(tid).value+=e.results[0][0].transcript;r.onend=()=>document.getElementById(bid).innerHTML="🎤";r.start();}
     
+    // [채팅 기능 복구]
+    function openChat(){document.getElementById('chatOverlay').style.display='flex'; loadChat();}
+    function closeChat(){document.getElementById('chatOverlay').style.display='none';}
+    function sendChat(){
+        const input = document.getElementById('chatInput');
+        const msg = input.value.trim();
+        if(!msg) return;
+        const name = sessionStorage.getItem('userName') || "익명";
+        fetch(GAS_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({type:'chat', user:name, message:msg})});
+        input.value=''; setTimeout(loadChat, 500);
+    }
+    function loadChat(){
+        if(document.getElementById('chatOverlay').style.display==='none') return;
+        fetch(GAS_URL+'?type=chat').then(r=>r.json()).then(data=>{
+            const cont = document.getElementById('chatContent');
+            cont.innerHTML = data.map(m=>`<div style="background:white; padding:10px; border-radius:10px; align-self:flex-start; max-width:80%; shadow:sm;"><b style="color:#1a73e8; font-size:12px;">${m.user}</b><br>${m.message}</div>`).join('');
+            cont.scrollTop = cont.scrollHeight;
+        });
+    }
+
+    // [기록 전송]
     function addRecord(){
         if(!selectedUser)return showModal("알림","작성자를 선택하세요.","alert");
         const btn=document.getElementById('submitBtn');btn.disabled=true;btn.innerText="전송 중...";
-        const payload={"type":"report","날짜":new Date().toLocaleDateString().replace(/\.$/,""),"작성자":selectedUser,"이메일":selectedEmail,"업무":selectedType,"차량":selectedCar,"근무":selectedShift,"SSD버전":document.getElementById('ssdVersion').value,"자율거리":document.getElementById('autoDist').value||"0","자율시간":document.getElementById('autoTime').value||"000000","누적ODO":document.getElementById('totalOdo').value||"0","소프트합계":document.getElementById('softTotalDisp').innerText,"하드합계":document.getElementById('hardTotalDisp').innerText,"이슈사항":document.getElementById('workIssue').value};
+        const payload={"type":"report","날짜":new Date().toLocaleDateString(),"작성자":selectedUser,"이메일":selectedEmail,"업무":selectedType,"차량":selectedCar,"근무":selectedShift,"SSD버전":document.getElementById('ssdVersion').value,"자율거리":document.getElementById('autoDist').value||"0","자율시간":document.getElementById('autoTime').value||"000000","누적ODO":document.getElementById('totalOdo').value||"0","소프트합계":document.getElementById('softTotalDisp').innerText,"하드합계":document.getElementById('hardTotalDisp').innerText,"이슈사항":document.getElementById('workIssue').value};
         softKeys.forEach((k,i)=>payload[k]=document.getElementById('s'+i).value);
         hardCauses.forEach((c,i)=>{hardActions.forEach((a,j)=>payload[`하드(${c}-${actionMap[a]})`]=document.getElementById(`h${i}_${j}`).value);});
         window.onbeforeunload = null;
