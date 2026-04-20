@@ -10,9 +10,6 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#1a73e8">
     
-    <link rel="apple-touch-icon" href="logo_app.png">
-    <link rel="manifest" href="/safetydriver/manifest.json">
-
     <title>안전운행팀 보고서</title>
     
     <style>
@@ -26,12 +23,13 @@
         .team-subtitle { color: #718096; font-size: 0.9rem; margin-bottom: 30px; }
         .login-input { width: 100%; padding: 16px; margin-bottom: 15px; border: 2px solid #edf2f7; border-radius: 14px; font-size: 16px; text-align: center; outline: none; transition: border-color 0.2s; }
         .login-input:focus { border-color: #1a73e8; }
-        .btn-login { width: 100%; padding: 16px; background: #1a73e8; color: white; border: none; border-radius: 14px; font-size: 17px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        .btn-login { width: 100%; padding: 16px; background: #1a73e8; color: white; border: none; border-radius: 14px; font-size: 17px; font-weight: bold; cursor: pointer; }
 
+        #mainApp { display: none; background: white; padding: 15px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 5px; }
         .header-title { color: #1a73e8; font-size: 1.1rem; font-weight: bold; margin: 0; }
-        .btn-chat-open { background: none; border: none; font-size: 26px; cursor: pointer; padding: 5px; }
-        #mainApp { display: none; background: white; padding: 15px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .btn-chat-open { background: none; border: none; font-size: 26px; cursor: pointer; }
+
         .section { margin-bottom: 15px; padding: 12px; border: 1px solid #edf2f7; border-radius: 12px; background-color: #fdfdfe; }
         label { display: block; margin-bottom: 10px; font-weight: bold; font-size: 14px; color: #4a5568; }
         .btn-grid { display: grid; gap: 6px; }
@@ -42,33 +40,34 @@
         .select-btn.selected { background-color: #1a73e8 !important; color: white !important; }
         .text-input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; outline: none; }
         
+        /* 음성 인식 버튼 애니메이션 추가 */
+        .voice-btn { border:none; background:#f1f3f5; border-radius:50%; width:40px; height:40px; cursor:pointer; font-size:18px; transition: 0.3s; display: flex; align-items: center; justify-content: center; }
+        .voice-btn.active { background:#e03131; color:white; animation: pulse 1.2s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(224, 49, 49, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(224, 49, 49, 0); } 100% { box-shadow: 0 0 0 0 rgba(224, 49, 49, 0); } }
+
         .category-item { background: #f8fafc; padding: 10px 12px; border-radius: 10px; border: 1px solid #eef2f8; display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
         .counter-group { display: flex; align-items: center; gap: 8px; }
-        .btn-sm { width: 34px; height: 34px; border-radius: 50%; border: none; background: #1a73e8; color: white; font-size: 20px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .counter-val { width: 30px; text-align: center; font-weight: 800; font-size: 16px; border: none; background: transparent; color: #333; }
-        .hard-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        .hard-table th { font-size: 10px; background: #f1f3f5; padding: 8px 0; border: 1px solid #eee; }
-        .hard-title-cell { width: 65px; font-size: 10px; font-weight: 600; background-color: #fcfcfc; text-align: center; border: 1px solid #eee; overflow-wrap: break-word; }
-        .hard-btn-plus { border: none; background: #1a73e8; color: white; border-radius: 50%; width: 22px; height: 22px; font-weight: bold; cursor: pointer; margin-bottom: 2px; }
-        .hard-val-input { width: 20px; text-align: center; border: none; font-weight: bold; font-size: 13px; color: #333; background: transparent; }
-        td { border: 1px solid #eee; text-align: center; padding: 6px 0; vertical-align: middle; }
-        .btn-add { width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 17px; font-weight: bold; color: white; background: #28a745; margin-top: 10px; }
+        .btn-sm { width: 34px; height: 34px; border-radius: 50%; border: none; background: #1a73e8; color: white; font-size: 20px; font-weight: bold; cursor: pointer; }
+        .counter-val { width: 30px; text-align: center; font-weight: 800; font-size: 16px; border: none; background: transparent; }
 
-        /* 음성 인식 버튼 스타일 */
-        .voice-btn { border:none; background:#f1f3f5; border-radius:50%; width:40px; height:40px; cursor:pointer; font-size:18px; margin-left:5px; transition: 0.3s; }
-        .voice-btn.active { background:#e03131; color:white; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        .hard-table { width: 100%; border-collapse: collapse; }
+        .hard-table th { font-size: 10px; background: #f1f3f5; padding: 8px 0; border: 1px solid #eee; }
+        .hard-title-cell { width: 65px; font-size: 10px; font-weight: 600; background-color: #fcfcfc; text-align: center; border: 1px solid #eee; }
+        .hard-btn-plus { border: none; background: #1a73e8; color: white; border-radius: 50%; width: 22px; height: 22px; font-weight: bold; }
+        .hard-val-input { width: 20px; text-align: center; border: none; font-weight: bold; }
+        td { border: 1px solid #eee; text-align: center; padding: 6px 0; }
+
+        .btn-add { width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 17px; font-weight: bold; color: white; background: #28a745; margin-top: 10px; }
 
         #chatOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 10000; display: none; flex-direction: column; }
         .chat-nav { padding: 18px 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; background: #1a73e8; color: white; }
         .btn-back { background: none; border: none; color: white; font-size: 22px; margin-right: 15px; }
-        .chat-content { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; background: #f1f3f5; }
-        .chat-msg { background: white; padding: 10px 14px; border-radius: 18px; max-width: 85%; font-size: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-top-left-radius: 2px; align-self: flex-start; word-break: break-all; }
+        .chat-content { flex: 1; overflow-y: auto; padding: 15px; background: #f1f3f5; display: flex; flex-direction: column; gap: 12px; }
+        .chat-msg { background: white; padding: 10px 14px; border-radius: 18px; max-width: 85%; font-size: 14px; border-top-left-radius: 2px; align-self: flex-start; }
         .chat-msg.mine { align-self: flex-end; background: #e3f2fd; border-top-left-radius: 18px; border-top-right-radius: 2px; }
-        .chat-msg b { color: #1a73e8; font-size: 11px; display: block; margin-bottom: 4px; }
         .chat-input-bar { padding: 12px 15px; border-top: 1px solid #eee; display: flex; align-items: center; gap: 8px; background: white; padding-bottom: env(safe-area-inset-bottom, 20px); }
-        .chat-input-bar input { flex: 1; border: 1px solid #e2e8f0; border-radius: 25px; padding: 12px 18px; outline: none; background: #f8fafc; font-size: 14px; }
-        .btn-send { background: #1a73e8; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; flex-shrink:0; }
+        .chat-input-bar input { flex: 1; border: 1px solid #e2e8f0; border-radius: 25px; padding: 12px 18px; outline: none; }
+        .btn-send { background: #1a73e8; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; flex-shrink: 0; }
     </style>
 </head>
 <body>
@@ -103,7 +102,7 @@
             <label style="margin:0;">10. 이슈 사항</label>
             <button class="voice-btn" id="voiceBtn_issue" onclick="startVoice('workIssue', 'voiceBtn_issue')">🎤</button>
         </div>
-        <textarea id="workIssue" style="width:100%; height:80px; border:1px solid #e2e8f0; border-radius:10px; outline:none; padding:10px; font-family:inherit; font-size:15px; transition:0.3s;"></textarea>
+        <textarea id="workIssue" style="width:100%; height:80px; border:1px solid #e2e8f0; border-radius:10px; outline:none; padding:10px; font-family:inherit;"></textarea>
     </div>
 
     <button class="btn-add" id="submitBtn" onclick="addRecord()">보고서 기록하기</button>
@@ -121,7 +120,9 @@
 
 <script>
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbyOY5kUMKdbyjk7bTqELrB2H7vm-fnPj3EUiOfop483-2PFFkU3A7r7eqmmpj4h9aR4/exec';
-
+    
+    // 음성 인식 객체 전역 선언 (로딩 지연 방지)
+    window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let selectedUser = "", selectedEmail = "", selectedType = "", selectedCar = "", selectedShift = "";
     const softKeys = ["운전자판단", "시스템이상", "교통약자보호", "신호위반", "신호등지시", "교차로딜레마", "도로상황", "차선변경", "급정지/서행", "보호의무"];
     const hardCauses = ["시스템 이상", "신호 위반/지시", "교차로 딜레마", "도로 상황", "운전자 실수"];
@@ -129,40 +130,30 @@
     const actionMap = {"브레이크":"B", "핸들":"H", "엑셀":"A", "시스템":"S"};
     let chatInterval;
 
-    // [음성 인식 기능]
     function startVoice(targetId, btnId) {
-        window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!window.SpeechRecognition) { alert("이 브라우저는 음성 인식을 지원하지 않습니다."); return; }
-
-        const recognition = new SpeechRecognition();
+        const recognition = new window.SpeechRecognition();
         recognition.lang = 'ko-KR';
         const targetInput = document.getElementById(targetId);
         const btn = document.getElementById(btnId);
 
         recognition.onstart = function() {
             btn.classList.add('active');
-            targetInput.style.borderColor = "#e03131";
-            targetInput.placeholder = "듣고 있습니다... 말씀하세요.";
+            btn.innerHTML = "🔴";
+            targetInput.placeholder = "말씀해 주세요...";
         };
-
         recognition.onresult = function(event) {
             const text = event.results[0][0].transcript;
-            // 기존 내용 뒤에 붙이거나 새로 작성
             targetInput.value = targetInput.value ? targetInput.value + " " + text : text;
         };
-
-        recognition.onerror = function() { alert("음성 인식에 실패했습니다. 마이크 권한을 확인하세요."); };
-
         recognition.onend = function() {
             btn.classList.remove('active');
-            targetInput.style.borderColor = "#e2e8f0";
+            btn.innerHTML = "🎤";
             targetInput.placeholder = targetId === 'chatInput' ? "메세지 입력..." : "";
         };
-
         recognition.start();
     }
 
-    // [뒤로가기 방어 로직]
     function initBackControl() {
         window.history.pushState(null, null, window.location.href);
         window.onpopstate = function() {
@@ -178,8 +169,6 @@
             }
         };
     }
-
-    function handleBackAction() { closeChat(); }
 
     function checkLogin() {
         const input = document.getElementById('emailInput').value.trim().toLowerCase();
@@ -202,21 +191,20 @@
         displayChats(); 
         chatInterval = setInterval(displayChats, 5000);
     }
-
     function closeChat() { 
         document.getElementById('chatOverlay').style.display = 'none'; 
         clearInterval(chatInterval);
     }
+    function handleBackAction() { closeChat(); }
 
     function sendChat() {
         const input = document.getElementById('chatInput');
-        const text = input.value.trim();
-        if(!text) return;
-        const currentName = sessionStorage.getItem('userName') || "익명";
-        fetch(GAS_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ type: "chat", user: currentName, text: text }) });
-        input.value = "";
+        if(!input.value.trim()) return;
+        const currentName = sessionStorage.getItem('userName');
+        fetch(GAS_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ type: "chat", user: currentName, text: input.value }) });
         const container = document.getElementById('chatContent');
-        container.innerHTML += `<div class="chat-msg mine"><b>${currentName}</b>${text}</div>`;
+        container.innerHTML += `<div class="chat-msg mine"><b>${currentName}</b>${input.value}</div>`;
+        input.value = "";
         container.scrollTop = container.scrollHeight;
     }
 
@@ -260,12 +248,8 @@
 
     function addRecord() {
         if(!selectedUser) { alert('작성자를 선택해주세요!'); return; }
-        if (selectedType === "운행" && (!selectedCar || !document.getElementById('totalOdo').value)) {
-            alert('운행 시에는 [차량 선택]과 [누적 ODO] 입력이 필수입니다!'); return;
-        }
         const btn = document.getElementById('submitBtn');
         btn.disabled = true; btn.innerText = "전송 중...";
-        
         const payload = {
             "type": "report",
             "날짜": new Date().toLocaleDateString().replace(/\.$/, ""),
@@ -273,15 +257,13 @@
             "근무": selectedShift || "", "SSD버전": document.getElementById('ssdVersion').value || "", 
             "자율거리": document.getElementById('autoDist').value || "0",
             "자율시간": (function(v){ if(!v) return "00:00:00"; let s=v.toString().padStart(6,'0'); return `${s.substring(0,2)}:${s.substring(2,4)}:${s.substring(4,6)}`; })(document.getElementById('autoTime').value),
-            "누적ODO": document.getElementById('totalOdo').value ? Number(document.getElementById('totalOdo').value).toLocaleString() : "0",
+            "누적ODO": document.getElementById('totalOdo').value || "0",
             "소프트합계": document.getElementById('softTotalDisp').innerText,
             "하드합계": document.getElementById('hardTotalDisp').innerText,
             "이슈사항": document.getElementById('workIssue').value
         };
         softKeys.forEach((key, i) => { payload[key] = document.getElementById('s' + i).value; });
-        hardCauses.forEach((cause, i) => {
-            hardActions.forEach((action, j) => { payload[`하드(${cause}-${actionMap[action]})`] = document.getElementById(`h${i}_${j}`).value; });
-        });
+        hardCauses.forEach((cause, i) => { hardActions.forEach((action, j) => { payload[`하드(${cause}-${actionMap[action]})`] = document.getElementById(`h${i}_${j}`).value; }); });
 
         fetch(GAS_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
         .then(() => { alert('기록 완료!'); location.reload(); })
