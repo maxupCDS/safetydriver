@@ -147,7 +147,7 @@
 </div>
 
 <script>
-    // [설정] 구글 앱스 스크립트 배포 URL (반드시 본인의 URL로 수정하세요)
+    // [중요 설정] 본인의 구글 앱스 스크립트 웹 앱 URL을 여기에 넣으세요.
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbyOY5kUMKdbyjk7bTqELrB2H7vm-fnPj3EUiOfop483-2PFFkU3A7r7eqmmpj4h9aR4/exec';
 
     let selectedUser = "", selectedEmail = "", selectedType = "", selectedCar = "", selectedShift = "";
@@ -155,9 +155,30 @@
     const hardCauses = ["시스템 이상", "신호 위반/지시", "교차로 딜레마", "도로 상황", "운전자 실수"];
     const hardActions = ["브레이크", "핸들", "엑셀", "시스템"];
     const actionMap = {"브레이크":"B", "핸들":"H", "엑셀":"A", "시스템":"S"};
-
-    // 자동 갱신 타이머 변수
     let chatInterval;
+
+    // [종료 방지 로직]
+    window.addEventListener('beforeunload', function (e) {
+        if (sessionStorage.getItem('isLoggedIn') === 'true') {
+            e.preventDefault(); e.returnValue = '';
+        }
+    });
+
+    function initBackControl() {
+        window.history.pushState(null, null, window.location.href);
+        window.onpopstate = function() {
+            if (document.getElementById('chatOverlay').style.display === 'flex') {
+                closeChat();
+                window.history.pushState(null, null, window.location.href);
+            } else {
+                if (confirm("앱을 종료하시겠습니까? 작성 중인 내용은 저장되지 않습니다.")) {
+                    window.history.back();
+                } else {
+                    window.history.pushState(null, null, window.location.href);
+                }
+            }
+        };
+    }
 
     // [로그인 로직]
     function checkLogin() {
@@ -172,54 +193,40 @@
     function showApp() { 
         document.getElementById('loginOverlay').style.display = 'none'; 
         document.getElementById('mainApp').style.display = 'block'; 
+        initBackControl();
     }
 
     // [채팅 기능]
     function openChat() { 
         document.getElementById('chatOverlay').style.display = 'flex'; 
         displayChats(); 
-        // 5초마다 채팅 갱신 시작
         chatInterval = setInterval(displayChats, 5000);
     }
     function closeChat() { 
         document.getElementById('chatOverlay').style.display = 'none'; 
         clearInterval(chatInterval);
     }
-
     function sendChat() {
         const input = document.getElementById('chatInput');
         const text = input.value.trim();
         if(!text) return;
-        
         const currentName = sessionStorage.getItem('userName') || "익명";
-        const chatPayload = { type: "chat", user: currentName, text: text };
-
-        // 구글 시트로 전송 (CORS 이슈로 no-cors 사용 시 응답 확인은 불가하나 데이터는 전송됨)
-        fetch(GAS_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(chatPayload) });
-        
+        fetch(GAS_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ type: "chat", user: currentName, text: text }) });
         input.value = "";
-        // 전송 후 사용자 경험을 위해 즉시 로컬에 임시 추가 (선택사항)
+        // 즉시 로컬 반영 (시각적 피드백)
         const container = document.getElementById('chatContent');
         container.innerHTML += `<div class="chat-msg mine"><b>${currentName}</b>${text}</div>`;
         container.scrollTop = container.scrollHeight;
     }
-
     function displayChats() {
         const currentName = sessionStorage.getItem('userName');
-        fetch(GAS_URL)
-        .then(res => res.json())
-        .then(chats => {
+        fetch(GAS_URL).then(res => res.json()).then(chats => {
             const container = document.getElementById('chatContent');
-            container.innerHTML = chats.map(m => `
-                <div class="chat-msg ${m.user === currentName ? 'mine' : ''}">
-                    <b>${m.user}</b>${m.text}
-                </div>
-            `).join('');
+            container.innerHTML = chats.map(m => `<div class="chat-msg ${m.user === currentName ? 'mine' : ''}"><b>${m.user}</b>${m.text}</div>`).join('');
             container.scrollTop = container.scrollHeight;
-        }).catch(e => console.log("채팅 데이터 로드 실패"));
+        }).catch(e => console.log("로드 실패"));
     }
 
-    // [앱 초기화]
     window.onload = function() {
         if (sessionStorage.getItem('isLoggedIn') === 'true') showApp();
         const sc = document.getElementById('softContainer');
@@ -249,20 +256,16 @@
         document.getElementById('hardTotalDisp').innerText = ht;
     }
 
-    // [보고서 전송]
     function addRecord() {
         if(!selectedUser) { alert('작성자를 선택해주세요!'); return; }
-        if (selectedType === "운행") {
-            if (!selectedCar || !document.getElementById('totalOdo').value) {
-                alert('운행 시에는 [차량 선택]과 [누적 ODO] 입력이 필수입니다!'); return;
-            }
+        if (selectedType === "운행" && (!selectedCar || !document.getElementById('totalOdo').value)) {
+            alert('운행 시에는 [차량 선택]과 [누적 ODO] 입력이 필수입니다!'); return;
         }
-
         const btn = document.getElementById('submitBtn');
         btn.disabled = true; btn.innerText = "전송 중...";
         
         const payload = {
-            "type": "report", // 보고서임을 명시
+            "type": "report",
             "날짜": new Date().toLocaleDateString().replace(/\.$/, ""),
             "작성자": selectedUser, "이메일": selectedEmail, "업무": selectedType || "기타", "차량": selectedCar || "없음",
             "근무": selectedShift || "", "SSD버전": document.getElementById('ssdVersion').value || "", 
@@ -273,13 +276,9 @@
             "하드합계": document.getElementById('hardTotalDisp').innerText,
             "이슈사항": document.getElementById('workIssue').value
         };
-
         softKeys.forEach((key, i) => { payload[key] = document.getElementById('s' + i).value; });
         hardCauses.forEach((cause, i) => {
-            hardActions.forEach((action, j) => {
-                const keyName = `하드(${cause}-${actionMap[action]})`; 
-                payload[keyName] = document.getElementById(`h${i}_${j}`).value;
-            });
+            hardActions.forEach((action, j) => { payload[`하드(${cause}-${actionMap[action]})`] = document.getElementById(`h${i}_${j}`).value; });
         });
 
         fetch(GAS_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
