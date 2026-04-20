@@ -220,17 +220,37 @@
     function closeChat(){document.getElementById('chatOverlay').style.display='none';}
     
     function sendChat(){
-        const input = document.getElementById('chatInput');
-        const msg = input.value.trim();
-        if(!msg) return;
-        const name = sessionStorage.getItem('userName') || "익명";
-        const cont = document.getElementById('chatContent');
-        cont.innerHTML += `<div style="background:#fff; padding:10px; border-radius:10px; align-self:flex-end; max-width:80%; border:1px solid #dcf8c6;"><b style="color:#28a745; font-size:11px;">나</b><br>${msg}</div>`;
-        cont.scrollTop = cont.scrollHeight;
-        fetch(GAS_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({type:'chat', user:name, message:msg})});
-        input.value='';
-        setTimeout(loadChat, 1000);
-    }
+    const input = document.getElementById('chatInput');
+    const msg = input.value.trim();
+    if(!msg) return;
+
+    // [수정 포인트] sessionStorage에서 로그인된 이름을 가져옵니다.
+    const name = sessionStorage.getItem('userName') || "익명"; 
+    const cont = document.getElementById('chatContent');
+    
+    // 화면에 즉시 표시할 때도 '나' 대신 '이름'이 나오게 합니다.
+    cont.innerHTML += `
+        <div style="background:#fff; padding:10px; border-radius:10px; align-self:flex-end; max-width:80%; border:1px solid #dcf8c6;">
+            <b style="color:#28a745; font-size:11px;">${name}</b><br>
+            ${msg}
+        </div>`;
+        
+    cont.scrollTop = cont.scrollHeight;
+    
+    // GAS로 데이터를 보낼 때 name 변수를 함께 보냅니다.
+    fetch(GAS_URL, {
+        method:'POST', 
+        mode:'no-cors', 
+        body:JSON.stringify({
+            type:'chat', 
+            user: name,    // 여기서 이름이 전달됩니다!
+            message: msg
+        })
+    });
+    
+    input.value = '';
+    setTimeout(loadChat, 1000);
+}
 
     function loadChat(){
         if(document.getElementById('chatOverlay').style.display==='none') return;
