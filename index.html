@@ -240,7 +240,7 @@
     function addRecord(){
         if(!selectedUser)return showModal("알림","작성자를 선택하세요.","alert");
         const btn=document.getElementById('submitBtn');btn.disabled=true;btn.innerText="전송 중...";
-        const payload={"type":"report","날짜":new Date().toLocaleDateString(),"작성자":selectedUser,"이메일":selectedEmail,"업무":selectedType,"차량":selectedCar,"근무":selectedShift,"SSD버전":document.getElementById('ssdVersion').value,"자율거리":document.getElementById('autoDist').value||"0","자율시간":document.getElementById('autoTime').value||"000000","누적ODO":document.getElementById('totalOdo').value||"0","소프트합계":document.getElementById('softTotalDisp').innerText,"하드합계":document.getElementById('hardTotalDisp').innerText,"이슈사항":document.getElementById('workIssue').value};
+        const payload={"type":"report","날짜":new Date().toLocaleDateString().replace(/\.$/,""),"작성자":selectedUser,"이메일":selectedEmail,"업무":selectedType,"차량":selectedCar,"근무":selectedShift,"SSD버전":document.getElementById('ssdVersion').value,"자율거리":document.getElementById('autoDist').value||"0","자율시간":document.getElementById('autoTime').value||"000000","누적ODO":document.getElementById('totalOdo').value||"0","소프트합계":document.getElementById('softTotalDisp').innerText,"하드합계":document.getElementById('hardTotalDisp').innerText,"이슈사항":document.getElementById('workIssue').value};
         softKeys.forEach((k,i)=>payload[k]=document.getElementById('s'+i).value);
         hardCauses.forEach((c,i)=>{hardActions.forEach((a,j)=>payload[`하드(${c}-${actionMap[a]})`]=document.getElementById(`h${i}_${j}`).value);});
         window.onbeforeunload = null;
