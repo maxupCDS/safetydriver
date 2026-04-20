@@ -2,8 +2,8 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="운행보고">
@@ -12,19 +12,11 @@
     
     <link rel="apple-touch-icon" href="logo_app.png">
     <link rel="manifest" href="/safetydriver/manifest.json">
-    <script>
-  if ('serviceWorker' in navigator) {
-    // 경로 앞에 /safetydriver/ 를 붙여야 깃허브가 파일을 찾습니다.
-    navigator.serviceWorker.register('/safetydriver/sw.js')
-      .then(reg => console.log("서비스 워커 등록 성공:", reg.scope))
-      .catch(err => console.log("등록 실패:", err));
-  }
-</script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
     <title>안전운행팀 보고서</title>
     
     <style>
-        /* [공통 스타일 및 로그인 디자인] */
+        /* [디자인 스타일] */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 12px; background-color: #f5f7fa; color: #333; }
         
@@ -36,7 +28,6 @@
         .login-input:focus { border-color: #1a73e8; }
         .btn-login { width: 100%; padding: 16px; background: #1a73e8; color: white; border: none; border-radius: 14px; font-size: 17px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
 
-        /* [메인 앱 스타일] */
         .header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 5px; }
         .header-title { color: #1a73e8; font-size: 1.1rem; font-weight: bold; margin: 0; }
         .btn-chat-open { background: none; border: none; font-size: 26px; cursor: pointer; padding: 5px; }
@@ -123,7 +114,6 @@
     <div class="section"><label>4. SSD 버전</label><input type="text" id="ssdVersion" class="text-input"></div>
     <div class="section"><label>5. 자율거리(km)</label><input type="number" id="autoDist" class="text-input"></div>
     <div class="section"><label>6. 자율시간(6자리)</label><input type="number" id="autoTime" class="text-input"></div>
-    
     <div class="section"><label>7. 누적 ODO(km)</label><input type="number" id="totalOdo" class="text-input"></div>
 
     <div class="section">
@@ -162,6 +152,12 @@
     const hardActions = ["브레이크", "핸들", "엑셀", "시스템"];
     const actionMap = {"브레이크":"B", "핸들":"H", "엑셀":"A", "시스템":"S"};
 
+    // PWA 서비스 워커 등록
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/safetydriver/sw.js').catch(() => {});
+    }
+
+    // [로그인 로직]
     function checkLogin() {
         const input = document.getElementById('emailInput').value.trim().toLowerCase();
         const user = userList.find(u => u.email.toLowerCase() === input);
@@ -171,7 +167,12 @@
             showApp();
         } else { alert('등록된 이메일이 아닙니다.'); }
     }
-    function showApp() { document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('mainApp').style.display = 'block'; }
+    function showApp() { 
+        document.getElementById('loginOverlay').style.display = 'none'; 
+        document.getElementById('mainApp').style.display = 'block'; 
+    }
+
+    // 채팅 기능
     function openChat() { document.getElementById('chatOverlay').style.display = 'flex'; displayChats(); }
     function closeChat() { document.getElementById('chatOverlay').style.display = 'none'; }
     function sendChat() {
@@ -219,68 +220,47 @@
         document.getElementById('hardTotalDisp').innerText = ht;
     }
 
+    // [전송 로직] 동승/내근 시 필수항목 예외처리 포함
     function addRecord() {
-function addRecord() {
-    // 1. 필수 공통 항목 (작성자는 무조건 있어야 함)
-    if (!selectedUser) { 
-        alert('작성자를 선택해주세요!'); 
-        return; 
-    }
+        if(!selectedUser) { alert('작성자를 선택해주세요!'); return; }
 
-    // 2. 업무 타입에 따른 유효성 검사 (운행일 때만 차량/ODO 필수)
-    if (selectedType === "운행") {
-        if (!selectedCar || !document.getElementById('totalOdo').value) {
-            alert('운행 시에는 [차량 선택]과 [누적 ODO] 입력이 필수입니다!');
-            return;
+        // 업무가 '운행'일 때만 차량과 ODO 필수 체크
+        if (selectedType === "운행") {
+            if (!selectedCar || !document.getElementById('totalOdo').value) {
+                alert('운행 시에는 [차량 선택]과 [누적 ODO] 입력이 필수입니다!');
+                return;
+            }
         }
-    }
 
-    const btn = document.getElementById('submitBtn');
-    btn.disabled = true; 
-    btn.innerText = "전송 중...";
-    
-    // 데이터 정리 (선택 안 된 값들은 빈 문자열로 처리)
-    const payload = {
-        "날짜": new Date().toLocaleDateString().replace(/\.$/, ""),
-        "작성자": selectedUser, 
-        "이메일": selectedEmail, 
-        "업무": selectedType || "미선택", 
-        "차량": selectedCar || "",
-        "근무": selectedShift || "", 
-        "SSD버전": document.getElementById('ssdVersion').value || "", 
-        "자율거리": document.getElementById('autoDist').value || "0",
-        "자율시간": (function(v){ 
-            if(!v) return ""; 
-            let s=v.toString().padStart(6,'0'); 
-            return `${s.substring(0,2)}:${s.substring(2,4)}:${s.substring(4,6)}`; 
-        })(document.getElementById('autoTime').value),
-        "누적ODO": document.getElementById('totalOdo').value ? Number(document.getElementById('totalOdo').value).toLocaleString() : "0",
-        "소프트합계": document.getElementById('softTotalDisp').innerText,
-        "하드합계": document.getElementById('hardTotalDisp').innerText,
-        "이슈사항": document.getElementById('workIssue').value
-    };
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true; btn.innerText = "전송 중...";
+        
+        const payload = {
+            "날짜": new Date().toLocaleDateString().replace(/\.$/, ""),
+            "작성자": selectedUser, "이메일": selectedEmail, "업무": selectedType || "기타", "차량": selectedCar || "없음",
+            "근무": selectedShift || "", "SSD버전": document.getElementById('ssdVersion').value || "", 
+            "자율거리": document.getElementById('autoDist').value || "0",
+            "자율시간": (function(v){ if(!v) return "00:00:00"; let s=v.toString().padStart(6,'0'); return `${s.substring(0,2)}:${s.substring(2,4)}:${s.substring(4,6)}`; })(document.getElementById('autoTime').value),
+            "누적ODO": document.getElementById('totalOdo').value ? Number(document.getElementById('totalOdo').value).toLocaleString() : "0",
+            "소프트합계": document.getElementById('softTotalDisp').innerText,
+            "하드합계": document.getElementById('hardTotalDisp').innerText,
+            "이슈사항": document.getElementById('workIssue').value
+        };
 
-    // 소프트/하드 데이터 추가
-    softKeys.forEach((key, i) => { payload[key] = document.getElementById('s' + i).value; });
-    hardCauses.forEach((cause, i) => {
-        hardActions.forEach((action, j) => {
-            const keyName = `하드(${cause}-${actionMap[action]})`; 
-            payload[keyName] = document.getElementById(`h${i}_${j}`).value;
+        softKeys.forEach((key, i) => { payload[key] = document.getElementById('s' + i).value; });
+        hardCauses.forEach((cause, i) => {
+            hardActions.forEach((action, j) => {
+                const keyName = `하드(${cause}-${actionMap[action]})`; 
+                payload[keyName] = document.getElementById(`h${i}_${j}`).value;
+            });
         });
-    });
 
-    fetch('https://script.google.com/macros/s/AKfycbzhq61bJ0FtnX8iOH5Q21ktplrCKIm27ne0-1Vt_tpVAuw2RdxvWI-C88wAHIiQ-GBP/exec', 
-    { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
-    .then(() => { 
-        alert('보고서가 기록되었습니다!'); 
-        location.reload(); 
-    })
-    .catch(() => alert('전송 중 오류가 발생했습니다.'))
-    .finally(() => { 
-        btn.disabled = false; 
-        btn.innerText = "보고서 기록하기"; 
-    });
-}
+        fetch('https://script.google.com/macros/s/AKfycbzhq61bJ0FtnX8iOH5Q21ktplrCKIm27ne0-1Vt_tpVAuw2RdxvWI-C88wAHIiQ-GBP/exec', 
+        { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
+        .then(() => { alert('기록 완료!'); location.reload(); })
+        .catch(() => alert('전송 오류'))
+        .finally(() => { btn.disabled = false; btn.innerText = "보고서 기록하기"; });
+    }
 </script>
 </body>
 </html>
