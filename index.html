@@ -138,7 +138,7 @@
 </div>
 
 <div id="chatOverlay">
-    <div class="chat-nav"><button class="btn-back" onclick="closeChat()">←</button><b>팀 소통방</b></div>
+    <div class="chat-nav"><button class="btn-back" onclick="handleBackAction()">←</button><b>팀 소통방</b></div>
     <div id="chatContent" class="chat-content"></div>
     <div class="chat-input-bar">
         <input type="text" id="chatInput" placeholder="메세지 입력..." onkeypress="if(event.keyCode==13) sendChat()">
@@ -147,7 +147,7 @@
 </div>
 
 <script>
-    // [중요 설정] 본인의 구글 앱스 스크립트 웹 앱 URL을 여기에 넣으세요.
+    // [설정] 본인의 구글 앱스 스크립트 배포 URL 입력
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbyOY5kUMKdbyjk7bTqELrB2H7vm-fnPj3EUiOfop483-2PFFkU3A7r7eqmmpj4h9aR4/exec';
 
     let selectedUser = "", selectedEmail = "", selectedType = "", selectedCar = "", selectedShift = "";
@@ -157,27 +157,35 @@
     const actionMap = {"브레이크":"B", "핸들":"H", "엑셀":"A", "시스템":"S"};
     let chatInterval;
 
-    // [종료 방지 로직]
-    window.addEventListener('beforeunload', function (e) {
-        if (sessionStorage.getItem('isLoggedIn') === 'true') {
-            e.preventDefault(); e.returnValue = '';
-        }
-    });
-
+    // [종료 및 뒤로가기 무한 방어 로직]
     function initBackControl() {
+        // 현재 페이지의 히스토리 스택을 하나 추가함 (방어막 형성)
         window.history.pushState(null, null, window.location.href);
-        window.onpopstate = function() {
+        
+        window.onpopstate = function(event) {
+            // 채팅창이 열려 있는 경우
             if (document.getElementById('chatOverlay').style.display === 'flex') {
                 closeChat();
+                // 채팅창 닫은 후 다시 방어막 생성 (보고서 작성 화면 보호)
                 window.history.pushState(null, null, window.location.href);
             } else {
+                // 메인 화면에서 뒤로가기 시도 시 알림창 출력
                 if (confirm("앱을 종료하시겠습니까? 작성 중인 내용은 저장되지 않습니다.")) {
-                    window.history.back();
+                    // 확인 클릭 시 한 단계 더 뒤로 이동 (실제 종료/이전 페이지)
+                    window.history.back(); 
                 } else {
+                    // 취소 클릭 시 소모된 방어막 즉시 재생성 (무한 반복 가능)
                     window.history.pushState(null, null, window.location.href);
                 }
             }
         };
+    }
+
+    // 상단 뒤로가기 화살표 버튼 클릭 시 동작
+    function handleBackAction() {
+        // 수동으로 닫을 때도 히스토리 로직이 꼬이지 않게 처리
+        closeChat();
+        // 이미 onpopstate가 히스토리를 하나 소비하므로 여기서는 수동으로 재생성하지 않아도 됨
     }
 
     // [로그인 로직]
@@ -193,7 +201,7 @@
     function showApp() { 
         document.getElementById('loginOverlay').style.display = 'none'; 
         document.getElementById('mainApp').style.display = 'block'; 
-        initBackControl();
+        initBackControl(); // 로그인 직후 방어막 가동
     }
 
     // [채팅 기능]
@@ -213,7 +221,6 @@
         const currentName = sessionStorage.getItem('userName') || "익명";
         fetch(GAS_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ type: "chat", user: currentName, text: text }) });
         input.value = "";
-        // 즉시 로컬 반영 (시각적 피드백)
         const container = document.getElementById('chatContent');
         container.innerHTML += `<div class="chat-msg mine"><b>${currentName}</b>${text}</div>`;
         container.scrollTop = container.scrollHeight;
@@ -224,7 +231,7 @@
             const container = document.getElementById('chatContent');
             container.innerHTML = chats.map(m => `<div class="chat-msg ${m.user === currentName ? 'mine' : ''}"><b>${m.user}</b>${m.text}</div>`).join('');
             container.scrollTop = container.scrollHeight;
-        }).catch(e => console.log("로드 실패"));
+        }).catch(e => console.log("채팅 데이터 로드 실패"));
     }
 
     window.onload = function() {
