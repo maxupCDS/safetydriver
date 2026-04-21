@@ -16,21 +16,17 @@
     
     <title>안전운행팀 보고서</title>
     <style>
-        /* [1. 전역 및 레이아웃] */
+        /* [기존 스타일 유지] */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 12px; background-color: #f5f7fa; color: #333; overflow-x: hidden; width: 100%; }
-        
         #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%); display: flex; align-items: center; justify-content: center; z-index: 9999; }
         .login-card { background: white; padding: 40px 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; width: 90%; max-width: 350px; }
         .team-title { color: #1a73e8; font-size: 1.4rem; font-weight: 900; margin-bottom: 25px; }
         .login-input { width: 100%; padding: 14px; margin-bottom: 12px; border: 2px solid #edf2f7; border-radius: 12px; font-size: 16px; text-align: center; outline: none; }
         .btn-login { width: 100%; padding: 15px; background: #1a73e8; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; }
-
         #mainApp { display: none; width: 100%; max-width: 600px; margin: 0 auto; background: white; padding: 15px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 50px; }
         .header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #f1f3f5; padding-bottom: 10px; }
         .header-title { color: #1a73e8; font-size: 1.1rem; font-weight: bold; }
-
-        /* [2. 입력 섹션 공통] */
         .section { margin-bottom: 15px; padding: 15px; border: 1px solid #edf2f7; border-radius: 12px; background-color: #fdfdfe; width: 100%; }
         label { display: block; margin-bottom: 12px; font-weight: bold; font-size: 16px; color: #333; }
         .btn-grid { display: grid; gap: 8px; width: 100%; }
@@ -39,15 +35,11 @@
         .select-btn { padding: 14px 2px; border: 1px solid #e2e8f0; background: #fff; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #4a5568; text-align: center; }
         .select-btn.selected { background-color: #1a73e8 !important; color: white !important; border-color: #1a73e8; }
         .text-input { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; outline: none; background: #fff; }
-
-        /* [3. 소프트 테이크오버] */
         .category-item { background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid #eef2f8; display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
         .category-name { font-size: 14px; font-weight: 600; color: #333; flex: 1; margin-right: 10px; }
         .counter-group { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
         .btn-sm { width: 38px; height: 38px; border-radius: 50%; border: none; background: #1a73e8; color: white; font-size: 22px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
         .counter-val { width: 40px; text-align: center; font-weight: 800; font-size: 18px; border: none; background: transparent; color: #1a73e8; }
-
-        /* [4. 하드 테이크오버] */
         .hard-table-wrapper { width: 100%; border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
         .hard-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         .hard-table th { font-size: 11px; background: #f8fafc; padding: 10px 2px; border: 1px solid #eee; color: #4a5568; font-weight: bold; }
@@ -56,14 +48,11 @@
         .hard-cell-content { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; min-height: 60px; }
         .hard-btn-plus { border: none; background: #1a73e8; color: white; border-radius: 50%; width: 30px; height: 30px; font-weight: bold; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .hard-val-input { width: 100%; text-align: center; border: none; font-weight: 800; font-size: 16px; color: #1a73e8; background: transparent; outline: none; }
-
-        /* [5. 기타 UI 및 채팅] */
         .btn-add { width: 100%; padding: 18px; border: none; border-radius: 14px; font-size: 18px; font-weight: bold; color: white; background: #28a745; margin-top: 15px; }
         #chatOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 10000; display: none; flex-direction: column; }
         .chat-nav { padding: 18px; border-bottom: 1px solid #eee; display: flex; align-items: center; background: #1a73e8; color: white; }
         #chatContent { flex: 1; overflow-y: auto; padding: 15px; background: #f1f3f5; display: flex; flex-direction: column; gap: 10px; }
         .chat-footer { padding: 15px; display: flex; gap: 8px; background: white; padding-bottom: calc(15px + env(safe-area-inset-bottom)); }
-        
         #customModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 20000; padding: 20px; }
         .modal-card { background: white; border-radius: 20px; width: 100%; max-width: 320px; overflow: hidden; }
         .modal-body { padding: 25px 20px; text-align: center; border-bottom: 1px solid #eee; }
@@ -71,7 +60,8 @@
         .modal-btn { flex: 1; padding: 15px; border: none; background: transparent; font-size: 16px; font-weight: bold; }
     </style>
 </head>
-<body> <div id="loginOverlay"><div class="login-card"><div class="team-title">FUTURE LINK</div><input type="email" id="emailInput" class="login-input" placeholder="사내 이메일 입력"><button class="btn-login" onclick="checkLogin()">시작하기</button></div></div>
+<body>
+<div id="loginOverlay"><div class="login-card"><div class="team-title">FUTURE LINK</div><input type="email" id="emailInput" class="login-input" placeholder="사내 이메일 입력"><button class="btn-login" onclick="checkLogin()">시작하기</button></div></div>
 
 <div id="customModal"><div class="modal-card"><div class="modal-body"><div id="modalTitle" style="font-weight:bold; color:#1a73e8; margin-bottom:8px; font-size:18px;">알림</div><div id="modalText" style="font-size:15px; color:#555;">내용</div></div><div class="modal-footer" id="modalFooter"></div></div></div>
 
@@ -96,7 +86,7 @@
 
     <div class="section">
         <label>2. 업무 및 차량 선택</label>
-        <div class="btn-grid grid-3" id="typeBtnGroup" style="margin-bottom:12px;">
+        <div class="btn-grid grid-3" style="margin-bottom:12px;" id="typeBtnGroup">
             <button class="select-btn" onclick="selectType(this)">운행</button>
             <button class="select-btn" onclick="selectType(this)">동승</button>
             <button class="select-btn" onclick="selectType(this)">내근</button>
@@ -106,13 +96,7 @@
         </div>
     </div>
 
-    <div class="section">
-        <label>3. 근무방식</label>
-        <div class="btn-grid grid-2" id="shiftBtnGroup">
-            <button class="select-btn" onclick="selectShift(this)">주간</button>
-            <button class="select-btn" onclick="selectShift(this)">야간</button>
-        </div>
-    </div>
+    <div class="section"><label>3. 근무방식</label><div class="btn-grid grid-2" id="shiftBtnGroup"><button class="select-btn" onclick="selectShift(this)">주간</button><button class="select-btn" onclick="selectShift(this)">야간</button></div></div>
     
     <div class="section"><label>4. SSD 버전</label><input type="text" id="ssdVersion" class="text-input" oninput="saveInput(this)"></div>
     <div class="section"><label>5. 자율거리(km)</label><input type="number" id="autoDist" class="text-input" inputmode="decimal" oninput="saveInput(this)"></div>
@@ -154,14 +138,6 @@
 </div>
 
 <script>
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('https://maxupcds.github.io/safetydriver/sw.js')
-            .then(reg => console.log('SW 등록됨'))
-            .catch(err => console.log('SW 등록실패', err));
-        });
-    }
-
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbwI1WY8W6vra-04EuqR3gTMqwTnOr4-oPJ66Du-kkRnd8SPlAaXp3kybZi6PbDyfG78/exec';
     let selectedUser="", selectedEmail="", selectedType="", selectedCar="", selectedShift="";
     const softKeys=["운전자판단","시스템이상","교통약자보호","신호위반","신호등지시","교차로딜레마","도로상황","차선변경","급정지/서행","보호의무"];
@@ -169,6 +145,7 @@
     const hardActions=["브레이크","핸들","엑셀","시스템"];
     const actionMap={"브레이크":"B","핸들":"H","엑셀":"A","시스템":"S"};
 
+    // [페이지 초기 로드]
     window.onload=function(){
         if(sessionStorage.getItem('isLoggedIn')==='true')showApp();
         
@@ -186,73 +163,71 @@
             hb.innerHTML+=row+`</tr>`;
         });
 
-        // [자동 저장/복구] 데이터 복구 실행
+        // 데이터 복구 실행
         loadSavedData();
+        // 뒤로가기 방지 활성화
+        initBackFilter();
     }
 
-    // [자동 저장/복구] 텍스트 입력값 저장
-    function saveInput(el) {
-        localStorage.setItem('temp_' + el.id, el.value);
+    // [기능: 뒤로가기 완벽 방지]
+    function initBackFilter() {
+        window.history.pushState({page: 1}, "", window.location.href);
+        window.onpopstate = function() {
+            window.history.pushState({page: 1}, "", window.location.href);
+            showModal("경고", "메인 화면으로 이동하시겠습니까? (작성 중인 내용은 저장됩니다)", "confirm", function() {
+                window.onbeforeunload = null;
+                location.reload(); 
+            });
+        };
     }
+    // 터치 시점 브라우저 권한 획득
+    document.addEventListener('touchstart', function() {
+        if (!window.history.state || window.history.state.page !== 1) {
+            window.history.pushState({page: 1}, "", window.location.href);
+        }
+    }, {once: true});
 
-    // [자동 저장/복구] 데이터 복구 로직
+    // [기능: 실시간 자동 저장]
+    function saveInput(el) { localStorage.setItem('temp_' + el.id, el.value); }
+
     function loadSavedData() {
-        // 1. 텍스트/숫자 입력 필드 복구
-        const fields = ['ssdVersion', 'autoDist', 'autoTime', 'totalOdo', 'workIssue'];
-        fields.forEach(id => {
+        // 텍스트 필드 복구
+        ['ssdVersion', 'autoDist', 'autoTime', 'totalOdo', 'workIssue'].forEach(id => {
             const val = localStorage.getItem('temp_' + id);
             if (val !== null) document.getElementById(id).value = val;
         });
-
-        // 2. 소프트 카운터 복구
+        // 카운터 복구
         for(let i=0; i<softKeys.length; i++) {
             const val = localStorage.getItem('temp_s' + i);
             if(val) document.getElementById('s' + i).value = val;
         }
-
-        // 3. 하드 카운터 복구
         hardCauses.forEach((c, i) => {
             hardActions.forEach((a, j) => {
                 const val = localStorage.getItem(`temp_h${i}_${j}`);
                 if(val) document.getElementById(`h${i}_${j}`).value = val;
             });
         });
-
-        // 4. 선택 버튼 상태 복구 (사용자, 차량, 업무, 근무)
-        const sUser = localStorage.getItem('temp_selectedUser');
-        const sEmail = localStorage.getItem('temp_selectedEmail');
+        // 버튼 복구
+        const sUser = localStorage.getItem('temp_selectedUser'), sEmail = localStorage.getItem('temp_selectedEmail');
         if(sUser && sEmail) {
             const btn = Array.from(document.querySelectorAll('#userBtnGroup .select-btn')).find(b => b.dataset.name === sUser);
             if(btn) selectUser(btn, sUser, sEmail);
         }
-
-        const sType = localStorage.getItem('temp_selectedType');
-        if(sType) {
-            const btn = Array.from(document.querySelectorAll('#typeBtnGroup .select-btn')).find(b => b.innerText === sType);
-            if(btn) selectType(btn);
-        }
-
-        const sCar = localStorage.getItem('temp_selectedCar');
-        if(sCar) {
-            const btn = Array.from(document.querySelectorAll('#carBtnGroup .select-btn')).find(b => b.innerText === sCar);
-            if(btn) selectCar(btn);
-        }
-
-        const sShift = localStorage.getItem('temp_selectedShift');
-        if(sShift) {
-            const btn = Array.from(document.querySelectorAll('#shiftBtnGroup .select-btn')).find(b => b.innerText === sShift);
-            if(btn) selectShift(btn);
-        }
-
+        ['Type', 'Car', 'Shift'].forEach(key => {
+            const val = localStorage.getItem('temp_selected' + key);
+            if(val) {
+                const btn = Array.from(document.querySelectorAll('.select-btn')).find(b => b.innerText === val);
+                if(btn) key === 'Type' ? selectType(btn) : (key === 'Car' ? selectCar(btn) : selectShift(btn));
+            }
+        });
         updateTotals();
     }
 
-    // [자동 저장/복구] 전송 완료 후 삭제
     function clearSavedData() {
-        const keys = Object.keys(localStorage);
-        keys.forEach(k => { if(k.startsWith('temp_')) localStorage.removeItem(k); });
+        Object.keys(localStorage).forEach(k => { if(k.startsWith('temp_')) localStorage.removeItem(k); });
     }
 
+    // [UI 및 비즈니스 로직]
     function checkLogin(){const i=document.getElementById('emailInput').value.trim().toLowerCase();const u=userList.find(x=>x.email.toLowerCase()===i);if(u){sessionStorage.setItem('isLoggedIn','true');sessionStorage.setItem('userName',u.name);showApp();}else{showModal("알림","등록된 이메일이 아닙니다.","alert");}}
     function showApp(){document.getElementById('loginOverlay').style.display='none';document.getElementById('mainApp').style.display='block';}
     
@@ -271,7 +246,6 @@
     }
     function closeModal(){document.getElementById('customModal').style.display='none';}
 
-    // 선택 버튼들에 저장 로직 추가
     function selectUser(b,n,e){
         document.querySelectorAll('#userBtnGroup .select-btn').forEach(x=>x.classList.remove('selected'));
         b.classList.add('selected'); selectedUser=n; selectedEmail=e;
@@ -296,13 +270,13 @@
     function stepSoft(i,v){
         const e=document.getElementById('s'+i);
         e.value=Math.max(0,parseInt(e.value)+v);
-        localStorage.setItem('temp_s'+i, e.value); // [자동 저장]
+        localStorage.setItem('temp_s'+i, e.value);
         updateTotals();
     }
     function stepHard(id,v){
         const e=document.getElementById('h'+id);
         e.value=Math.max(0,parseInt(e.value)+v);
-        localStorage.setItem('temp_h'+id, e.value); // [자동 저장]
+        localStorage.setItem('temp_h'+id, e.value);
         updateTotals();
     }
     
@@ -321,7 +295,7 @@
             const res = e.results[0][0].transcript;
             const target = document.getElementById(tid);
             target.value += res;
-            saveInput(target); // [자동 저장]
+            saveInput(target);
         };
         r.onend=()=>document.getElementById(bid).innerHTML="🎤";
         r.start();
@@ -363,8 +337,7 @@
         const formattedDate = now.getFullYear() + ". " + (now.getMonth() + 1) + ". " + now.getDate();
         const payload={
             "type":"report",
-            "날짜": formattedDate, 
-            "작성자":selectedUser, "이메일":selectedEmail, "업무":selectedType, "차량":selectedCar, "근무":selectedShift,
+            "날짜": formattedDate, "작성자":selectedUser, "이메일":selectedEmail, "업무":selectedType, "차량":selectedCar, "근무":selectedShift,
             "SSD버전":document.getElementById('ssdVersion').value,
             "자율거리":document.getElementById('autoDist').value||"0",
             "자율시간":document.getElementById('autoTime').value||"000000",
@@ -382,7 +355,7 @@
         fetch(GAS_URL,{method:'POST',mode:'no-cors',body:JSON.stringify(payload)})
         .then(()=>{
             window.finalReload=true;
-            clearSavedData(); // [중요] 전송 성공 시 임시 데이터 삭제
+            clearSavedData();
             showModal("완료","보고서가 저장되었습니다.","alert");
         })
         .catch(()=>{
@@ -390,15 +363,6 @@
             btn.disabled=false;
         });
     }
-
-    window.history.pushState(null, null, window.location.href);
-    window.onpopstate = function() {
-        window.history.pushState(null, null, window.location.href);
-        showModal("경고", "메인 화면으로 이동하시겠습니까? (작성 중인 내용은 저장됩니다)", "confirm", function() {
-            window.onbeforeunload = null;
-            location.reload(); 
-        });
-    };
 </script>
 </body>
 </html>
