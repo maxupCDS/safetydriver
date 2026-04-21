@@ -58,6 +58,24 @@
         .hard-table td { border: 1px solid #eee; text-align: center; padding: 10px 0; background: #fff; vertical-align: middle; }
         .hard-btn-plus { border: none; background: #1a73e8; color: white; border-radius: 50%; width: 30px; height: 30px; font-weight: bold; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
         .hard-val-input { width: 100%; text-align: center; border: none; font-weight: 800; font-size: 16px; color: #1a73e8; background: transparent; outline: none; }
+.hard-table-wrapper { width: 100%; border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
+.hard-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.hard-table th { font-size: 11px; background: #f8fafc; padding: 10px 2px; border: 1px solid #eee; color: #4a5568; font-weight: bold; }
+
+/* 1. td 스타일 수정: 패딩을 살짝 줄여 여유 공간 확보 */
+.hard-table td { border: 1px solid #eee; text-align: center; padding: 8px 0; background: #fff; vertical-align: middle; }
+
+/* 2. ★이 부분을 새로 추가하세요★ (왼쪽 구분 글자 스타일) */
+.hard-cause-label { 
+    font-size: 10.5px;      /* 기존보다 작게 조절 (원하시는 만큼 10px~11px 사이로 조절하세요) */
+    font-weight: bold; 
+    color: #333; 
+    word-break: keep-all;  /* 단어 미끊김 방지 */
+    line-height: 1.2;      /* 줄 간격 조절 */
+}
+
+.hard-btn-plus { border: none; background: #1a73e8; color: white; border-radius: 50%; width: 30px; height: 30px; font-weight: bold; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+.hard-val-input { width: 100%; text-align: center; border: none; font-weight: 800; font-size: 16px; color: #1a73e8; background: transparent; outline: none; }
 
         /* 하단 버튼 */
         .btn-add { width: 100%; padding: 18px; border: none; border-radius: 14px; font-size: 18px; font-weight: bold; color: white; background: #28a745; margin-top: 15px; }
