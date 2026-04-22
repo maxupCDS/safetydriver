@@ -59,12 +59,9 @@
         .hard-btn-plus { border: none; background: #1a73e8; color: white; border-radius: 50%; width: 30px; height: 30px; font-weight: bold; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
         .hard-val-input { width: 100%; text-align: center; border: none; font-weight: 800; font-size: 16px; color: #1a73e8; background: transparent; outline: none; }
 
-        /* [5. 하단 버튼 영역] */
         .btn-add { width: 100%; padding: 18px; border: none; border-radius: 14px; font-size: 18px; font-weight: bold; color: white; background: #28a745; margin-top: 15px; }
-        .logout-wrap { display: flex; justify-content: flex-end; margin-top: 15px; }
-        .btn-logout { background: none; border: none; color: #999; font-size: 14px; font-weight: bold; text-decoration: underline; cursor: pointer; padding: 10px; }
 
-        /* [6. 모달 및 채팅] */
+        /* [5. 모달 및 채팅] */
         #chatOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 10000; display: none; flex-direction: column; }
         .chat-nav { padding: 18px; border-bottom: 1px solid #eee; display: flex; align-items: center; background: #1a73e8; color: white; }
         #chatContent { flex: 1; overflow-y: auto; padding: 15px; background: #f1f3f5; display: flex; flex-direction: column; gap: 10px; }
@@ -75,12 +72,16 @@
         .modal-footer { display: flex; }
         .modal-btn { flex: 1; padding: 15px; border: none; background: transparent; font-size: 16px; font-weight: bold; }
 
-        /* [추가: 메뉴 및 페이지 전환 스타일] */
+        /* [6. 메뉴 및 페이지 전환 스타일] */
         .menu-btn { font-size: 26px; background: none; border: none; color: #1a73e8; cursor: pointer; padding-right: 10px; }
-        #sideMenu { position: fixed; top: 0; left: -280px; width: 260px; height: 100%; background: white; z-index: 25000; transition: 0.3s; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
+        #sideMenu { position: fixed; top: 0; left: -280px; width: 260px; height: 100%; background: white; z-index: 25000; transition: 0.3s; box-shadow: 2px 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
         #sideMenu.active { left: 0; }
         .menu-header { padding: 40px 20px 20px; background: #1a73e8; color: white; font-weight: bold; font-size: 1.2rem; }
+        .menu-list { flex: 1; overflow-y: auto; }
         .menu-item { padding: 18px 20px; border-bottom: 1px solid #f1f3f5; cursor: pointer; font-size: 15px; font-weight: 600; color: #444; }
+        /* 로그아웃 버튼 스타일 */
+        .menu-logout { padding: 20px; border-top: 1px solid #eee; color: #d32f2f; font-weight: bold; font-size: 14px; cursor: pointer; background: #fafafa; }
+        
         .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 24000; display: none; }
         .app-page { display: none; }
         .app-page.active { display: block; }
@@ -103,8 +104,11 @@
 <div id="menuOverlay" class="menu-overlay" onclick="toggleMenu()"></div>
 <div id="sideMenu">
     <div class="menu-header">안전운행팀 메뉴</div>
-    <div class="menu-item" onclick="switchPage('reportPage', '📋 자율주행 운행보고')">📋 자율주행 운행보고</div>
-    <div class="menu-item" onclick="switchPage('chargePage', '⚡ 충전 관리')">⚡ 충전 관리</div>
+    <div class="menu-list">
+        <div class="menu-item" onclick="switchPage('reportPage', '📋 자율주행 운행보고')">📋 자율주행 운행보고</div>
+        <div class="menu-item" onclick="switchPage('chargePage', '⚡ 충전 관리')">⚡ 충전 관리</div>
+    </div>
+    <div class="menu-logout" onclick="logout()">🏃 로그아웃</div>
 </div>
 
 <div id="customModal"><div class="modal-card"><div class="modal-body"><div id="modalTitle" style="font-weight:bold; color:#1a73e8; margin-bottom:8px; font-size:18px;">알림</div><div id="modalText" style="font-size:15px; color:#555;">내용</div></div><div class="modal-footer" id="modalFooter"></div></div></div>
@@ -173,8 +177,6 @@
         
         <button class="btn-add" id="chargeSubmitBtn" style="background:#1a73e8;" onclick="addChargeRecord()">충전량 기록하기</button>
     </div>
-
-    <div class="logout-wrap"><button class="btn-logout" onclick="logout()">로그아웃</button></div>
 </div>
 
 <div id="chatOverlay">
@@ -208,7 +210,6 @@
         document.getElementById('chargeDate').value = new Date().toISOString().substring(0, 10);
     }
 
-    // [추가: 페이지 및 메뉴 제어]
     function toggleMenu() {
         const menu = document.getElementById('sideMenu');
         const overlay = document.getElementById('menuOverlay');
@@ -224,7 +225,6 @@
         toggleMenu();
     }
 
-    // [기존 로그인 로직 보존]
     function checkLogin(){
         const email = document.getElementById('emailInput').value.trim().toLowerCase();
         const keep = document.getElementById('keepLogin').checked;
@@ -241,6 +241,8 @@
         }
     }
     function logout() {
+        // 메뉴 열려있을 때 누르면 닫기 위해서 처리
+        toggleMenu(); 
         showModal("로그아웃", "로그아웃 하시겠습니까?", "confirm", function() {
             localStorage.removeItem('isLoggedIn');
             localStorage.removeItem('userName');
@@ -340,15 +342,12 @@
         .catch(()=>{ showModal("오류","전송에 실패했습니다.","alert"); btn.disabled=false; btn.innerText="보고서 기록하기"; });
     }
 
-    // [충전 기록 전송 함수]
     function addChargeRecord() {
         if(!selectedChargeCar) return showModal("알림", "차량을 선택하세요.", "alert");
         const amt = document.getElementById('chargeAmount').value;
         if(!amt) return showModal("알림", "충전량을 입력하세요.", "alert");
-
         const btn = document.getElementById('chargeSubmitBtn');
         btn.disabled = true; btn.innerText = "전송 중...";
-
         const payload = {
             "type": "charge",
             "날짜": document.getElementById('chargeDate').value,
@@ -358,7 +357,6 @@
             "기타": document.getElementById('chargeMemo').value,
             "작성자": selectedUser || localStorage.getItem('userName')
         };
-
         fetch(GAS_URL, {method:'POST', mode:'no-cors', body:JSON.stringify(payload)})
         .then(() => {
             showModal("완료", "충전 기록이 전송되었습니다.", "alert");
@@ -367,10 +365,7 @@
             document.getElementById('chargeMemo').value = "";
             btn.disabled = false; btn.innerText = "충전량 기록하기";
         })
-        .catch(() => {
-            showModal("오류", "전송 실패", "alert");
-            btn.disabled = false;
-        });
+        .catch(() => { showModal("오류", "전송 실패", "alert"); btn.disabled = false; });
     }
 </script>
 </body>
