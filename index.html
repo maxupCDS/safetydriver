@@ -9,20 +9,16 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 12px; background-color: #f5f7fa; color: #333; overflow-x: hidden; width: 100%; }
         
-        /* [2. 로그인 & 모달] */
         #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%); display: flex; align-items: center; justify-content: center; z-index: 9999; }
         .login-card { background: white; padding: 40px 25px; border-radius: 20px; text-align: center; width: 90%; max-width: 350px; }
         .team-title { color: #1a73e8; font-size: 1.4rem; font-weight: 900; margin-bottom: 25px; }
         .login-input { width: 100%; padding: 14px; margin-bottom: 12px; border: 2px solid #edf2f7; border-radius: 12px; font-size: 16px; text-align: center; outline: none; }
         .btn-login { width: 100%; padding: 15px; background: #1a73e8; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; }
 
-        /* [3. 메인 레이아웃] */
         #mainApp { display: none; width: 100%; max-width: 600px; margin: 0 auto; background: white; padding: 15px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 50px; }
         .header-area { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; border-bottom: 2px solid #f1f3f5; padding-bottom: 10px; }
         .header-title { color: #1a73e8; font-size: 1.1rem; font-weight: bold; }
-        .menu-icon { font-size: 24px; cursor: pointer; color: #1a73e8; padding: 5px; }
 
-        /* [4. 섹션 스타일] */
         .section { margin-bottom: 15px; padding: 15px; border: 1px solid #edf2f7; border-radius: 12px; background-color: #fdfdfe; }
         label { display: block; margin-bottom: 12px; font-weight: bold; font-size: 15px; }
         .btn-grid { display: grid; gap: 8px; width: 100%; }
@@ -32,16 +28,16 @@
         .select-btn.selected { background-color: #1a73e8 !important; color: white !important; }
         .text-input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 15px; outline: none; }
 
-        /* [8번 소프트 - 가로형 복구] */
+        /* [8번 소프트 - 가로형 레이아웃] */
         .category-item { display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 10px 12px; border-radius: 10px; margin-bottom: 8px; border: 1px solid #eef2f8; }
         .category-name { font-size: 14px; font-weight: 600; }
         .btn-sm { width: 34px; height: 34px; border-radius: 50%; border: none; background: #1a73e8; color: white; font-size: 20px; font-weight: bold; }
         .counter-val { width: 30px; text-align: center; font-weight: 800; font-size: 17px; border: none; background: transparent; color: #1a73e8; }
 
-        /* [9번 하드 - 콤팩트 테이블 복구] */
+        /* [9번 하드 - 기존 한글 헤더(엑셀/시스템) 복구] */
         .hard-table-wrapper { width: 100%; border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
         .hard-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        .hard-table th { font-size: 11px; background: #f8fafc; padding: 8px 2px; border: 1px solid #eee; }
+        .hard-table th { font-size: 11px; background: #f8fafc; padding: 8px 1px; border: 1px solid #eee; }
         .hard-table td { border: 1px solid #eee; text-align: center; padding: 6px 0; background: #fff; }
         .hard-cause-label { font-size: 10px; font-weight: bold; }
         .hard-btn-plus { border: none; background: #1a73e8; color: white; border-radius: 50%; width: 28px; height: 28px; font-size: 18px; }
@@ -72,11 +68,8 @@
 
 <div id="customModal">
     <div class="modal-card">
-        <div class="modal-body" id="modalText">뒤로가기 시 작성 중인 내용이 초기화될 수 있습니다.</div>
-        <div id="modalFooter" class="modal-footer">
-            <button class="modal-btn btn-cancel" onclick="closeModal()">취소</button>
-            <button class="modal-btn btn-confirm" onclick="forceReset()">확인</button>
-        </div>
+        <div class="modal-body" id="modalText">내용</div>
+        <div id="modalFooter" class="modal-footer"></div>
     </div>
 </div>
 
@@ -88,7 +81,7 @@
     </div>
 
     <div id="reportPage">
-        <div class="section"><label>1. 작성자</label><div class="btn-grid grid-2" id="userGroup">
+        <div class="section"><label>1. 작성자 선택</label><div class="btn-grid grid-2" id="userGroup">
             <script>
                 const users=['황금철','윤길홍','예준우','길광림','전재훈','오진혁','김준혁','박승규','유승민','최대섭'];
                 users.forEach(u=>document.write(`<button class="select-btn" onclick="selectUser(this)">${u}</button>`));
@@ -104,14 +97,15 @@
             </div>
         </div>
 
-        <div class="section"><label>4. SSD 버전</label><input type="text" id="ssdVersion" class="text-input" placeholder="버전 입력" oninput="saveTemp(this)"></div>
+        <div class="section"><label>4. SSD 버전</label><input type="text" id="ssdVersion" class="text-input" oninput="saveTemp(this)"></div>
         <div class="section"><label>5. 자율거리(km)</label><input type="number" id="autoDist" class="text-input" inputmode="decimal" oninput="saveTemp(this)"></div>
         <div class="section"><label>6. 자율시간(6자리)</label><input type="number" id="autoTime" class="text-input" inputmode="numeric" oninput="saveTemp(this)"></div>
         <div class="section"><label>7. 누적 ODO(km)</label><input type="number" id="totalOdo" class="text-input" inputmode="decimal" oninput="saveTemp(this)"></div>
         
         <div class="section"><label>8. 소프트 테이크오버</label><div id="softContainer"></div></div>
+
         <div class="section"><label>9. 하드 테이크오버</label>
-            <div class="hard-table-wrapper"><table class="hard-table"><thead><tr><th style="width:24%">구분</th><th>B</th><th>H</th><th>A</th><th>S</th></tr></thead><tbody id="hardBody"></tbody></table></div>
+            <div class="hard-table-wrapper"><table class="hard-table"><thead><tr><th style="width:24%">구분</th><th>브레이크</th><th>핸들</th><th>엑셀</th><th>시스템</th></tr></thead><tbody id="hardBody"></tbody></table></div>
         </div>
 
         <div class="section"><label>10. 이슈 사항</label><textarea id="workIssue" class="text-input" style="height:80px; resize:none;" oninput="saveTemp(this)"></textarea></div>
@@ -120,28 +114,33 @@
 </div>
 
 <script>
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbw6U-emlJJge585ABDRSnoQVVpVWgIRU6akQc5WliVQUZbVgj83Gc3POAGkNjChAHjL/exec';
-    let selUser="", selType="", selCar="";
-    const softs=["운전자판단","시스템이상","교통약자보호","신호위반","신호등지시","교차로딜레마","도로상황","차선변경","급정지/서행","보호의무"];
-    const hards=["시스템이상","신호위반","교차로딜레마","도로상황","운전자실수"];
+    // [원본 데이터 복구]
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbwI1WY8W6vra-04EuqR3gTMqwTnOr4-oPJ66Du-kkRnd8SPlAaXp3kybZi6PbDyfG78/exec';
+    let selectedUser="", selectedType="", selectedCar="";
+    const softKeys=["운전자판단","시스템이상","교통약자보호","신호위반","신호등지시","교차로딜레마","도로상황","차선변경","급정지/서행","보호의무"];
+    const hardCauses=["시스템이상","신호위반","교차로딜레마","도로상황","운전자실수"];
+    const hardActions=["브레이크","핸들","엑셀","시스템"];
+    const actionMap={"브레이크":"B","핸들":"H","엑셀":"A","시스템":"S"};
 
     window.onload = function() {
-        // 소프트/하드 UI 생성
-        const sc=document.getElementById('softContainer');
-        softs.forEach((s,i)=>{ sc.innerHTML+=`<div class="category-item"><span>${i+1}. ${s}</span><div class="counter-group"><button class="btn-sm" onclick="stepS(${i},-1)">-</button><input id="s${i}" class="counter-val" value="0" readonly><button class="btn-sm" onclick="stepS(${i},1)">+</button></div></div>`; });
-        const hb=document.getElementById('hardBody');
-        hards.forEach((h,i)=>{ let r=`<tr><td class="hard-cause-label">${h}</td>`; for(let j=0;j<4;j++) r+=`<td><button class="hard-btn-plus" onclick="stepH('${i}_${j}',1)">+</button><input id="h${i}_${j}" class="hard-val-input" value="0" readonly></td>`; hb.innerHTML+=r+`</tr>`; });
+        const sc = document.getElementById('softContainer');
+        softKeys.forEach((s, i) => { sc.innerHTML += `<div class="category-item"><span class="category-name">${i+1}. ${s}</span><div class="counter-group"><button class="btn-sm" onclick="stepS(${i},-1)">-</button><input id="s${i}" class="counter-val" value="0" readonly><button class="btn-sm" onclick="stepS(${i},1)">+</button></div></div>`; });
+        
+        const hb = document.getElementById('hardBody');
+        hardCauses.forEach((h, i) => {
+            let r = `<tr><td class="hard-cause-label">${h}</td>`;
+            for(let j=0; j<4; j++) r += `<td><button class="hard-btn-plus" onclick="stepH('${i}_${j}',1)">+</button><input id="h${i}_${j}" class="hard-val-input" value="0" readonly></td>`;
+            hb.innerHTML += r + `</tr>`;
+        });
         
         if(localStorage.getItem('isLoggedIn')==='true') showApp();
-        loadTemp(); // 타이핑 항목 불러오기
+        loadTemp();
     }
 
-    /* [초기화 로직 핵심] */
+    // [초기화 로직]
     function forceReset() {
-        // 타이핑 항목(4,5,6,7,10번) 로컬스토리지 완전 삭제
         const keys=['ssdVersion','autoDist','autoTime','totalOdo','workIssue'];
         keys.forEach(k=>localStorage.removeItem('temp_'+k));
-        // 페이지 새로고침하여 모든 변수 및 선택 상태 초기화
         location.reload();
     }
 
@@ -153,38 +152,44 @@
         });
     }
 
-    /* [뒤로가기 핸들링] */
+    // 뒤로가기 모달
     window.history.pushState(null, null, window.location.href);
     window.onpopstate = function() {
         window.history.pushState(null, null, window.location.href);
-        // 이쁜 모달 띄우기
-        document.getElementById('customModal').style.display='flex';
+        showConfirmModal("⚠️ 뒤로가기 시 작성 중인 내용이 초기화될 수 있습니다. 계속하시겠습니까?");
     };
+
+    function showConfirmModal(msg) {
+        document.getElementById('modalText').innerText = msg;
+        document.getElementById('modalFooter').innerHTML = `
+            <button class="modal-btn btn-cancel" onclick="closeModal()">취소</button>
+            <button class="modal-btn btn-confirm" onclick="forceReset()">확인</button>
+        `;
+        document.getElementById('customModal').style.display='flex';
+    }
 
     function closeModal() { document.getElementById('customModal').style.display='none'; }
 
-    /* [기능 함수들] */
     function checkLogin(){ localStorage.setItem('isLoggedIn','true'); showApp(); }
     function showApp(){ document.getElementById('loginOverlay').style.display='none'; document.getElementById('mainApp').style.display='block'; }
-    function selectUser(b){ document.querySelectorAll('#userGroup .select-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); selUser=b.innerText; }
-    function selectType(b){ document.querySelectorAll('#typeGroup .select-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); selType=b.innerText; }
-    function selectCar(b){ document.querySelectorAll('#carGroup .select-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); selCar=b.innerText; }
+    function selectUser(b){ document.querySelectorAll('#userGroup .select-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); selectedUser=b.innerText; }
+    function selectType(b){ document.querySelectorAll('#typeGroup .select-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); selectedType=b.innerText; }
+    function selectCar(b){ document.querySelectorAll('#carGroup .select-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); selectedCar=b.innerText; }
     function stepS(i,v){ const e=document.getElementById('s'+i); e.value=Math.max(0,parseInt(e.value)+v); }
     function stepH(id,v){ const e=document.getElementById('h'+id); e.value=Math.max(0,parseInt(e.value)+v); }
 
-    /* [보고서 제출 시 초기화] */
     function submitReport() {
-        if(!selUser || !selCar) { alert("작성자와 차량을 선택해주세요."); return; }
+        if(!selectedUser || !selectedCar) { alert("작성자와 차량을 선택해주세요."); return; }
         const btn=document.getElementById('submitBtn');
         btn.disabled=true; btn.innerText="전송 중...";
 
-        const data={"작성자":selUser, "차량":selCar, "SSD":document.getElementById('ssdVersion').value};
-        // 데이터 수집 로직... (생략)
+        // 데이터 수집 로직 (원하시는 필드명에 맞춰 전송)
+        const payload = { "작성자": selectedUser, "차량": selectedCar };
 
-        fetch(GAS_URL, { method:'POST', mode:'no-cors', body:JSON.stringify(data) })
+        fetch(GAS_URL, { method:'POST', mode:'no-cors', body:JSON.stringify(payload) })
         .then(()=>{
             alert("✅ 보고서가 기록되었습니다.");
-            forceReset(); // 제출 완료 시 강제 초기화
+            forceReset();
         })
         .catch(()=>{
             alert("전송 오류");
