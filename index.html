@@ -289,6 +289,21 @@
     function closeChat(){ document.getElementById('chatOverlay').style.display='none'; }
     function sendChat(){ /* 채팅 전송 로직 기존 동일 */ }
     function loadChat(){ /* 채팅 로드 로직 기존 동일 */ }
+    // --- [추가: 브라우저 뒤로가기 방지 로직] ---
+
+// 1. 현재 페이지 상태를 히스토리에 강제로 추가
+window.history.pushState(null, null, window.location.href);
+
+// 2. 뒤로가기 이벤트 감지
+window.onpopstate = function(event) {
+    // 사용자가 뒤로가기를 누르면 다시 현재 페이지로 밀어넣음
+    window.history.pushState(null, null, window.location.href);
+    
+    // 이쁜 경고창 띄우기
+    showModal("⚠️ 주의: 뒤로가기를 누르면 작성 중인 내용이 초기화될 수 있습니다. 메뉴(☰)를 이용해 주세요.");
+};
+
+// --- [기존 로직 계속] ---
 </script>
 </body>
 </html>
