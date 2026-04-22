@@ -72,15 +72,22 @@
         .modal-footer { display: flex; }
         .modal-btn { flex: 1; padding: 15px; border: none; background: transparent; font-size: 16px; font-weight: bold; }
 
-        /* [6. 메뉴 및 페이지 전환 스타일] */
+        /* [6. 사이드 메뉴 스타일] */
         .menu-btn { font-size: 26px; background: none; border: none; color: #1a73e8; cursor: pointer; padding-right: 10px; }
         #sideMenu { position: fixed; top: 0; left: -280px; width: 260px; height: 100%; background: white; z-index: 25000; transition: 0.3s; box-shadow: 2px 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
         #sideMenu.active { left: 0; }
-        .menu-header { padding: 40px 20px 20px; background: #1a73e8; color: white; font-weight: bold; font-size: 1.2rem; }
-        .menu-list { flex: 1; overflow-y: auto; }
+        
+        /* 사용자 정보 영역 */
+        .menu-header { padding: 50px 20px 25px; background: #1a73e8; color: white; }
+        .user-name { font-size: 1.2rem; font-weight: bold; margin-bottom: 4px; display: block; }
+        .user-email { font-size: 0.85rem; opacity: 0.85; display: block; }
+        
+        .menu-list { flex: 1; overflow-y: auto; padding-top: 10px; }
         .menu-item { padding: 18px 20px; border-bottom: 1px solid #f1f3f5; cursor: pointer; font-size: 15px; font-weight: 600; color: #444; }
-        /* 로그아웃 버튼 스타일 */
-        .menu-logout { padding: 20px; border-top: 1px solid #eee; color: #d32f2f; font-weight: bold; font-size: 14px; cursor: pointer; background: #fafafa; }
+        
+        /* 로그아웃 버튼 (깔끔하게 수정) */
+        .menu-logout { padding: 18px 20px; border-top: 1px solid #eee; color: #666; font-weight: 600; font-size: 14px; cursor: pointer; background: #fcfcfc; display: flex; justify-content: space-between; align-items: center; }
+        .logout-text { color: #d32f2f; }
         
         .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 24000; display: none; }
         .app-page { display: none; }
@@ -103,12 +110,18 @@
 
 <div id="menuOverlay" class="menu-overlay" onclick="toggleMenu()"></div>
 <div id="sideMenu">
-    <div class="menu-header">안전운행팀 메뉴</div>
+    <div class="menu-header">
+        <span id="displayUserName" class="user-name">사용자님</span>
+        <span id="displayUserEmail" class="user-email">email@future-link.ai</span>
+    </div>
     <div class="menu-list">
         <div class="menu-item" onclick="switchPage('reportPage', '📋 자율주행 운행보고')">📋 자율주행 운행보고</div>
         <div class="menu-item" onclick="switchPage('chargePage', '⚡ 충전 관리')">⚡ 충전 관리</div>
     </div>
-    <div class="menu-logout" onclick="logout()">🏃 로그아웃</div>
+    <div class="menu-logout" onclick="logout()">
+        <span class="logout-text">로그아웃</span>
+        <span style="font-size: 12px; color: #999;">Sign Out</span>
+    </div>
 </div>
 
 <div id="customModal"><div class="modal-card"><div class="modal-body"><div id="modalTitle" style="font-weight:bold; color:#1a73e8; margin-bottom:8px; font-size:18px;">알림</div><div id="modalText" style="font-size:15px; color:#555;">내용</div></div><div class="modal-footer" id="modalFooter"></div></div></div>
@@ -202,7 +215,7 @@
         const hb=document.getElementById('hardBody');
         hardCauses.forEach((c,i)=>{ let row=`<tr><td class="hard-cause-label">${c}</td>`; hardActions.forEach((a,j)=>{ row+=`<td><div class="hard-cell-content"><button class="hard-btn-plus" onclick="stepHard('${i}_${j}', 1)">+</button><input id="h${i}_${j}" class="hard-val-input" value="0" readonly></div></td>`; }); hb.innerHTML+=row+`</tr>`; });
 
-        if(localStorage.getItem('isLoggedIn') === 'true' && localStorage.getItem('keepLogin') === 'true') {
+        if(localStorage.getItem('isLoggedIn') === 'true') {
             showApp();
         }
         loadSavedData();
@@ -240,8 +253,8 @@
             showModal("알림", "등록된 이메일이 아닙니다.", "alert");
         }
     }
+    
     function logout() {
-        // 메뉴 열려있을 때 누르면 닫기 위해서 처리
         toggleMenu(); 
         showModal("로그아웃", "로그아웃 하시겠습니까?", "confirm", function() {
             localStorage.removeItem('isLoggedIn');
@@ -252,12 +265,19 @@
             location.reload();
         });
     }
+
     function showApp(){
         document.getElementById('loginOverlay').style.display='none';
         document.getElementById('mainApp').style.display='block';
+        
+        // [수정: 사이드 메뉴 상단 정보 업데이트]
         const savedName = localStorage.getItem('userName');
         const savedEmail = localStorage.getItem('userEmail');
         if(savedName) {
+            document.getElementById('displayUserName').innerText = savedName + " 님";
+            document.getElementById('displayUserEmail').innerText = savedEmail;
+            
+            // 운행보고서 작성자 자동 선택
             const btn = Array.from(document.querySelectorAll('#userBtnGroup .select-btn')).find(b => b.dataset.name === savedName);
             if(btn) selectUser(btn, savedName, savedEmail);
         }
