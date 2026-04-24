@@ -132,7 +132,10 @@
             <button class="menu-btn" onclick="toggleMenu()">☰</button>
             <div class="header-title" id="mainHeaderTitle">📋 자율주행 운행보고</div>
         </div>
-        <button onclick="openChat()" style="background:none; border:none; font-size:24px;">💬</button>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <button onclick="resetForm()" style="background:none; border:none; font-size:22px; cursor:pointer;" title="전체 초기화">🔄</button>
+            <button onclick="openChat()" style="background:none; border:none; font-size:24px; cursor:pointer;">💬</button>
+        </div>
     </div>
 
     <div id="reportPage" class="app-page active">
@@ -270,17 +273,24 @@
         document.getElementById('loginOverlay').style.display='none';
         document.getElementById('mainApp').style.display='block';
         
-        // [수정: 사이드 메뉴 상단 정보 업데이트]
         const savedName = localStorage.getItem('userName');
         const savedEmail = localStorage.getItem('userEmail');
         if(savedName) {
             document.getElementById('displayUserName').innerText = savedName + " 님";
             document.getElementById('displayUserEmail').innerText = savedEmail;
             
-            // 운행보고서 작성자 자동 선택
             const btn = Array.from(document.querySelectorAll('#userBtnGroup .select-btn')).find(b => b.dataset.name === savedName);
             if(btn) selectUser(btn, savedName, savedEmail);
         }
+    }
+
+    // [전체 초기화 함수 추가]
+    function resetForm() {
+        showModal("전체 초기화", "작성 중인 모든 내용이 삭제되고 페이지가 새로고침됩니다. 계속하시겠습니까?", "confirm", function() {
+            clearSavedData(); // 모든 임시 데이터 삭제
+            window.onbeforeunload = null; // 새로고침 경고 방지
+            location.reload(); // 리로드
+        });
     }
 
     function selectUser(b,n,e){
