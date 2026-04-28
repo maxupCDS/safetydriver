@@ -367,7 +367,7 @@
         softKeys.forEach((k,i)=>payload[k]=document.getElementById('s'+i).value);
         hardCauses.forEach((c,i)=>{ hardActions.forEach((a,j)=>payload[`하드(${c}-${actionMap[a]})`]=document.getElementById(`h${i}_${j}`).value); });
         window.onbeforeunload = null;
-        fetch(GAS_URL,{method:'POST',mode:'no-cors',body:JSON.stringify(payload)})
+        fetch(GAS_URL,{method:'POST',body:JSON.stringify(payload)})
         .then(()=>{ window.finalReload=true; clearSavedData(); showModal("완료", "보고서가 성공적으로 전송되었습니다.", "alert"); })
         .catch(()=>{ showModal("오류","전송에 실패했습니다.","alert"); btn.disabled=false; btn.innerText="보고서 기록하기"; });
     }
