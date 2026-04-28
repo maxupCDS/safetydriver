@@ -205,6 +205,7 @@
 </div>
 
 <script>
+    <script>
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbw0v6WWCzvbrznHByuvkofphnz234TkevkjrhPigakBQ4Xz7avR4YJMsvM6M4UxgoAU/exec';
     let selectedUser="", selectedEmail="", selectedType="", selectedCar="", selectedShift="", selectedChargeCar="";
     const softKeys=["운전자판단","시스템이상","교통약자보호","신호위반","신호등지시","교차로딜레마","도로상황","차선변경","급정지/서행","보호의무"];
@@ -218,6 +219,7 @@
         const hb=document.getElementById('hardBody');
         hardCauses.forEach((c,i)=>{ let row=`<tr><td class="hard-cause-label">${c}</td>`; hardActions.forEach((a,j)=>{ row+=`<td><div class="hard-cell-content"><button class="hard-btn-plus" onclick="stepHard('${i}_${j}', 1)">+</button><input id="h${i}_${j}" class="hard-val-input" value="0" readonly></div></td>`; }); hb.innerHTML+=row+`</tr>`; });
 
+        // 로그인 상태 체크
         if(localStorage.getItem('isLoggedIn') === 'true') {
             showApp();
         }
@@ -284,12 +286,11 @@
         }
     }
 
-    // [전체 초기화 함수 추가]
     function resetForm() {
         showModal("전체 초기화", "작성 중인 모든 내용이 삭제되고 페이지가 새로고침됩니다. 계속하시겠습니까?", "confirm", function() {
-            clearSavedData(); // 모든 임시 데이터 삭제
-            window.onbeforeunload = null; // 새로고침 경고 방지
-            location.reload(); // 리로드
+            clearSavedData();
+            window.onbeforeunload = null;
+            location.reload();
         });
     }
 
@@ -303,24 +304,29 @@
             localStorage.setItem('temp_selectedUser', n); localStorage.setItem('temp_selectedEmail', e);
         }
     }
+
     function selectType(b){
         if(b.classList.contains('selected')){ b.classList.remove('selected'); selectedType=""; localStorage.removeItem('temp_selectedType'); }
         else { document.querySelectorAll('#typeBtnGroup .select-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); selectedType=b.innerText; localStorage.setItem('temp_selectedType', selectedType); }
     }
+
     function selectCar(b){
         if(b.classList.contains('selected')){ b.classList.remove('selected'); selectedCar=""; localStorage.removeItem('temp_selectedCar'); }
         else { document.querySelectorAll('#carBtnGroup .select-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); selectedCar=b.innerText; localStorage.setItem('temp_selectedCar', selectedCar); }
     }
+
     function selectShift(b){
         if(b.classList.contains('selected')){ b.classList.remove('selected'); selectedShift=""; localStorage.removeItem('temp_selectedShift'); }
         else { document.querySelectorAll('#shiftBtnGroup .select-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); selectedShift=b.innerText; localStorage.setItem('temp_selectedShift', selectedShift); }
     }
+
     function selectChargeCar(b){
         document.querySelectorAll('#chargeCarBtnGroup .select-btn').forEach(x=>x.classList.remove('selected'));
         b.classList.add('selected'); selectedChargeCar=b.innerText;
     }
 
     function saveInput(el) { localStorage.setItem('temp_' + el.id, el.value); }
+    
     function loadSavedData() { 
         ['ssdVersion', 'autoDist', 'autoTime', 'totalOdo', 'workIssue'].forEach(id => { const val = localStorage.getItem('temp_' + id); if (val !== null) document.getElementById(id).value = val; }); 
         for(let i=0; i<softKeys.length; i++) { const val = localStorage.getItem('temp_s' + i); if(val) document.getElementById('s' + i).value = val; } 
@@ -328,6 +334,7 @@
         ['Type', 'Car', 'Shift'].forEach(key => { const val = localStorage.getItem('temp_selected' + key); if(val) { const btn = Array.from(document.querySelectorAll('.select-btn')).find(b => b.innerText === val); if(btn) key === 'Type' ? selectType(btn) : (key === 'Car' ? selectCar(btn) : selectShift(btn)); } }); 
         updateTotals(); 
     }
+
     function clearSavedData() { 
         Object.keys(localStorage).forEach(k => { if(k.startsWith('temp_')) localStorage.removeItem(k); }); 
     }
@@ -352,10 +359,27 @@
     }
 
     function startVoice(tid,bid){ window.SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition; if(!window.SpeechRecognition)return; const r=new window.SpeechRecognition(); r.lang='ko-KR'; r.onstart=()=>document.getElementById(bid).innerHTML="🔴"; r.onresult=(e)=>{ const res = e.results[0][0].transcript; const target = document.getElementById(tid); target.value += res; saveInput(target); }; r.onend=()=>document.getElementById(bid).innerHTML="🎤"; r.start(); }
+    
     function openChat(){ document.getElementById('chatOverlay').style.display='flex'; loadChat(); }
     function closeChat(){document.getElementById('chatOverlay').style.display='none';}
-    function sendChat(){ const input = document.getElementById('chatInput'); const msg = input.value.trim(); if(!msg) return; const name = localStorage.getItem('userName') || "익명"; const cont = document.getElementById('chatContent'); cont.innerHTML += `<div style="background:#fff; padding:10px; border-radius:10px; align-self:flex-end; max-width:80%; border:1px solid #dcf8c6;"><b style="color:#28a745; font-size:11px;">${name}</b><br>${msg}</div>`; cont.scrollTop = cont.scrollHeight; fetch(GAS_URL, { method:'POST', mode:'no-cors', body:JSON.stringify({ type:'chat', user: name, message: msg }) }); input.value = ''; setTimeout(loadChat, 1000); }
-    function loadChat(){ if(document.getElementById('chatOverlay').style.display==='none') return; fetch(GAS_URL+'?type=chat').then(r=>r.json()).then(data=>{ const cont = document.getElementById('chatContent'); cont.innerHTML = data.map(m=>`<div style="background:white; padding:10px; border-radius:10px; align-self:flex-start; max-width:80%; box-shadow:0 1px 2px rgba(0,0,0,0.1);"><b style="color:#1a73e8; font-size:11px;">${m.user || "익명"}</b><br>${m.message || "내용없음"}</div>`).join(''); cont.scrollTop = cont.scrollHeight; }).catch(e=>console.log("로드 실패")); }
+    
+    function sendChat(){ 
+        const input = document.getElementById('chatInput'); 
+        const msg = input.value.trim(); 
+        if(!msg) return; 
+        const name = localStorage.getItem('userName') || "익명"; 
+        const cont = document.getElementById('chatContent'); 
+        cont.innerHTML += `<div style="background:#fff; padding:10px; border-radius:10px; align-self:flex-end; max-width:80%; border:1px solid #dcf8c6;"><b style="color:#28a745; font-size:11px;">${name}</b><br>${msg}</div>`; 
+        cont.scrollTop = cont.scrollHeight; 
+        fetch(GAS_URL, { method:'POST', body:JSON.stringify({ type:'chat', user: name, message: msg }) }); 
+        input.value = ''; 
+        setTimeout(loadChat, 1000); 
+    }
+    
+    function loadChat(){ 
+        if(document.getElementById('chatOverlay').style.display==='none') return; 
+        fetch(GAS_URL+'?type=chat').then(r=>r.json()).then(data=>{ const cont = document.getElementById('chatContent'); cont.innerHTML = data.map(m=>`<div style="background:white; padding:10px; border-radius:10px; align-self:flex-start; max-width:80%; box-shadow:0 1px 2px rgba(0,0,0,0.1);"><b style="color:#1a73e8; font-size:11px;">${m.user || "익명"}</b><br>${m.message || "내용없음"}</div>`).join(''); cont.scrollTop = cont.scrollHeight; }).catch(e=>console.log("로드 실패")); 
+    }
     
     function addRecord(){
         if(!selectedUser)return showModal("알림","작성자를 선택하세요.","alert");
@@ -372,50 +396,32 @@
         .catch(()=>{ showModal("오류","전송에 실패했습니다.","alert"); btn.disabled=false; btn.innerText="보고서 기록하기"; });
     }
 
-function addChargeRecord() {
-    if(!selectedChargeCar) return showModal("알림", "차량을 선택하세요.", "alert");
-    const amt = document.getElementById('chargeAmount').value;
-    if(!amt) return showModal("알림", "충전량을 입력하세요.", "alert");
-    
-    const btn = document.getElementById('chargeSubmitBtn');
-    btn.disabled = true; 
-    btn.innerText = "전송 중...";
-
-    const payload = {
-        "type": "charge",
-        "날짜": document.getElementById('chargeDate').value,
-        "차량": selectedChargeCar,
-        "충전량": amt,
-        "충전시간": document.getElementById('chargeTime').value,
-        "작성자": selectedUser || localStorage.getItem('userName')
-        "기타": document.getElementById('chargeMemo').value,
-    };
-
-    // 아이폰 호환성을 위해 mode: 'no-cors' 없이 전송
-    fetch(GAS_URL, {
-        method: 'POST',
-        body: JSON.stringify(payload)
-    })
-    .then(response => {
-        // 전송 성공 시 모달 띄우기
-        showModal("완료", "충전 기록이 전송되었습니다.", "alert");
-        
-        // 입력 필드 초기화
-        document.getElementById('chargeAmount').value = "";
-        document.getElementById('chargeTime').value = "";
-        document.getElementById('chargeMemo').value = "";
-        
-        // 버튼 복구
-        btn.disabled = false; 
-        btn.innerText = "충전량 기록하기";
-    })
-    .catch((err) => { 
-        console.error("전송 에러:", err);
-        showModal("오류", "전송 실패: " + err.message, "alert"); 
-        btn.disabled = false; 
-        btn.innerText = "충전량 기록하기";
-    });
-}
+    function addChargeRecord() {
+        if(!selectedChargeCar) return showModal("알림", "차량을 선택하세요.", "alert");
+        const amt = document.getElementById('chargeAmount').value;
+        if(!amt) return showModal("알림", "충전량을 입력하세요.", "alert");
+        const btn = document.getElementById('chargeSubmitBtn');
+        btn.disabled = true; btn.innerText = "전송 중...";
+        const payload = {
+            "type": "charge",
+            "날짜": document.getElementById('chargeDate').value,
+            "차량": selectedChargeCar,
+            "충전량": amt,
+            "충전시간": document.getElementById('chargeTime').value,
+            "기타": document.getElementById('chargeMemo').value,
+            "작성자": selectedUser || localStorage.getItem('userName')
+        };
+        fetch(GAS_URL, {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        })
+        .then(() => {
+            showModal("완료", "충전 기록이 전송되었습니다.", "alert");
+            document.getElementById('chargeAmount').value = "";
+            document.getElementById('chargeTime').value = "";
+            document.getElementById('chargeMemo').value = "";
+            btn.disabled = false; btn.innerText = "충전량 기록하기";
+        })
+        .catch(() => { showModal("오류", "전송 실패", "alert"); btn.disabled = false; });
+    }
 </script>
-</body>
-</html>
