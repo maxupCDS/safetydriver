@@ -372,33 +372,50 @@
         .catch(()=>{ showModal("오류","전송에 실패했습니다.","alert"); btn.disabled=false; btn.innerText="보고서 기록하기"; });
     }
 
-    function addChargeRecord() {
-        if(!selectedChargeCar) return showModal("알림", "차량을 선택하세요.", "alert");
-        const amt = document.getElementById('chargeAmount').value;
-        if(!amt) return showModal("알림", "충전량을 입력하세요.", "alert");
-        const btn = document.getElementById('chargeSubmitBtn');
-        btn.disabled = true; btn.innerText = "전송 중...";
-        const payload = {
-            "type": "charge",
-            "날짜": document.getElementById('chargeDate').value,
-            "차량": selectedChargeCar,
-            "충전량": amt,
-            "충전시간": document.getElementById('chargeTime').value,
-            "기타": document.getElementById('chargeMemo').value,
-            "작성자": selectedUser || localStorage.getItem('userName')
-        };
-        // [수정 포인트] mode: 'no-cors' 제거
+function addChargeRecord() {
+    if(!selectedChargeCar) return showModal("알림", "차량을 선택하세요.", "alert");
+    const amt = document.getElementById('chargeAmount').value;
+    if(!amt) return showModal("알림", "충전량을 입력하세요.", "alert");
+    
+    const btn = document.getElementById('chargeSubmitBtn');
+    btn.disabled = true; 
+    btn.innerText = "전송 중...";
+
+    const payload = {
+        "type": "charge",
+        "날짜": document.getElementById('chargeDate').value,
+        "차량": selectedChargeCar,
+        "충전량": amt,
+        "충전시간": document.getElementById('chargeTime').value,
+        "작성자": selectedUser || localStorage.getItem('userName')
+        "기타": document.getElementById('chargeMemo').value,
+    };
+
+    // 아이폰 호환성을 위해 mode: 'no-cors' 없이 전송
     fetch(GAS_URL, {
         method: 'POST',
-        body: JSON.stringify(payload) {
-            showModal("완료", "충전 기록이 전송되었습니다.", "alert");
-            document.getElementById('chargeAmount').value = "";
-            document.getElementById('chargeTime').value = "";
-            document.getElementById('chargeMemo').value = "";
-            btn.disabled = false; btn.innerText = "충전량 기록하기";
-        })
-        .catch(() => { showModal("오류", "전송 실패", "alert"); btn.disabled = false; });
-    }
+        body: JSON.stringify(payload)
+    })
+    .then(response => {
+        // 전송 성공 시 모달 띄우기
+        showModal("완료", "충전 기록이 전송되었습니다.", "alert");
+        
+        // 입력 필드 초기화
+        document.getElementById('chargeAmount').value = "";
+        document.getElementById('chargeTime').value = "";
+        document.getElementById('chargeMemo').value = "";
+        
+        // 버튼 복구
+        btn.disabled = false; 
+        btn.innerText = "충전량 기록하기";
+    })
+    .catch((err) => { 
+        console.error("전송 에러:", err);
+        showModal("오류", "전송 실패: " + err.message, "alert"); 
+        btn.disabled = false; 
+        btn.innerText = "충전량 기록하기";
+    });
+}
 </script>
 </body>
 </html>
