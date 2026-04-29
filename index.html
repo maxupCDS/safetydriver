@@ -33,7 +33,7 @@
         #mainApp { display: none; width: 100%; max-width: 600px; margin: 0 auto; background: white; padding: 15px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 50px; }
         .header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #f1f3f5; padding-bottom: 10px; }
         .header-title { color: #1a73e8; font-size: 1.1rem; font-weight: bold; }
-        .section { margin-bottom: 15px; padding: 15px; border: 1px solid #edf2f7; border-radius: 12px; background-color: #fdfdfe; width: 100%; }
+        .section { margin-bottom: 15px; padding: 15px; border: 1px solid #edf2f7; border-radius: 12px; background-color: #fdfdfe; width: 100%; transition: 0.3s; }
         label { display: block; margin-bottom: 12px; font-weight: bold; font-size: 16px; color: #333; }
         
         .btn-grid { display: grid; gap: 8px; width: 100%; }
@@ -73,7 +73,6 @@
         #sideMenu { position: fixed; top: 0; left: -280px; width: 260px; height: 100%; background: white; z-index: 25000; transition: 0.3s; box-shadow: 2px 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
         #sideMenu.active { left: 0; }
         
-        /* 사용자 정보 영역 */
         .menu-header { padding: 50px 20px 25px; background: #1a73e8; color: white; }
         .user-name { font-size: 1.2rem; font-weight: bold; margin-bottom: 4px; display: block; }
         .user-email { font-size: 0.85rem; opacity: 0.85; display: block; }
@@ -156,12 +155,15 @@
         </div>
 
         <div class="section"><label>4. 근무방식</label><div class="btn-grid grid-2" id="shiftBtnGroup"><button class="select-btn" onclick="selectShift(this)">주간</button><button class="select-btn" onclick="selectShift(this)">야간</button></div></div>
-        <div class="section"><label>5. SSD 버전</label><input type="text" id="ssdVersion" class="text-input" oninput="saveInput(this)"></div>
-        <div class="section"><label>6. 자율거리(km)</label><input type="number" id="autoDist" class="text-input" inputmode="decimal" oninput="saveInput(this)"></div>
-        <div class="section"><label>7. 자율시간(6자리)</label><input type="number" id="autoTime" class="text-input" inputmode="numeric" oninput="saveInput(this)"></div>
-        <div class="section"><label>8. 누적 ODO(km)</label><input type="number" id="totalOdo" class="text-input" inputmode="decimal" oninput="saveInput(this)"></div>
-        <div class="section"><label>9. 소프트 테이크오버</label><div id="softContainer"></div><div style="text-align:right; font-weight:bold; color:#1a73e8; margin-top:8px; font-size:15px;">소프트 합계: <span id="softTotalDisp">0</span></div></div>
-        <div class="section"><label>10. 하드 테이크오버</label><div class="hard-table-wrapper"><table class="hard-table"><thead><tr><th style="width:24%">구분</th><th>브레이크</th><th>핸들</th><th>엑셀</th><th>시스템</th></tr></thead><tbody id="hardBody"></tbody></table></div><div style="text-align:right; font-weight:bold; color:#1a73e8; margin-top:10px; font-size:15px;">하드 합계: <span id="hardTotalDisp">0</span></div></div>
+        
+        <div id="autoDriveSections">
+            <div class="section"><label>5. SSD 버전</label><input type="text" id="ssdVersion" class="text-input" oninput="saveInput(this)"></div>
+            <div class="section"><label>6. 자율거리(km)</label><input type="number" id="autoDist" class="text-input" inputmode="decimal" oninput="saveInput(this)"></div>
+            <div class="section"><label>7. 자율시간(6자리)</label><input type="number" id="autoTime" class="text-input" inputmode="numeric" oninput="saveInput(this)"></div>
+            <div class="section"><label>8. 누적 ODO(km)</label><input type="number" id="totalOdo" class="text-input" inputmode="decimal" oninput="saveInput(this)"></div>
+            <div class="section"><label>9. 소프트 테이크오버</label><div id="softContainer"></div><div style="text-align:right; font-weight:bold; color:#1a73e8; margin-top:8px; font-size:15px;">소프트 합계: <span id="softTotalDisp">0</span></div></div>
+            <div class="section"><label>10. 하드 테이크오버</label><div class="hard-table-wrapper"><table class="hard-table"><thead><tr><th style="width:24%">구분</th><th>브레이크</th><th>핸들</th><th>엑셀</th><th>시스템</th></tr></thead><tbody id="hardBody"></tbody></table></div><div style="text-align:right; font-weight:bold; color:#1a73e8; margin-top:10px; font-size:15px;">하드 합계: <span id="hardTotalDisp">0</span></div></div>
+        </div>
         <div class="section"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><label style="margin:0;">11. 이슈 사항</label><button id="voiceBtn_issue" style="background:#f1f3f5; border:none; border-radius:50%; width:40px; height:40px;" onclick="startVoice('workIssue','voiceBtn_issue')">🎤</button></div><textarea id="workIssue" class="text-input" style="height:100px; resize:none;" oninput="saveInput(this)"></textarea></div>
 
         <button class="btn-add" id="submitBtn" onclick="addRecord()">보고서 기록하기</button>
@@ -298,33 +300,39 @@
         }
     }
 
-    // 3번 업무 선택 로직 (수정됨)
+    // 업무 선택 시 전체 항목 제어 (수정됨)
     function selectType(b){
         const carArea = document.getElementById('carBtnGroup');
+        const autoDriveArea = document.getElementById('autoDriveSections');
         const carBtns = carArea.querySelectorAll('.select-btn');
 
         if(b.classList.contains('selected')){ 
             b.classList.remove('selected'); selectedType=""; localStorage.removeItem('temp_selectedType'); 
-            // 선택 해제 시 차량 영역은 기본 활성 상태로 복구
+            // 선택 해제 시 모든 영역 활성화
             carArea.style.opacity = "1"; carArea.style.pointerEvents = "auto";
-            carBtns.forEach(btn => btn.style.cursor = "pointer");
+            autoDriveArea.style.opacity = "1"; autoDriveArea.style.pointerEvents = "auto";
         }
         else { 
             document.querySelectorAll('#typeBtnGroup .select-btn').forEach(x=>x.classList.remove('selected')); 
             b.classList.add('selected'); selectedType=b.innerText; localStorage.setItem('temp_selectedType', selectedType); 
             
-            // 동승/내근 선택 시 차량 선택 비활성화
             if(selectedType === "동승" || selectedType === "내근") {
+                // 차량 및 자율주행 관련 5~10번 섹션 비활성화
                 carArea.style.opacity = "0.3"; 
                 carArea.style.pointerEvents = "none";
-                carBtns.forEach(btn => { btn.classList.remove('selected'); btn.style.cursor = "default"; });
+                autoDriveArea.style.opacity = "0.3";
+                autoDriveArea.style.pointerEvents = "none";
+                
+                // 차량 선택 해제
+                carBtns.forEach(btn => btn.classList.remove('selected'));
                 selectedCar = "";
                 localStorage.removeItem('temp_selectedCar');
             } else {
-                // 운행 선택 시 다시 활성화
+                // 운행 선택 시 모두 활성화
                 carArea.style.opacity = "1"; 
                 carArea.style.pointerEvents = "auto";
-                carBtns.forEach(btn => btn.style.cursor = "pointer");
+                autoDriveArea.style.opacity = "1";
+                autoDriveArea.style.pointerEvents = "auto";
             }
         }
     }
