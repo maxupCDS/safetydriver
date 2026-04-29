@@ -140,23 +140,14 @@
 
     <div id="reportPage" class="app-page active">
         <div class="section">
-        <label>1. 운행 날짜</label>
-        <input type="date" id="reportDate" class="text-input">
-    </div>
+            <label>1. 운행 날짜</label>
+            <input type="date" id="reportDate" class="text-input">
+        </div>
+
         <div class="section">
             <label>2. 작성자 선택</label>
             <div class="btn-grid grid-2" id="userBtnGroup">
-                <script>
-                    const userList=[
-                        {name:'황금철',email:'kchwang@future-link.ai'},{name:'윤길홍',email:'khyoon@future-link.ai'},
-                        {name:'예준우',email:'star7760@future-link.ai'},{name:'길광림',email:'volfgangk@future-link.ai'},
-                        {name:'전재훈',email:'level5@future-link.ai'},{name:'오진혁',email:'dhwlstnwkd@future-link.ai'},
-                        {name:'김준혁',email:'kirk@future-link.ai'},{name:'박승규',email:'jeffstyle@future-link.ai'},
-                        {name:'유승민',email:'max0825@future-link.ai'},{name:'최대섭',email:'chleotjq1@future-link.ai'}
-                    ];
-                    userList.forEach(u=>document.write(`<button class="select-btn" data-name="${u.name}" onclick="selectUser(this,'${u.name}','${u.email}')">${u.name}</button>`));
-                </script>
-            </div>
+                </div>
         </div>
 
         <div class="section">
@@ -178,7 +169,7 @@
         <div class="section"><label>8. 누적 ODO(km)</label><input type="number" id="totalOdo" class="text-input" inputmode="decimal" oninput="saveInput(this)"></div>
         <div class="section"><label>9. 소프트 테이크오버</label><div id="softContainer"></div><div style="text-align:right; font-weight:bold; color:#1a73e8; margin-top:8px; font-size:15px;">소프트 합계: <span id="softTotalDisp">0</span></div></div>
         <div class="section"><label>10. 하드 테이크오버</label><div class="hard-table-wrapper"><table class="hard-table"><thead><tr><th style="width:24%">구분</th><th>브레이크</th><th>핸들</th><th>엑셀</th><th>시스템</th></tr></thead><tbody id="hardBody"></tbody></table></div><div style="text-align:right; font-weight:bold; color:#1a73e8; margin-top:10px; font-size:15px;">하드 합계: <span id="hardTotalDisp">0</span></div></div>
-        <div class="section"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><label style="margin:0;">10. 이슈 사항</label><button id="voiceBtn_issue" style="background:#f1f3f5; border:none; border-radius:50%; width:40px; height:40px;" onclick="startVoice('workIssue','voiceBtn_issue')">🎤</button></div><textarea id="workIssue" class="text-input" style="height:100px; resize:none;" oninput="saveInput(this)"></textarea></div>
+        <div class="section"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><label style="margin:0;">11. 이슈 사항</label><button id="voiceBtn_issue" style="background:#f1f3f5; border:none; border-radius:50%; width:40px; height:40px;" onclick="startVoice('workIssue','voiceBtn_issue')">🎤</button></div><textarea id="workIssue" class="text-input" style="height:100px; resize:none;" oninput="saveInput(this)"></textarea></div>
 
         <button class="btn-add" id="submitBtn" onclick="addRecord()">보고서 기록하기</button>
     </div>
@@ -211,29 +202,40 @@
 <script>
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbw0v6WWCzvbrznHByuvkofphnz234TkevkjrhPigakBQ4Xz7avR4YJMsvM6M4UxgoAU/exec';
     let selectedUser="", selectedEmail="", selectedType="", selectedCar="", selectedShift="", selectedChargeCar="";
+    
+    // 유저 리스트 선언
+    const userList=[
+        {name:'황금철',email:'kchwang@future-link.ai'},{name:'윤길홍',email:'khyoon@future-link.ai'},
+        {name:'예준우',email:'star7760@future-link.ai'},{name:'길광림',email:'volfgangk@future-link.ai'},
+        {name:'전재훈',email:'level5@future-link.ai'},{name:'오진혁',email:'dhwlstnwkd@future-link.ai'},
+        {name:'김준혁',email:'kirk@future-link.ai'},{name:'박승규',email:'jeffstyle@future-link.ai'},
+        {name:'유승민',email:'max0825@future-link.ai'},{name:'최대섭',email:'chleotjq1@future-link.ai'}
+    ];
+
     const softKeys=["운전자판단","시스템이상","교통약자보호","신호위반","신호등지시","교차로딜레마","도로상황","차선변경","급정지/서행","보호의무"];
     const hardCauses=["시스템이상","신호위반","교차로딜레마","도로상황","운전자실수"];
     const hardActions=["브레이크","핸들","엑셀","시스템"];
     const actionMap={"브레이크":"B","핸들":"H","엑셀":"A","시스템":"S"};
 
     window.onload = function(){
-        // ... 기존 코드 ...
-    // 오늘 날짜 세팅 (운행보고 & 충전관리 둘 다)
-    const today = new Date().toISOString().substring(0, 10);
-    if(document.getElementById('reportDate')) document.getElementById('reportDate').value = today;
-    if(document.getElementById('chargeDate')) document.getElementById('chargeDate').value = today;
-}
+        // 작성자 버튼 생성
+        const ug = document.getElementById('userBtnGroup');
+        if(ug) userList.forEach(u=> ug.innerHTML += `<button class="select-btn" data-name="${u.name}" onclick="selectUser(this,'${u.name}','${u.email}')">${u.name}</button>`);
+
         const sc=document.getElementById('softContainer');
         softKeys.forEach((n,i)=>{ sc.innerHTML+=`<div class="category-item"><span class="category-name">${i+1}. ${n}</span><div class="counter-group"><button class="btn-sm" onclick="stepSoft(${i},-1)">-</button><input id="s${i}" class="counter-val" value="0" readonly><button class="btn-sm" onclick="stepSoft(${i},1)">+</button></div></div>`; });
         const hb=document.getElementById('hardBody');
         hardCauses.forEach((c,i)=>{ let row=`<tr><td class="hard-cause-label">${c}</td>`; hardActions.forEach((a,j)=>{ row+=`<td><div class="hard-cell-content"><button class="hard-btn-plus" onclick="stepHard('${i}_${j}', 1)">+</button><input id="h${i}_${j}" class="hard-val-input" value="0" readonly></div></td>`; }); hb.innerHTML+=row+`</tr>`; });
+
+        const today = new Date().toISOString().substring(0, 10);
+        if(document.getElementById('reportDate')) document.getElementById('reportDate').value = today;
+        if(document.getElementById('chargeDate')) document.getElementById('chargeDate').value = today;
 
         if(localStorage.getItem('isLoggedIn') === 'true') {
             showApp();
         }
         loadSavedData();
         initBackFilter();
-        document.getElementById('chargeDate').value = new Date().toISOString().substring(0, 10);
     }
 
     function toggleMenu() {
@@ -252,7 +254,8 @@
     }
 
     function checkLogin(){
-        const email = document.getElementById('emailInput').value.trim().toLowerCase();
+        const emailInput = document.getElementById('emailInput');
+        const email = emailInput.value.trim().toLowerCase();
         const keep = document.getElementById('keepLogin').checked;
         const user = userList.find(x => x.email.toLowerCase() === email);
         if(user){
@@ -294,12 +297,11 @@
         }
     }
 
-    // [전체 초기화 함수 추가]
     function resetForm() {
         showModal("전체 초기화", "작성 중인 모든 내용이 삭제되고 페이지가 새로고침됩니다. 계속하시겠습니까?", "confirm", function() {
-            clearSavedData(); // 모든 임시 데이터 삭제
-            window.onbeforeunload = null; // 새로고침 경고 방지
-            location.reload(); // 리로드
+            clearSavedData();
+            window.onbeforeunload = null;
+            location.reload();
         });
     }
 
@@ -364,64 +366,25 @@
     function startVoice(tid,bid){ window.SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition; if(!window.SpeechRecognition)return; const r=new window.SpeechRecognition(); r.lang='ko-KR'; r.onstart=()=>document.getElementById(bid).innerHTML="🔴"; r.onresult=(e)=>{ const res = e.results[0][0].transcript; const target = document.getElementById(tid); target.value += res; saveInput(target); }; r.onend=()=>document.getElementById(bid).innerHTML="🎤"; r.start(); }
     function openChat(){ document.getElementById('chatOverlay').style.display='flex'; loadChat(); }
     function closeChat(){document.getElementById('chatOverlay').style.display='none';}
-    function sendChat(){ const input = document.getElementById('chatInput'); const msg = input.value.trim(); if(!msg) return; const name = localStorage.getItem('userName') || "익명"; const cont = document.getElementById('chatContent'); cont.innerHTML += `<div style="background:#fff; padding:10px; border-radius:10px; align-self:flex-end; max-width:80%; border:1px solid #dcf8c6;"><b style="color:#28a745; font-size:11px;">${name}</b><br>${msg}</div>`; cont.scrollTop = cont.scrollHeight; fetch(GAS_URL, { method:'POST', mode:'no-cors', body:JSON.stringify({ type:'chat', user: name, message: msg }) }); input.value = ''; setTimeout(loadChat, 1000); }
+    function sendChat(){ const input = document.getElementById('chatInput'); const msg = input.value.trim(); if(!msg) return; const name = localStorage.getItem('userName') || "익명"; const cont = document.getElementById('chatContent'); cont.innerHTML += `<div style="background:#fff; padding:10px; border-radius:10px; align-self:flex-end; max-width:80%; border:1px solid #dcf8c6;"><b style="color:#28a745; font-size:11px;">${name}</b><br>${msg}</div>`; cont.scrollTop = cont.scrollHeight; fetch(GAS_URL, { method:'POST', body:JSON.stringify({ type:'chat', user: name, message: msg }) }); input.value = ''; setTimeout(loadChat, 1000); }
     function loadChat(){ if(document.getElementById('chatOverlay').style.display==='none') return; fetch(GAS_URL+'?type=chat').then(r=>r.json()).then(data=>{ const cont = document.getElementById('chatContent'); cont.innerHTML = data.map(m=>`<div style="background:white; padding:10px; border-radius:10px; align-self:flex-start; max-width:80%; box-shadow:0 1px 2px rgba(0,0,0,0.1);"><b style="color:#1a73e8; font-size:11px;">${m.user || "익명"}</b><br>${m.message || "내용없음"}</div>`).join(''); cont.scrollTop = cont.scrollHeight; }).catch(e=>console.log("로드 실패")); }
     
-function addRecord(){
-    // [수정] 작성자 확인
-    if(!selectedUser) return showModal("알림","작성자를 선택하세요.","alert");
-    
-    // [추가] HTML에 추가한 날짜 입력창(reportDate)에서 값을 가져옴
-    const reportDate = document.getElementById('reportDate').value;
-    if(!reportDate) return showModal("알림", "운행 날짜를 선택하세요.", "alert");
+    function addRecord(){
+        if(!selectedUser)return showModal("알림","작성자를 선택하세요.","alert");
+        const reportDate = document.getElementById('reportDate').value;
+        if(!reportDate) return showModal("알림", "운행 날짜를 선택하세요.", "alert");
 
-    const btn = document.getElementById('submitBtn'); 
-    btn.disabled = true; 
-    btn.innerText = "전송 중...";
-
-    // [수정] payload 구성
-    const payload = { 
-        "type": "report", 
-        "날짜": reportDate, // 기존 formattedDate 대신 reportDate 사용
-        "작성자": selectedUser, 
-        "이메일": selectedEmail, 
-        "업무": selectedType, 
-        "차량": selectedCar, 
-        "근무": selectedShift, 
-        "SSD버전": document.getElementById('ssdVersion').value, 
-        "자율거리": document.getElementById('autoDist').value || "0", 
-        "자율시간": document.getElementById('autoTime').value || "000000", 
-        "누적ODO": document.getElementById('totalOdo').value || "0", 
-        "소프트합계": document.getElementById('softTotalDisp').innerText, 
-        "하드합계": document.getElementById('hardTotalDisp').innerText, 
-        "이슈사항": document.getElementById('workIssue').value 
-    };
-
-    // 소프트/하드 데이터 매핑 (기존 로직 유지)
-    softKeys.forEach((k,i) => payload[k] = document.getElementById('s'+i).value);
-    hardCauses.forEach((c,i) => { 
-        hardActions.forEach((a,j) => payload[`하드(${c}-${actionMap[a]})`] = document.getElementById(`h${i}_${j}`).value); 
-    });
-
-    window.onbeforeunload = null;
-
-    // 데이터 전송
-    fetch(GAS_URL, {
-        method: 'POST',
-        body: JSON.stringify(payload)
-    })
-    .then(() => { 
-        window.finalReload = true; 
-        clearSavedData(); 
-        showModal("완료", "보고서가 성공적으로 전송되었습니다.", "alert"); 
-    })
-    .catch((err) => { 
-        console.error(err);
-        showModal("오류", "전송에 실패했습니다.", "alert"); 
-        btn.disabled = false; 
-        btn.innerText = "보고서 기록하기"; 
-    });
-}
+        const btn=document.getElementById('submitBtn'); 
+        btn.disabled=true; btn.innerText="전송 중...";
+        
+        const payload={ "type":"report", "날짜": reportDate, "작성자":selectedUser, "이메일":selectedEmail, "업무":selectedType, "차량":selectedCar, "근무":selectedShift, "SSD버전":document.getElementById('ssdVersion').value, "자율거리":document.getElementById('autoDist').value||"0", "자율시간":document.getElementById('autoTime').value||"000000", "누적ODO":document.getElementById('totalOdo').value||"0", "소프트합계":document.getElementById('softTotalDisp').innerText, "하드합계":document.getElementById('hardTotalDisp').innerText, "이슈사항":document.getElementById('workIssue').value };
+        softKeys.forEach((k,i)=>payload[k]=document.getElementById('s'+i).value);
+        hardCauses.forEach((c,i)=>{ hardActions.forEach((a,j)=>payload[`하드(${c}-${actionMap[a]})`]=document.getElementById(`h${i}_${j}`).value); });
+        window.onbeforeunload = null;
+        fetch(GAS_URL,{method:'POST',body:JSON.stringify(payload)})
+        .then(()=>{ window.finalReload=true; clearSavedData(); showModal("완료", "보고서가 성공적으로 전송되었습니다.", "alert"); })
+        .catch(()=>{ showModal("오류","전송에 실패했습니다.","alert"); btn.disabled=false; btn.innerText="보고서 기록하기"; });
+    }
 
     function addChargeRecord() {
         if(!selectedChargeCar) return showModal("알림", "차량을 선택하세요.", "alert");
@@ -438,7 +401,10 @@ function addRecord(){
             "기타": document.getElementById('chargeMemo').value,
             "작성자": selectedUser || localStorage.getItem('userName')
         };
-        fetch(GAS_URL, {method:'POST', body:JSON.stringify(payload)})
+        fetch(GAS_URL, {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        })
         .then(() => {
             showModal("완료", "충전 기록이 전송되었습니다.", "alert");
             document.getElementById('chargeAmount').value = "";
@@ -446,7 +412,11 @@ function addRecord(){
             document.getElementById('chargeMemo').value = "";
             btn.disabled = false; btn.innerText = "충전량 기록하기";
         })
-        .catch(() => { showModal("오류", "전송 실패", "alert"); btn.disabled = false; });
+        .catch(() => { 
+            showModal("오류", "전송 실패", "alert"); 
+            btn.disabled = false; 
+            btn.innerText = "충전량 기록하기";
+        });
     }
 </script>
 </body>
