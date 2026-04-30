@@ -189,26 +189,30 @@
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbwDGt7slvfyvirjejYnOTdgxnLrp2-WqaY3Xr-a-h2QSrd9TaS62JKQ6TP4R5jMxX3T/exec';
     let selectedUser="", selectedEmail="", selectedType="", selectedCar="", selectedShift="", selectedChargeCar="";
     
+<script>
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbwDGt7slvfyvirjejYnOTdgxnLrp2-WqaY3Xr-a-h2QSrd9TaS62JKQ6TP4R5jMxX3T/exec';
+    let selectedUser="", selectedEmail="", selectedType="", selectedCar="", selectedShift="", selectedChargeCar="";
+    
     const userList=[
-{name:'황금철', email:'kchwang@future-link.ai'},
-    {name:'윤길홍', email:'khyoon@future-link.ai'},
-    {name:'예준우', email:'star7760@future-link.ai'},
-    {name:'길광림', email:'volfgangk@future-link.ai'},
-    {name:'전재훈', email:'level5@future-link.ai'},
-    {name:'오진혁', email:'dhwlstnwkd@future-link.ai'},
-    {name:'김준혁', email:'kirk@future-link.ai'},
-    {name:'박승규', email:'jeffstyle@future-link.ai'},
-    {name:'유승민', email:'max0825@future-link.ai'},
-    {name:'최대섭', email:'chleotjq1@future-link.ai'},
-    {name:'윤승현', email:'shyoon@future-link.ai'},
-    {name:'김선규', email:'skkim@future-link.ai'},
-    {name:'차두원', email:'dwcha@future-link.ai'}
-];
+        {name:'황금철', email:'kchwang@future-link.ai'},
+        {name:'윤길홍', email:'khyoon@future-link.ai'},
+        {name:'예준우', email:'star7760@future-link.ai'},
+        {name:'길광림', email:'volfgangk@future-link.ai'},
+        {name:'전재훈', email:'level5@future-link.ai'},
+        {name:'오진혁', email:'dhwlstnwkd@future-link.ai'},
+        {name:'김준혁', email:'kirk@future-link.ai'},
+        {name:'박승규', email:'jeffstyle@future-link.ai'},
+        {name:'유승민', email:'max0825@future-link.ai'},
+        {name:'최대섭', email:'chleotjq1@future-link.ai'},
+        {name:'윤승현', email:'shyoon@future-link.ai'},
+        {name:'김선규', email:'skkim@future-link.ai'},
+        {name:'차두원', email:'dwcha@future-link.ai'}
+    ];
 
-// 2. [방법 2 적용] 운행보고 전용 명단 (신규 3명 제외)
-const reportAuthors = userList.filter(user => 
-    !['윤승현', '김선규', '차두원'].includes(user.name)
-);
+    // 2. [방법 2 적용] 운행보고 전용 명단 (신규 3명 제외)
+    const reportAuthors = userList.filter(user => 
+        !['윤승현', '김선규', '차두원'].includes(user.name)
+    );
 
     const softKeys=["운전자판단","시스템이상","교통약자보호","신호위반","신호등지시","교차로딜레마","도로상황","차선변경","급정지/서행","보호의무"];
     const hardCauses=["시스템이상","신호위반","교차로딜레마","도로상황","운전자실수"];
@@ -217,7 +221,8 @@ const reportAuthors = userList.filter(user =>
 
     window.onload = function(){
         const ug = document.getElementById('userBtnGroup');
-        if(ug) userList.forEach(u=> ug.innerHTML += `<button class="select-btn" data-name="${u.name}" onclick="selectUser(this,'${u.name}','${u.email}')">${u.name}</button>`);
+        // [수정 포인트] 운행보고 작성자 목록 생성 시 reportAuthors를 사용합니다.
+        if(ug) reportAuthors.forEach(u=> ug.innerHTML += `<button class="select-btn" data-name="${u.name}" onclick="selectUser(this,'${u.name}','${u.email}')">${u.name}</button>`);
 
         const sc=document.getElementById('softContainer');
         softKeys.forEach((n,i)=>{ sc.innerHTML+=`<div class="category-item"><span class="category-name">${i+1}. ${n}</span><div class="counter-group"><button class="btn-sm" onclick="stepSoft(${i},-1)">-</button><input id="s${i}" class="counter-val" value="0" readonly><button class="btn-sm" onclick="stepSoft(${i},1)">+</button></div></div>`; });
@@ -234,6 +239,8 @@ const reportAuthors = userList.filter(user =>
         loadSavedData();
         initBackFilter();
     }
+    
+    // ... 이하 나머지 함수 코드는 동일하므로 생략 (기존 코드 그대로 유지하시면 됩니다)
 
     function toggleMenu() {
         const menu = document.getElementById('sideMenu');
