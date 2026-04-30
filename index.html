@@ -189,10 +189,7 @@
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbwDGt7slvfyvirjejYnOTdgxnLrp2-WqaY3Xr-a-h2QSrd9TaS62JKQ6TP4R5jMxX3T/exec';
     let selectedUser="", selectedEmail="", selectedType="", selectedCar="", selectedShift="", selectedChargeCar="";
     
-<script>
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbwDGt7slvfyvirjejYnOTdgxnLrp2-WqaY3Xr-a-h2QSrd9TaS62JKQ6TP4R5jMxX3T/exec';
-    let selectedUser="", selectedEmail="", selectedType="", selectedCar="", selectedShift="", selectedChargeCar="";
-    
+    // [최종 명단]
     const userList=[
         {name:'황금철', email:'kchwang@future-link.ai'},
         {name:'윤길홍', email:'khyoon@future-link.ai'},
@@ -209,7 +206,7 @@
         {name:'차두원', email:'dwcha@future-link.ai'}
     ];
 
-    // 2. [방법 2 적용] 운행보고 전용 명단 (신규 3명 제외)
+    // [운행보고 전용 명단] 신규 3명 제외
     const reportAuthors = userList.filter(user => 
         !['윤승현', '김선규', '차두원'].includes(user.name)
     );
@@ -220,14 +217,24 @@
     const actionMap={"브레이크":"B","핸들":"H","엑셀":"A","시스템":"S"};
 
     window.onload = function(){
+        // 운행보고 작성자 그룹 생성 (reportAuthors 사용)
         const ug = document.getElementById('userBtnGroup');
-        // [수정 포인트] 운행보고 작성자 목록 생성 시 reportAuthors를 사용합니다.
-        if(ug) reportAuthors.forEach(u=> ug.innerHTML += `<button class="select-btn" data-name="${u.name}" onclick="selectUser(this,'${u.name}','${u.email}')">${u.name}</button>`);
+        if(ug) {
+            ug.innerHTML = "";
+            reportAuthors.forEach(u=> ug.innerHTML += `<button class="select-btn" data-name="${u.name}" onclick="selectUser(this,'${u.name}','${u.email}')">${u.name}</button>`);
+        }
 
         const sc=document.getElementById('softContainer');
-        softKeys.forEach((n,i)=>{ sc.innerHTML+=`<div class="category-item"><span class="category-name">${i+1}. ${n}</span><div class="counter-group"><button class="btn-sm" onclick="stepSoft(${i},-1)">-</button><input id="s${i}" class="counter-val" value="0" readonly><button class="btn-sm" onclick="stepSoft(${i},1)">+</button></div></div>`; });
+        if(sc) {
+            sc.innerHTML = "";
+            softKeys.forEach((n,i)=>{ sc.innerHTML+=`<div class="category-item"><span class="category-name">${i+1}. ${n}</span><div class="counter-group"><button class="btn-sm" onclick="stepSoft(${i},-1)">-</button><input id="s${i}" class="counter-val" value="0" readonly><button class="btn-sm" onclick="stepSoft(${i},1)">+</button></div></div>`; });
+        }
+        
         const hb=document.getElementById('hardBody');
-        hardCauses.forEach((c,i)=>{ let row=`<tr><td class="hard-cause-label">${c}</td>`; hardActions.forEach((a,j)=>{ row+=`<td><div class="hard-cell-content"><button class="hard-btn-plus" onclick="stepHard('${i}_${j}', 1)">+</button><input id="h${i}_${j}" class="hard-val-input" value="0" readonly></div></td>`; }); hb.innerHTML+=row+`</tr>`; });
+        if(hb) {
+            hb.innerHTML = "";
+            hardCauses.forEach((c,i)=>{ let row=`<tr><td class="hard-cause-label">${c}</td>`; hardActions.forEach((a,j)=>{ row+=`<td><div class="hard-cell-content"><button class="hard-btn-plus" onclick="stepHard('${i}_${j}', 1)">+</button><input id="h${i}_${j}" class="hard-val-input" value="0" readonly></div></td>`; }); hb.innerHTML+=row+`</tr>`; });
+        }
 
         const today = new Date().toISOString().substring(0, 10);
         if(document.getElementById('reportDate')) document.getElementById('reportDate').value = today;
@@ -239,8 +246,6 @@
         loadSavedData();
         initBackFilter();
     }
-    
-    // ... 이하 나머지 함수 코드는 동일하므로 생략 (기존 코드 그대로 유지하시면 됩니다)
 
     function toggleMenu() {
         const menu = document.getElementById('sideMenu');
@@ -259,6 +264,7 @@
 
     function checkLogin(){
         const emailInput = document.getElementById('emailInput');
+        if(!emailInput) return;
         const email = emailInput.value.trim().toLowerCase();
         const keep = document.getElementById('keepLogin').checked;
         const user = userList.find(x => x.email.toLowerCase() === email);
@@ -320,7 +326,6 @@
         }
     }
 
-    // 업무 선택 시 전체 항목 제어 (수정됨)
     function selectType(b){
         const carArea = document.getElementById('carBtnGroup');
         const autoDriveArea = document.getElementById('autoDriveSections');
@@ -328,7 +333,6 @@
 
         if(b.classList.contains('selected')){ 
             b.classList.remove('selected'); selectedType=""; localStorage.removeItem('temp_selectedType'); 
-            // 선택 해제 시 모든 영역 활성화
             carArea.style.opacity = "1"; carArea.style.pointerEvents = "auto";
             autoDriveArea.style.opacity = "1"; autoDriveArea.style.pointerEvents = "auto";
         }
@@ -337,18 +341,14 @@
             b.classList.add('selected'); selectedType=b.innerText; localStorage.setItem('temp_selectedType', selectedType); 
             
             if(selectedType === "동승" || selectedType === "내근") {
-                // 차량 및 자율주행 관련 5~10번 섹션 비활성화
                 carArea.style.opacity = "0.3"; 
                 carArea.style.pointerEvents = "none";
                 autoDriveArea.style.opacity = "0.3";
                 autoDriveArea.style.pointerEvents = "none";
-                
-                // 차량 선택 해제
                 carBtns.forEach(btn => btn.classList.remove('selected'));
                 selectedCar = "";
                 localStorage.removeItem('temp_selectedCar');
             } else {
-                // 운행 선택 시 모두 활성화
                 carArea.style.opacity = "1"; 
                 carArea.style.pointerEvents = "auto";
                 autoDriveArea.style.opacity = "1";
