@@ -331,22 +331,32 @@
         }
     }
 
+    // [중요 수정: selectType 함수]
     function selectType(b){
         const carArea = document.getElementById('carBtnGroup');
         const autoDriveArea = document.getElementById('autoDriveSections');
         const carBtns = carArea.querySelectorAll('.select-btn');
+        const typeName = b.innerText;
 
+        // 이미 선택된 버튼을 다시 누른 경우 (선택 해제)
         if(b.classList.contains('selected')){ 
             b.classList.remove('selected'); selectedType=""; localStorage.removeItem('temp_selectedType'); 
             carArea.style.opacity = "1"; carArea.style.pointerEvents = "auto";
             autoDriveArea.style.opacity = "1"; autoDriveArea.style.pointerEvents = "auto";
+            return;
         }
-        else { 
-            document.querySelectorAll('#typeBtnGroup .select-btn').forEach(x=>x.classList.remove('selected')); 
-            b.classList.add('selected'); selectedType=b.innerText; localStorage.setItem('temp_selectedType', selectedType); 
-            
-            if(selectedType === "동승" || selectedType === "내근") {
-                resetAutoDriveData();
+
+        // 동승/내근 선택 시 알림창 띄우기
+        if(typeName === "동승" || typeName === "내근") {
+            showModal("주의", "동승 또는 내근을 선택하면 입력된 5~10번 데이터가 초기화되고 잠깁니다. 계속하시겠습니까?", "confirm", function() {
+                // 확인 눌렀을 때만 실행
+                document.querySelectorAll('#typeBtnGroup .select-btn').forEach(x=>x.classList.remove('selected')); 
+                b.classList.add('selected'); 
+                selectedType = typeName; 
+                localStorage.setItem('temp_selectedType', selectedType); 
+                
+                resetAutoDriveData(); // 데이터 초기화
+                
                 carArea.style.opacity = "0.3"; 
                 carArea.style.pointerEvents = "none";
                 autoDriveArea.style.opacity = "0.3";
@@ -354,12 +364,18 @@
                 carBtns.forEach(btn => btn.classList.remove('selected'));
                 selectedCar = "";
                 localStorage.removeItem('temp_selectedCar');
-            } else {
-                carArea.style.opacity = "1"; 
-                carArea.style.pointerEvents = "auto";
-                autoDriveArea.style.opacity = "1";
-                autoDriveArea.style.pointerEvents = "auto";
-            }
+            });
+        } else {
+            // '운행' 선택 시
+            document.querySelectorAll('#typeBtnGroup .select-btn').forEach(x=>x.classList.remove('selected')); 
+            b.classList.add('selected'); 
+            selectedType = typeName; 
+            localStorage.setItem('temp_selectedType', selectedType); 
+            
+            carArea.style.opacity = "1"; 
+            carArea.style.pointerEvents = "auto";
+            autoDriveArea.style.opacity = "1";
+            autoDriveArea.style.pointerEvents = "auto";
         }
     }
 
