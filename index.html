@@ -3,129 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>안전운행팀 보고서 (최종 수정본)</title>
+    <title>운행 보고서 - 최종 점검본</title>
     <style>
-        /* [스타일] 다른 부분은 건드리지 않고 비활성화 효과만 확실히 정의 */
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: sans-serif; padding: 12px; background-color: #f5f7fa; }
-        #mainApp { max-width: 600px; margin: 0 auto; background: white; padding: 15px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .section { margin-bottom: 15px; padding: 15px; border: 1px solid #edf2f7; border-radius: 12px; }
-        .btn-grid { display: grid; gap: 8px; }
-        .grid-3 { grid-template-columns: repeat(3, 1fr); }
-        .grid-2 { grid-template-columns: repeat(2, 1fr); }
-        .select-btn { padding: 14px 2px; border: 1px solid #e2e8f0; background: #fff; border-radius: 8px; cursor: pointer; font-weight: 600; text-align: center; }
-        .select-btn.selected { background-color: #1a73e8 !important; color: white !important; }
-        .text-input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; }
+        body { font-family: sans-serif; padding: 15px; background-color: #f0f2f5; line-height: 1.6; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 500px; margin: 0 auto; }
+        .section { border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .title { font-weight: bold; color: #1a73e8; margin-bottom: 10px; display: block; }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .btn { padding: 12px; border: 1px solid #ccc; background: #fff; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn.active { background: #1a73e8; color: white; border-color: #1a73e8; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
         
-        /* 잠금 스타일: 인라인 스타일이 안 먹힐 때를 대비한 백업 */
-        .area-locked { opacity: 0.2 !important; pointer-events: none !important; filter: grayscale(1) !important; }
+        /* 잠금 스타일 */
+        .lock-visual { opacity: 0.3 !important; pointer-events: none !important; filter: grayscale(1) !important; background-color: #eee !important; }
     </style>
 </head>
 <body>
 
-<div id="mainApp">
-    <h3 style="color:#1a73e8; margin-bottom:15px;">📋 자율주행 운행보고</h3>
-
-    <div class="section"><label>1. 운행 날짜</label><input type="date" id="reportDate" class="text-input"></div>
+<div class="card">
+    <h2 style="text-align: center;">📋 업무 보고서</h2>
 
     <div class="section">
-        <label>3. 업무 및 차량 선택</label>
-        <div class="btn-grid grid-3" id="typeGroup" style="margin-bottom:12px;">
-            <button class="select-btn" onclick="handleWorkTypeChange(this, '운행')">운행</button>
-            <button class="select-btn" onclick="handleWorkTypeChange(this, '동승')">동승</button>
-            <button class="select-btn" onclick="handleWorkTypeChange(this, '내근')">내근</button>
+        <span class="title">3. 업무 및 차량 선택</span>
+        <div class="btn-grid" id="workTypeContainer">
+            <button class="btn active" onclick="SUPER_CLICK(this, '운행')">운행</button>
+            <button class="btn" onclick="SUPER_CLICK(this, '동승')">동승</button>
+            <button class="btn" onclick="SUPER_CLICK(this, '내근')">내근</button>
         </div>
-        <div class="btn-grid grid-2" id="carGroupArea">
-            <script>for(let i=801;i<=810;i++) document.write(`<button class="select-btn car-btn" onclick="selectCarBtn(this)">gs${i}</button>`);</script>
+        <div id="carSelectionArea" style="margin-top:10px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
+            <script>for(let i=801;i<=804;i++) document.write(`<button class="btn car-btn" onclick="SELECT_CAR(this)">gs${i}</button>`);</script>
         </div>
     </div>
 
-    <div id="lockTargetArea">
-        <div class="section"><label>5. SSD 버전</label><input type="text" id="ssdVer" class="text-input val-field"></div>
-        <div class="section"><label>6. 자율거리(km)</label><input type="number" id="aDist" class="text-input val-field"></div>
-        <div class="section"><label>7. 자율시간</label><input type="number" id="aTime" class="text-input val-field"></div>
-        <div class="section"><label>8. 누적 ODO</label><input type="number" id="tOdo" class="text-input val-field"></div>
+    <div id="BLOCK_TARGET">
         <div class="section">
-            <label>9. 소프트 테이크오버</label>
-            <div id="softArea">
-                <div style="display:flex; justify-content:space-between; background:#f8fafc; padding:8px; border-radius:8px;">
-                    <span>운전자판단</span>
-                    <div>
-                        <button onclick="this.nextElementSibling.value=Math.max(0,parseInt(this.nextElementSibling.value)-1)">-</button>
-                        <input class="val-field" value="0" style="width:30px; text-align:center; border:none;" readonly>
-                        <button onclick="this.previousElementSibling.value=parseInt(this.previousElementSibling.value)+1">+</button>
-                    </div>
-                </div>
+            <span class="title">5. SSD 버전</span>
+            <input type="text" id="input_ssd" class="clear-target" placeholder="내용 입력">
+        </div>
+        <div class="section">
+            <span class="title">6. 자율 주행 데이터</span>
+            <input type="number" id="input_dist" class="clear-target" placeholder="0">
+        </div>
+        <div class="section">
+            <span class="title">9. 테이크오버 카운트</span>
+            <div style="display:flex; justify-content: space-between; align-items: center;">
+                <span>시스템 이상</span>
+                <input type="number" class="clear-target" value="0" style="width: 60px; text-align: center;">
             </div>
         </div>
     </div>
 
-    <div class="section"><label>11. 이슈 사항</label><textarea id="issue" class="text-input" style="height:80px;"></textarea></div>
-    <button onclick="alert('전송되었습니다')" style="width:100%; padding:18px; background:#28a745; color:white; border:none; border-radius:12px; font-weight:bold;">보고서 기록하기</button>
+    <div class="section">
+        <span class="title">11. 기타 이슈</span>
+        <textarea rows="3" placeholder="이슈 입력"></textarea>
+    </div>
+
+    <button onclick="alert('제출 완료')" style="width:100%; padding:15px; background:#28a745; color:white; border:none; border-radius:8px; font-size:16px; font-weight:bold;">기록하기</button>
 </div>
 
 <script>
-    // [강력한 실행 보장 함수]
-    function handleWorkTypeChange(clickedBtn, typeName) {
-        // 1. 모든 타입 버튼의 선택 효과 제거
-        const typeBtns = document.querySelectorAll('#typeGroup .select-btn');
-        typeBtns.forEach(btn => btn.classList.remove('selected'));
-        
-        // 2. 동승 또는 내근을 선택했을 때
-        if (typeName === "동승" || typeName === "내근") {
-            // [브라우저 표준 알림창] - 이 방식은 무조건 뜹니다.
-            if (confirm("동승/내근 선택 시 기존 5~10번 입력 데이터가 초기화되고 잠깁니다. 계속하시겠습니까?")) {
-                
-                // 버튼 선택 표시
-                clickedBtn.classList.add('selected');
+    // [전역 함수 - 절대 덮어씌워지지 않게 고유한 이름 사용]
+    function SUPER_CLICK(element, type) {
+        const buttons = document.querySelectorAll('#workTypeContainer .btn');
+        const targetArea = document.getElementById('BLOCK_TARGET');
+        const carArea = document.getElementById('carSelectionArea');
 
-                // 5~10번 영역 초기화 및 잠금
-                const targetArea = document.getElementById('lockTargetArea');
-                const carArea = document.getElementById('carGroupArea');
+        // 1. 동승/내근 클릭 시
+        if (type === '동승' || type === '내근') {
+            if (confirm("⚠️ 경고!\n\n동승/내근 선택 시 5~10번 항목이 초기화되고 잠깁니다. 진행할까요?")) {
                 
+                // 버튼 상태 변경
+                buttons.forEach(b => b.classList.remove('active'));
+                element.classList.add('active');
+
                 // 데이터 초기화
-                const fields = targetArea.querySelectorAll('.val-field');
-                fields.forEach(f => {
-                    if(f.tagName === 'INPUT' && f.type === 'text') f.value = "";
-                    else if(f.tagName === 'INPUT' && f.type === 'number') f.value = "";
-                    else f.value = "0"; // 카운터용
+                const inputs = document.querySelectorAll('.clear-target');
+                inputs.forEach(i => {
+                    if(i.type === 'number') i.value = 0;
+                    else i.value = "";
                 });
 
-                // 차량 선택 버튼 초기화
-                document.querySelectorAll('.car-btn').forEach(cb => cb.classList.remove('selected'));
+                // 차량 선택 해제
+                document.querySelectorAll('.car-btn').forEach(c => c.classList.remove('active'));
 
-                // 시각적 및 기능적 잠금 (인라인 스타일 강제 주입)
-                targetArea.style.cssText = "opacity: 0.2 !important; pointer-events: none !important; filter: grayscale(1) !important;";
-                carArea.style.cssText = "opacity: 0.2 !important; pointer-events: none !important; filter: grayscale(1) !important;";
+                // 강제 잠금 (인라인 스타일 주입)
+                targetArea.classList.add('lock-visual');
+                carArea.classList.add('lock-visual');
                 
-            } else {
-                // 취소 시 '운행' 버튼을 다시 선택 상태로 (또는 이전 상태 유지)
-                typeBtns[0].classList.add('selected');
+                console.log(type + " 모드 활성화: 잠금 완료");
             }
         } 
-        // 3. 운행을 선택했을 때
+        // 2. 운행 클릭 시
         else {
-            clickedBtn.classList.add('selected');
-            const targetArea = document.getElementById('lockTargetArea');
-            const carArea = document.getElementById('carGroupArea');
+            buttons.forEach(b => b.classList.remove('active'));
+            element.classList.add('active');
+
+            // 잠금 해제
+            targetArea.classList.remove('lock-visual');
+            carArea.classList.remove('lock-visual');
             
-            // 잠금 해제 (스타일 제거)
-            targetArea.style.cssText = "";
-            carArea.style.cssText = "";
+            console.log("운행 모드 활성화: 잠금 해제");
         }
     }
 
-    function selectCarBtn(btn) {
-        document.querySelectorAll('.car-btn').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
+    function SELECT_CAR(btn) {
+        document.querySelectorAll('.car-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
     }
-
-    // 초기값 세팅
-    window.onload = function() {
-        document.getElementById('reportDate').value = new Date().toISOString().substring(0, 10);
-        // 처음에 '운행' 버튼 선택 상태로
-        document.querySelectorAll('#typeGroup .select-btn')[0].classList.add('selected');
-    };
 </script>
 
 </body>
