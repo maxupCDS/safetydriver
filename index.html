@@ -382,18 +382,18 @@
     function resetAutoDriveData() {
         ['autoDist', 'autoTime', 'totalOdo'].forEach(id => {
             const el = document.getElementById(id);
-            if(el) { el.value = "0"; localStorage.setItem('temp_' + id, "0"); }
+            if(el) { el.value = ""; localStorage.setItem('temp_' + id, "0"); }
         });
         const ssd = document.getElementById('ssdVersion');
         if(ssd) { ssd.value = ""; localStorage.setItem('temp_ssdVersion', ""); }
         for(let i=0; i<softKeys.length; i++) {
             const el = document.getElementById('s' + i);
-            if(el) { el.value = "0"; localStorage.setItem('temp_s' + i, "0"); }
+            if(el) { el.value = ""; localStorage.setItem('temp_s' + i, "0"); }
         }
         hardCauses.forEach((c, i) => {
             hardActions.forEach((a, j) => {
                 const el = document.getElementById(`h${i}_${j}`);
-                if(el) { el.value = "0"; localStorage.setItem(`temp_h${i}_${j}`, "0"); }
+                if(el) { el.value = ""; localStorage.setItem(`temp_h${i}_${j}`, "0"); }
             });
         });
         updateTotals();
