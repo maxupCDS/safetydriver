@@ -3,83 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#1a73e8">
-    
     <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/maxupCDS/safetydriver/main/logo_app.png">
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/maxupCDS/safetydriver/main/logo_app.png">
-    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
-    
     <title>안전운행팀 보고서</title>
     <style>
         /* [1. 전역 스타일] */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 12px; background-color: #f5f7fa; color: #333; overflow-x: hidden; width: 100%; }
-        
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type="number"] { -moz-appearance: textfield; }
-
-        /* [2. 로그인 화면] */
         #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%); display: flex; align-items: center; justify-content: center; z-index: 9999; }
         .login-card { background: white; padding: 40px 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; width: 90%; max-width: 350px; }
         .team-title { color: #1a73e8; font-size: 1.4rem; font-weight: 900; margin-bottom: 25px; }
         .login-input { width: 100%; padding: 14px; margin-bottom: 12px; border: 2px solid #edf2f7; border-radius: 12px; font-size: 16px; text-align: center; outline: none; }
         .keep-login-wrap { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px; color: #666; font-size: 14px; }
-        .keep-login-wrap input { width: 18px; height: 18px; }
         .btn-login { width: 100%; padding: 15px; background: #1a73e8; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; }
-
-        /* [3. 메인 앱 레이아웃] */
         #mainApp { display: none; width: 100%; max-width: 600px; margin: 0 auto; background: white; padding: 15px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 50px; }
         .header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #f1f3f5; padding-bottom: 10px; }
         .header-title { color: #1a73e8; font-size: 1.1rem; font-weight: bold; }
         .section { margin-bottom: 15px; padding: 15px; border: 1px solid #edf2f7; border-radius: 12px; background-color: #fdfdfe; width: 100%; transition: 0.3s; }
         label { display: block; margin-bottom: 12px; font-weight: bold; font-size: 16px; color: #333; }
-        
         .btn-grid { display: grid; gap: 8px; width: 100%; }
         .grid-3 { grid-template-columns: repeat(3, 1fr); }
         .grid-2 { grid-template-columns: repeat(2, 1fr); }
         .select-btn { padding: 14px 2px; border: 1px solid #e2e8f0; background: #fff; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #4a5568; text-align: center; transition: 0.2s; }
         .select-btn.selected { background-color: #1a73e8 !important; color: white !important; border-color: #1a73e8; }
         .text-input { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; outline: none; background: #fff; }
-
-        /* [4. 카운터 및 테이블] */
         .category-item { background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid #eef2f8; display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
         .category-name { font-size: 14px; font-weight: 600; color: #333; flex: 1; margin-right: 10px; }
         .counter-group { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
         .btn-sm { width: 38px; height: 38px; border-radius: 50%; border: none; background: #1a73e8; color: white; font-size: 22px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
         .counter-val { width: 40px; text-align: center; font-weight: 800; font-size: 18px; border: none; background: transparent; color: #1a73e8; }
-
         .hard-table-wrapper { width: 100%; border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
         .hard-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        .hard-table th { font-size: 11px; background: #f8fafc; padding: 10px 2px; border: 1px solid #eee; color: #4a5568; font-weight: bold; }
-        .hard-table td { border: 1px solid #eee; text-align: center; padding: 8px 0; background: #fff; vertical-align: middle; }
-        
-        .hard-cause-label { font-size: 10.5px; font-weight: bold; color: #333; word-break: keep-all; line-height: 1.2; }
-        .hard-btn-plus { border: none; background: #1a73e8; color: white; border-radius: 50%; width: 30px; height: 30px; font-weight: bold; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+        .hard-table th { font-size: 11px; background: #f8fafc; padding: 10px 2px; border: 1px solid #eee; color: #4a5568; }
+        .hard-table td { border: 1px solid #eee; text-align: center; padding: 8px 0; background: #fff; }
+        .hard-cause-label { font-size: 10.5px; font-weight: bold; color: #333; line-height: 1.2; }
+        .hard-btn-plus { border: none; background: #1a73e8; color: white; border-radius: 50%; width: 30px; height: 30px; font-weight: bold; font-size: 20px; cursor: pointer; }
         .hard-val-input { width: 100%; text-align: center; border: none; font-weight: 800; font-size: 16px; color: #1a73e8; background: transparent; outline: none; }
-
         .btn-add { width: 100%; padding: 18px; border: none; border-radius: 14px; font-size: 18px; font-weight: bold; color: white; background: #28a745; margin-top: 15px; }
-
-        /* [5. 모달] */
         #customModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 20000; padding: 20px; }
         .modal-card { background: white; border-radius: 20px; width: 100%; max-width: 320px; overflow: hidden; }
         .modal-body { padding: 25px 20px; text-align: center; border-bottom: 1px solid #eee; }
         .modal-footer { display: flex; }
         .modal-btn { flex: 1; padding: 15px; border: none; background: transparent; font-size: 16px; font-weight: bold; cursor: pointer; }
-
-        /* [6. 사이드 메뉴] */
         .menu-btn { font-size: 26px; background: none; border: none; color: #1a73e8; cursor: pointer; padding-right: 10px; }
         #sideMenu { position: fixed; top: 0; left: -280px; width: 260px; height: 100%; background: white; z-index: 25000; transition: 0.3s; box-shadow: 2px 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
         #sideMenu.active { left: 0; }
         .menu-header { padding: 50px 20px 25px; background: #1a73e8; color: white; }
-        .menu-list { flex: 1; overflow-y: auto; padding-top: 10px; }
-        .menu-item { padding: 18px 20px; border-bottom: 1px solid #f1f3f5; cursor: pointer; font-size: 15px; font-weight: 600; color: #444; }
-        .menu-logout { padding: 18px 20px; border-top: 1px solid #eee; color: #666; font-weight: 600; font-size: 14px; cursor: pointer; background: #fcfcfc; display: flex; justify-content: space-between; align-items: center; }
+        .menu-list { flex: 1; overflow-y: auto; }
+        .menu-item { padding: 18px 20px; border-bottom: 1px solid #f1f3f5; cursor: pointer; font-size: 15px; font-weight: 600; }
+        .menu-logout { padding: 18px 20px; border-top: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; }
         .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 24000; display: none; }
         .app-page { display: none; }
         .app-page.active { display: block; }
@@ -87,14 +67,13 @@
 </head>
 <body>
 
-<div id="loginOverlay"><div class="login-card"><div class="team-title">FUTURE LINK</div><input type="email" id="emailInput" class="login-input" placeholder="사내 이메일 입력"><div class="keep-login-wrap"><input type="checkbox" id="keepLogin"><label for="keepLogin" style="margin:0; font-size:14px; font-weight:normal;">자동 로그인 유지</label></div><button class="btn-login" onclick="checkLogin()">시작하기</button></div></div>
+<div id="loginOverlay"><div class="login-card"><div class="team-title">FUTURE LINK</div><input type="email" id="emailInput" class="login-input" placeholder="사내 이메일 입력"><div class="keep-login-wrap"><input type="checkbox" id="keepLogin"><label for="keepLogin" style="margin:0; font-size:14px;">자동 로그인 유지</label></div><button class="btn-login" onclick="checkLogin()">시작하기</button></div></div>
 <div id="menuOverlay" class="menu-overlay" onclick="toggleMenu()"></div>
 <div id="sideMenu"><div class="menu-header"><span id="displayUserName" style="font-weight:bold;">사용자님</span><br><span id="displayUserEmail" style="font-size:0.8rem; opacity:0.8;">email</span></div><div class="menu-list"><div class="menu-item" onclick="switchPage('reportPage', '📋 자율주행 운행보고')">📋 자율주행 운행보고</div><div class="menu-item" onclick="switchPage('chargePage', '⚡ 충전 관리')">⚡ 충전 관리</div></div><div class="menu-logout" onclick="logout()"><span style="color:#d32f2f;">로그아웃</span></div></div>
 <div id="customModal"><div class="modal-card"><div class="modal-body"><div id="modalTitle" style="font-weight:bold; color:#1a73e8; margin-bottom:8px; font-size:18px;">알림</div><div id="modalText" style="font-size:15px; color:#555;">내용</div></div><div class="modal-footer" id="modalFooter"></div></div></div>
 
 <div id="mainApp">
     <div class="header-area"><div style="display:flex; align-items:center;"><button class="menu-btn" onclick="toggleMenu()">☰</button><div class="header-title" id="mainHeaderTitle">📋 자율주행 운행보고</div></div><button onclick="resetForm()" style="background:none; border:none; font-size:22px;">🔄</button></div>
-
     <div id="reportPage" class="app-page active">
         <div class="section"><label>1. 운행 날짜</label><input type="date" id="reportDate" class="text-input"></div>
         <div class="section"><label>2. 작성자 선택</label><div class="btn-grid grid-2" id="userBtnGroup"></div></div>
@@ -108,7 +87,6 @@
             <div class="btn-grid grid-2" id="carBtnGroup"><script>for(let i=801;i<=810;i++)document.write(`<button class="select-btn" onclick="selectCar(this)">gs${i}</button>`);</script></div>
         </div>
         <div class="section"><label>4. 근무방식</label><div class="btn-grid grid-2" id="shiftBtnGroup"><button class="select-btn" onclick="selectShift(this)">주간</button><button class="select-btn" onclick="selectShift(this)">야간</button></div></div>
-        
         <div id="autoDriveSections">
             <div class="section"><label>5. SSD 버전</label><input type="text" id="ssdVersion" class="text-input" oninput="saveInput(this)"></div>
             <div class="section"><label>6. 자율거리(km)</label><input type="number" id="autoDist" class="text-input" inputmode="decimal" oninput="saveInput(this)"></div>
@@ -120,7 +98,6 @@
         <div class="section"><label>11. 이슈 사항</label><textarea id="workIssue" class="text-input" style="height:100px;" oninput="saveInput(this)"></textarea></div>
         <button class="btn-add" id="submitBtn" onclick="addRecord()">보고서 기록하기</button>
     </div>
-
     <div id="chargePage" class="app-page">
         <div class="section"><label>1. 날짜</label><input type="date" id="chargeDate" class="text-input"></div>
         <div class="section"><label>2. 차량 선택</label><div class="btn-grid grid-2" id="chargeCarBtnGroup"><script>for(let i=801;i<=810;i++)document.write(`<button class="select-btn" onclick="selectChargeCar(this)">gs${i}</button>`);</script></div></div>
@@ -154,33 +131,41 @@
         loadSavedData();
     }
 
-    // [핵심 로직: 업무 선택 핸들러]
+    // [중요: 업무 선택 핸들러] 데이터가 있으면 무조건 알림 발생
     function handleTypeSelection(btn, typeName) {
+        // '동승'이나 '내근'을 선택했을 때만 체크
         if(typeName === "동승" || typeName === "내근") {
             if(hasInputData()) {
-                showModal("주의", "동승 또는 내근 선택 시 기존에 입력된 자율주행 관련 내용이 모두 초기화됩니다. 계속하시겠습니까?", "confirm", function() {
+                showModal("데이터 초기화 알림", "동승 또는 내근 선택 시 기존에 입력된 자율주행 관련 데이터가 모두 초기화됩니다. 변경하시겠습니까?", "confirm", function() {
                     applyType(btn, typeName, true);
                 });
             } else {
                 applyType(btn, typeName, true);
             }
         } else {
+            // '운행' 선택 시에는 그냥 적용
             applyType(btn, typeName, false);
         }
     }
 
-    // 데이터가 입력되어 있는지 확인
+    // 입력된 데이터가 있는지 꼼꼼하게 검사하는 함수
     function hasInputData() {
-        const ssd = document.getElementById('ssdVersion').value;
+        // 1. 텍스트/숫자 입력창 검사
+        const ssd = document.getElementById('ssdVersion').value.trim();
         const dist = document.getElementById('autoDist').value;
         const time = document.getElementById('autoTime').value;
         const odo = document.getElementById('totalOdo').value;
-        if(ssd || (dist && dist !== "0") || (time && time !== "0") || (odo && odo !== "0")) return true;
-        
-        let softSum = parseInt(document.getElementById('softTotalDisp').innerText);
-        let hardSum = parseInt(document.getElementById('hardTotalDisp').innerText);
+
+        if(ssd !== "") return true;
+        if(dist !== "" && parseFloat(dist) > 0) return true;
+        if(time !== "" && parseFloat(time) > 0) return true;
+        if(odo !== "" && parseFloat(odo) > 0) return true;
+
+        // 2. 소프트/하드 합계 검사
+        const softSum = parseInt(document.getElementById('softTotalDisp').innerText) || 0;
+        const hardSum = parseInt(document.getElementById('hardTotalDisp').innerText) || 0;
         if(softSum > 0 || hardSum > 0) return true;
-        
+
         return false;
     }
 
@@ -194,7 +179,7 @@
         const autoArea = document.getElementById('autoDriveSections');
         
         if(isRestricted) {
-            resetAutoDriveData();
+            resetAutoDriveData(); // 데이터 삭제
             carArea.style.opacity = "0.3"; carArea.style.pointerEvents = "none";
             autoArea.style.opacity = "0.3"; autoArea.style.pointerEvents = "none";
             document.querySelectorAll('#carBtnGroup .select-btn').forEach(x=>x.classList.remove('selected'));
@@ -248,7 +233,6 @@
     function showApp(){ document.getElementById('loginOverlay').style.display='none'; document.getElementById('mainApp').style.display='block'; }
     function logout(){ clearSavedData(); localStorage.removeItem('isLoggedIn'); location.reload(); }
     function resetForm(){ showModal("전체 초기화", "작성 중인 모든 내용이 삭제됩니다.", "confirm", ()=> { clearSavedData(); location.reload(); }); }
-
     function addRecord(){
         if(!selectedUser) return showModal("알림","작성자를 선택하세요.","alert");
         const btn=document.getElementById('submitBtn'); btn.disabled=true; btn.innerText="전송 중...";
@@ -257,7 +241,6 @@
         hardCauses.forEach((c,i)=>{ hardActions.forEach((a,j)=>payload[`하드(${c}-${actionMap[a]})`]=document.getElementById(`h${i}_${j}`).value); });
         fetch(GAS_URL,{method:'POST',body:JSON.stringify(payload)}).then(()=>{ clearSavedData(); showModal("완료", "성공적으로 전송되었습니다.", "alert", ()=>location.reload()); }).catch(()=>{ showModal("오류","전송 실패","alert"); btn.disabled=false; btn.innerText="보고서 기록하기"; });
     }
-
     function addChargeRecord() {
         const btn = document.getElementById('chargeSubmitBtn'); btn.disabled = true;
         const payload = { "type": "charge", "날짜": document.getElementById('chargeDate').value, "차량": selectedChargeCar, "충전량": document.getElementById('chargeAmount').value, "충전시간": document.getElementById('chargeTime').value, "기타": document.getElementById('chargeMemo').value, "작성자": selectedUser };
