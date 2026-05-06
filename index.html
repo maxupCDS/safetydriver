@@ -40,7 +40,7 @@
         .text-input { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; outline: none; background: #fff; }
 
         /* [4. 비활성화 스타일 강화] */
-        .disabled-area { opacity: 0.3 !important; pointer-events: none !important; filter: grayscale(1); }
+        .disabled-area { opacity: 0.3 !important; pointer-events: none !important; filter: grayscale(1) !important; cursor: not-allowed; }
 
         /* [5. 카운터 및 테이블] */
         .category-item { background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid #eef2f8; display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
@@ -90,7 +90,7 @@
         <div class="section"><label>1. 운행 날짜</label><input type="date" id="reportDate" class="text-input"></div>
         <div class="section"><label>2. 작성자 선택</label><div class="btn-grid grid-2" id="userBtnGroup"></div></div>
         
-        <div class="section" id="section-work-type">
+        <div class="section" id="section-3">
             <label>3. 업무 및 차량 선택</label>
             <div class="btn-grid grid-3" style="margin-bottom:12px;" id="typeBtnGroup">
                 <button class="select-btn" onclick="handleWorkType(this, '운행')">운행</button>
@@ -125,7 +125,7 @@
 
 <script>
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbwDGt7slvfyvirjejYnOTdgxnLrp2-WqaY3Xr-a-h2QSrd9TaS62JKQ6TP4R5jMxX3T/exec';
-    let selectedUser="", selectedEmail="", selectedType="", selectedCar="", selectedShift="";
+    let selectedUser="", selectedType="", selectedCar="", selectedShift="";
     const softKeys=["운전자판단","시스템이상","교통약자보호","신호위반","신호등지시","교차로딜레마","도로상황","차선변경","급정지/서행","보호의무"];
     const hardCauses=["시스템이상","신호위반","교차로딜레마","도로상황","운전자실수"];
     const hardActions=["B","H","A","S"];
@@ -133,75 +133,104 @@
     window.onload = function(){
         const userList=[{name:'황금철', email:'kchwang@future-link.ai'},{name:'윤길홍', email:'khyoon@future-link.ai'},{name:'예준우', email:'star7760@future-link.ai'},{name:'길광림', email:'volfgangk@future-link.ai'},{name:'전재훈', email:'level5@future-link.ai'},{name:'오진혁', email:'dhwlstnwkd@future-link.ai'},{name:'김준혁', email:'kirk@future-link.ai'},{name:'박승규', email:'jeffstyle@future-link.ai'},{name:'유승민', email:'max0825@future-link.ai'},{name:'최대섭', email:'chleotjq1@future-link.ai'}];
         const ug = document.getElementById('userBtnGroup');
-        userList.forEach(u=> ug.innerHTML += `<button class="select-btn" onclick="selectUser(this,'${u.name}','${u.email}')">${u.name}</button>`);
+        userList.forEach(u=> ug.innerHTML += `<button class="select-btn" onclick="selectUser(this,'${u.name}')">${u.name}</button>`);
         const sc=document.getElementById('softContainer');
         softKeys.forEach((n,i)=>{ sc.innerHTML+=`<div class="category-item"><span class="category-name">${n}</span><div class="counter-group"><button class="btn-sm" onclick="stepSoft(${i},-1)">-</button><input id="s${i}" class="counter-val" value="0" readonly><button class="btn-sm" onclick="stepSoft(${i},1)">+</button></div></div>`; });
         const hb=document.getElementById('hardBody');
-        hardCauses.forEach((c,i)=>{ let row=`<tr><td class="hard-cause-label">${c}</td>`; hardActions.forEach((a,j)=>{ row+=`<td><button class="hard-btn-plus" onclick="stepHard('${i}_${j}', 1)">+</button><br><input id="h${i}_${j}" class="hard-val-input" value="0" readonly></td>`; }); hb.innerHTML+=row+`</tr>`; });
+        hb.innerHTML = ""; hardCauses.forEach((c,i)=>{ let row=`<tr><td class="hard-cause-label">${c}</td>`; hardActions.forEach((a,j)=>{ row+=`<td><button class="hard-btn-plus" onclick="stepHard('${i}_${j}', 1)">+</button><br><input id="h${i}_${j}" class="hard-val-input" value="0" readonly></td>`; }); hb.innerHTML+=row+`</tr>`; });
         document.getElementById('reportDate').value = new Date().toISOString().substring(0, 10);
+        
+        // 중요: 데이터 로드 후 타입 상태에 따라 잠금 적용
         loadSavedData();
     }
 
-    // [로직] 업무 유형 버튼 핸들러
+    // [업무 유형 선택 핵심 로직]
     function handleWorkType(btn, typeName) {
-        if(typeName === "동승" || typeName === "내근") {
-            // 알림창 즉시 팝업
-            showModal("기본 내용 초기화", "동승 또는 내근을 선택하면 기존에 입력된 자율주행(5~10번) 내용이 모두 초기화되고 비활성화됩니다. 진행하시겠습니까?", "confirm", function() {
-                applyAndLock(btn, typeName);
+        if (typeName === "동승" || typeName === "내근") {
+            // 알림창 띄우기
+            showModal("기존 작성 내용 초기화", "동승 또는 내근을 선택하면 기존 입력된 5~10번 내용이 초기화되고 비활성화됩니다. 진행하시겠습니까?", "confirm", function() {
+                executeLock(btn, typeName);
             });
         } else {
-            // '운행' 선택 시 활성화
-            unlockAndApply(btn, typeName);
+            // '운행' 선택 시
+            executeUnlock(btn, typeName);
         }
     }
 
-    function applyAndLock(btn, typeName) {
-        // 1. 버튼 스타일 변경
+    // 확인 클릭 시 실행: 데이터 초기화 및 잠금
+    function executeLock(btn, typeName) {
+        // 버튼 스타일
         document.querySelectorAll('#typeBtnGroup .select-btn').forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
         selectedType = typeName;
+        localStorage.setItem('temp_selectedType', typeName);
 
-        // 2. 데이터 초기화
-        resetAutoDriveFields();
+        // 5~10번 데이터 초기화
+        document.getElementById('ssdVersion').value = "";
+        document.getElementById('autoDist').value = "";
+        document.getElementById('autoTime').value = "";
+        document.getElementById('totalOdo').value = "";
+        for(let i=0; i<softKeys.length; i++) document.getElementById('s'+i).value = "0";
+        for(let i=0; i<hardCauses.length; i++) {
+            for(let j=0; j<4; j++) document.getElementById(`h${i}_${j}`).value = "0";
+        }
+        updateTotals();
+        
+        // LocalStorage에서도 해당 값들 초기화
+        clearAutoDriveStorage();
 
-        // 3. 비활성화 처리 (5~10번 영역 + 3번의 차량선택 영역)
+        // 비활성화 시각화
         document.getElementById('autoDriveSections').classList.add('disabled-area');
         document.getElementById('carBtnGroup').classList.add('disabled-area');
-
-        // 4. 차량 선택 해제
+        
+        // 차량 선택 정보 삭제
         document.querySelectorAll('#carBtnGroup .select-btn').forEach(b => b.classList.remove('selected'));
         selectedCar = "";
+        localStorage.removeItem('temp_selectedCar');
     }
 
-    function unlockAndApply(btn, typeName) {
+    // 운행 클릭 시 실행: 잠금 해제
+    function executeUnlock(btn, typeName) {
         document.querySelectorAll('#typeBtnGroup .select-btn').forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
         selectedType = typeName;
+        localStorage.setItem('temp_selectedType', typeName);
 
-        // 비활성화 해제
         document.getElementById('autoDriveSections').classList.remove('disabled-area');
         document.getElementById('carBtnGroup').classList.remove('disabled-area');
     }
 
-    function resetAutoDriveFields() {
-        ['ssdVersion','autoDist','autoTime','totalOdo'].forEach(id => {
-            const el = document.getElementById(id); if(el) el.value = "";
-        });
-        for(let i=0; i<softKeys.length; i++) document.getElementById('s'+i).value = "0";
-        for(let i=0; i<hardCauses.length; i++) {
-            for(let j=0; j<hardActions.length; j++) document.getElementById(`h${i}_${j}`).value = "0";
+    function clearAutoDriveStorage() {
+        ['ssdVersion','autoDist','autoTime','totalOdo'].forEach(id => localStorage.removeItem('temp_'+id));
+        for(let i=0; i<softKeys.length; i++) localStorage.removeItem('temp_s'+i);
+        for(let i=0; i<5; i++) for(let j=0; j<4; j++) localStorage.removeItem(`temp_h${i}_${j}`);
+    }
+
+    function selectUser(b,n){ document.querySelectorAll('#userBtnGroup .select-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); selectedUser=n; localStorage.setItem('temp_selectedUser', n); }
+    function selectCar(b){ document.querySelectorAll('#carBtnGroup .select-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); selectedCar=b.innerText; localStorage.setItem('temp_selectedCar', selectedCar); }
+    function selectShift(b){ document.querySelectorAll('#shiftBtnGroup .select-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); selectedShift=b.innerText; localStorage.setItem('temp_selectedShift', selectedShift); }
+    function saveInput(el) { localStorage.setItem('temp_' + el.id, el.value); }
+    
+    function loadSavedData() { 
+        const st = localStorage.getItem('temp_selectedType');
+        if(st) {
+            const b = Array.from(document.querySelectorAll('#typeBtnGroup .select-btn')).find(x=>x.innerText===st);
+            if(b) {
+                if(st === "운행") executeUnlock(b, st);
+                else executeLock(b, st); // 저장된 상태가 동승/내근이면 잠금 유지
+            }
         }
+        ['ssdVersion', 'autoDist', 'autoTime', 'totalOdo', 'workIssue'].forEach(id => { const val = localStorage.getItem('temp_' + id); if (val !== null) document.getElementById(id).value = val; });
+        for(let i=0; i<softKeys.length; i++) { const val = localStorage.getItem('temp_s'+i); if(val) document.getElementById('s'+i).value = val; }
+        for(let i=0; i<5; i++) for(let j=0; j<4; j++) { const val = localStorage.getItem(`temp_h${i}_${j}`); if(val) document.getElementById(`h${i}_${j}`).value = val; }
+        const sc = localStorage.getItem('temp_selectedCar'); if(sc) { const b = Array.from(document.querySelectorAll('#carBtnGroup .select-btn')).find(x=>x.innerText===sc); if(b) selectCar(b); }
+        const ss = localStorage.getItem('temp_selectedShift'); if(ss) { const b = Array.from(document.querySelectorAll('#shiftBtnGroup .select-btn')).find(x=>x.innerText===ss); if(b) selectShift(b); }
         updateTotals();
     }
 
-    function selectUser(b,n,e){ document.querySelectorAll('#userBtnGroup .select-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); selectedUser=n; selectedEmail=e; }
-    function selectCar(b){ document.querySelectorAll('#carBtnGroup .select-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); selectedCar=b.innerText; }
-    function selectShift(b){ document.querySelectorAll('#shiftBtnGroup .select-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); selectedShift=b.innerText; }
-    function stepSoft(i,v){ const e=document.getElementById('s'+i); e.value=Math.max(0,parseInt(e.value)+v); updateTotals(); }
-    function stepHard(id,v){ const e=document.getElementById('h'+id); e.value=Math.max(0,parseInt(e.value)+v); updateTotals(); }
     function updateTotals(){ 
-        let st=0; for(let i=0;i<softKeys.length;i++) st+=parseInt(document.getElementById('s'+i).value); document.getElementById('softTotalDisp').innerText=st;
-        let ht=0; for(let i=0;i<hardCauses.length;i++) for(let j=0;j<4;j++) ht+=parseInt(document.getElementById(`h${i}_${j}`).value); document.getElementById('hardTotalDisp').innerText=ht;
+        let s=0; for(let i=0;i<softKeys.length;i++) s+=parseInt(document.getElementById('s'+i).value); document.getElementById('softTotalDisp').innerText=s;
+        let h=0; for(let i=0;i<5;i++) for(let j=0;j<4;j++) h+=parseInt(document.getElementById(`h${i}_${j}`).value); document.getElementById('hardTotalDisp').innerText=h;
     }
 
     function showModal(t,txt,type,onC){ 
@@ -211,9 +240,13 @@
     }
     function closeModal(){document.getElementById('customModal').style.display='none';}
     function checkLogin(){ document.getElementById('loginOverlay').style.display='none'; document.getElementById('mainApp').style.display='block'; }
+    function logout(){ localStorage.clear(); location.reload(); }
+    function resetForm(){ showModal("전체 초기화", "작성 중인 모든 내용이 삭제됩니다.", "confirm", ()=> { localStorage.clear(); location.reload(); }); }
+    function stepSoft(i,v){ const e=document.getElementById('s'+i); e.value=Math.max(0,parseInt(e.value)+v); localStorage.setItem('temp_s'+i, e.value); updateTotals(); }
+    function stepHard(id,v){ const e=document.getElementById('h'+id); e.value=Math.max(0,parseInt(e.value)+v); localStorage.setItem('temp_h'+id, e.value); updateTotals(); }
     function toggleMenu() { document.getElementById('sideMenu').classList.toggle('active'); document.getElementById('menuOverlay').style.display = document.getElementById('sideMenu').classList.contains('active') ? 'block' : 'none'; }
-    function switchPage(pid, title) { document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active')); document.getElementById(pid).classList.add('active'); document.getElementById('mainHeaderTitle').innerText = title; toggleMenu(); }
-    function addRecord(){ alert("전송 기능은 GAS URL과 연결이 필요합니다."); }
+    function switchPage(p,t) { document.querySelectorAll('.app-page').forEach(x=>x.classList.remove('active')); document.getElementById(p).classList.add('active'); document.getElementById('mainHeaderTitle').innerText=t; toggleMenu(); }
+    function addRecord(){ alert("전송 기능은 GAS 연동이 필요합니다."); }
 </script>
 </body>
 </html>
