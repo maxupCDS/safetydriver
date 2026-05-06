@@ -20,15 +20,16 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 12px; background-color: #f5f7fa; color: #333; overflow-x: hidden; width: 100%; }
         
-        /* [추가 수정] 숫자 입력창 우측 화살표(스핀버튼) 제거 */
+        /* 숫자 입력창 우측 화살표 제거 */
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
         input[type="number"] {
-            -moz-appearance: textfield; /* 파이어폭스 대응 */
+            -moz-appearance: textfield;
         }
+
         /* [2. 로그인 화면] */
         #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%); display: flex; align-items: center; justify-content: center; z-index: 9999; }
         .login-card { background: white; padding: 40px 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; width: 90%; max-width: 350px; }
@@ -77,21 +78,17 @@
         .modal-footer { display: flex; }
         .modal-btn { flex: 1; padding: 15px; border: none; background: transparent; font-size: 16px; font-weight: bold; }
 
-        /* [6. 사이드 메뉴 스타일] */
+        /* [6. 사이드 메뉴] */
         .menu-btn { font-size: 26px; background: none; border: none; color: #1a73e8; cursor: pointer; padding-right: 10px; }
         #sideMenu { position: fixed; top: 0; left: -280px; width: 260px; height: 100%; background: white; z-index: 25000; transition: 0.3s; box-shadow: 2px 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
         #sideMenu.active { left: 0; }
-        
         .menu-header { padding: 50px 20px 25px; background: #1a73e8; color: white; }
         .user-name { font-size: 1.2rem; font-weight: bold; margin-bottom: 4px; display: block; }
         .user-email { font-size: 0.85rem; opacity: 0.85; display: block; }
-        
         .menu-list { flex: 1; overflow-y: auto; padding-top: 10px; }
         .menu-item { padding: 18px 20px; border-bottom: 1px solid #f1f3f5; cursor: pointer; font-size: 15px; font-weight: 600; color: #444; }
-        
         .menu-logout { padding: 18px 20px; border-top: 1px solid #eee; color: #666; font-weight: 600; font-size: 14px; cursor: pointer; background: #fcfcfc; display: flex; justify-content: space-between; align-items: center; }
         .logout-text { color: #d32f2f; }
-        
         .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 24000; display: none; }
         .app-page { display: none; }
         .app-page.active { display: block; }
@@ -141,15 +138,8 @@
     </div>
 
     <div id="reportPage" class="app-page active">
-        <div class="section">
-            <label>1. 운행 날짜</label>
-            <input type="date" id="reportDate" class="text-input">
-        </div>
-
-        <div class="section">
-            <label>2. 작성자 선택</label>
-            <div class="btn-grid grid-2" id="userBtnGroup"></div>
-        </div>
+        <div class="section"><label>1. 운행 날짜</label><input type="date" id="reportDate" class="text-input"></div>
+        <div class="section"><label>2. 작성자 선택</label><div class="btn-grid grid-2" id="userBtnGroup"></div></div>
 
         <div class="section">
             <label>3. 업무 및 차량 선택</label>
@@ -180,16 +170,10 @@
 
     <div id="chargePage" class="app-page">
         <div class="section"><label>1. 날짜</label><input type="date" id="chargeDate" class="text-input"></div>
-        <div class="section">
-            <label>2. 차량 선택</label>
-            <div class="btn-grid grid-2" id="chargeCarBtnGroup">
-                <script>for(let i=801;i<=810;i++)document.write(`<button class="select-btn" onclick="selectChargeCar(this)">gs${i}</button>`);</script>
-            </div>
-        </div>
+        <div class="section"><label>2. 차량 선택</label><div class="btn-grid grid-2" id="chargeCarBtnGroup"><script>for(let i=801;i<=810;i++)document.write(`<button class="select-btn" onclick="selectChargeCar(this)">gs${i}</button>`);</script></div></div>
         <div class="section"><label>3. 충전량(kWh)</label><input type="number" id="chargeAmount" class="text-input" inputmode="decimal" placeholder="0.0"></div>
         <div class="section"><label>4. 충전시간</label><input type="number" id="chargeTime" class="text-input" placeholder="충전 소요 시간"></div>
         <div class="section"><label>기타 내용 작성</label><textarea id="chargeMemo" class="text-input" style="height:100px; resize:none;"></textarea></div>
-        
         <button class="btn-add" id="chargeSubmitBtn" style="background:#1a73e8;" onclick="addChargeRecord()">충전량 기록하기</button>
     </div>
 </div>
@@ -198,26 +182,16 @@
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbwDGt7slvfyvirjejYnOTdgxnLrp2-WqaY3Xr-a-h2QSrd9TaS62JKQ6TP4R5jMxX3T/exec';
     let selectedUser="", selectedEmail="", selectedType="", selectedCar="", selectedShift="", selectedChargeCar="";
     
-    // [최종 명단]
     const userList=[
-        {name:'황금철', email:'kchwang@future-link.ai'},
-        {name:'윤길홍', email:'khyoon@future-link.ai'},
-        {name:'예준우', email:'star7760@future-link.ai'},
-        {name:'길광림', email:'volfgangk@future-link.ai'},
-        {name:'전재훈', email:'level5@future-link.ai'},
-        {name:'오진혁', email:'dhwlstnwkd@future-link.ai'},
-        {name:'김준혁', email:'kirk@future-link.ai'},
-        {name:'박승규', email:'jeffstyle@future-link.ai'},
-        {name:'유승민', email:'max0825@future-link.ai'},
-        {name:'최대섭', email:'chleotjq1@future-link.ai'},
-        {name:'윤승현', email:'shyoon@future-link.ai'},
-        {name:'김선규', email:'skkim@future-link.ai'},
+        {name:'황금철', email:'kchwang@future-link.ai'}, {name:'윤길홍', email:'khyoon@future-link.ai'},
+        {name:'예준우', email:'star7760@future-link.ai'}, {name:'길광림', email:'volfgangk@future-link.ai'},
+        {name:'전재훈', email:'level5@future-link.ai'}, {name:'오진혁', email:'dhwlstnwkd@future-link.ai'},
+        {name:'김준혁', email:'kirk@future-link.ai'}, {name:'박승규', email:'jeffstyle@future-link.ai'},
+        {name:'유승민', email:'max0825@future-link.ai'}, {name:'최대섭', email:'chleotjq1@future-link.ai'},
+        {name:'윤승현', email:'shyoon@future-link.ai'}, {name:'김선규', email:'skkim@future-link.ai'},
         {name:'차두원', email:'dwcha@future-link.ai'}
     ];
-
-    const reportAuthors = userList.filter(user => 
-        !['윤승현', '김선규', '차두원'].includes(user.name)
-    );
+    const reportAuthors = userList.filter(user => !['윤승현', '김선규', '차두원'].includes(user.name));
 
     const softKeys=["운전자판단","시스템이상","교통약자보호","신호위반","신호등지시","교차로딜레마","도로상황","차선변경","급정지/서행","보호의무"];
     const hardCauses=["시스템이상","신호위반","교차로딜레마","도로상황","운전자실수"];
@@ -226,30 +200,15 @@
 
     window.onload = function(){
         const ug = document.getElementById('userBtnGroup');
-        if(ug) {
-            ug.innerHTML = "";
-            reportAuthors.forEach(u=> ug.innerHTML += `<button class="select-btn" data-name="${u.name}" onclick="selectUser(this,'${u.name}','${u.email}')">${u.name}</button>`);
-        }
-
+        if(ug) { ug.innerHTML = ""; reportAuthors.forEach(u=> ug.innerHTML += `<button class="select-btn" data-name="${u.name}" onclick="selectUser(this,'${u.name}','${u.email}')">${u.name}</button>`); }
         const sc=document.getElementById('softContainer');
-        if(sc) {
-            sc.innerHTML = "";
-            softKeys.forEach((n,i)=>{ sc.innerHTML+=`<div class="category-item"><span class="category-name">${i+1}. ${n}</span><div class="counter-group"><button class="btn-sm" onclick="stepSoft(${i},-1)">-</button><input id="s${i}" class="counter-val" value="0" readonly><button class="btn-sm" onclick="stepSoft(${i},1)">+</button></div></div>`; });
-        }
-        
+        if(sc) { sc.innerHTML = ""; softKeys.forEach((n,i)=>{ sc.innerHTML+=`<div class="category-item"><span class="category-name">${i+1}. ${n}</span><div class="counter-group"><button class="btn-sm" onclick="stepSoft(${i},-1)">-</button><input id="s${i}" class="counter-val" value="0" readonly><button class="btn-sm" onclick="stepSoft(${i},1)">+</button></div></div>`; }); }
         const hb=document.getElementById('hardBody');
-        if(hb) {
-            hb.innerHTML = "";
-            hardCauses.forEach((c,i)=>{ let row=`<tr><td class="hard-cause-label">${c}</td>`; hardActions.forEach((a,j)=>{ row+=`<td><div class="hard-cell-content"><button class="hard-btn-plus" onclick="stepHard('${i}_${j}', 1)">+</button><input id="h${i}_${j}" class="hard-val-input" value="0" readonly></div></td>`; }); hb.innerHTML+=row+`</tr>`; });
-        }
-
+        if(hb) { hb.innerHTML = ""; hardCauses.forEach((c,i)=>{ let row=`<tr><td class="hard-cause-label">${c}</td>`; hardActions.forEach((a,j)=>{ row+=`<td><div class="hard-cell-content"><button class="hard-btn-plus" onclick="stepHard('${i}_${j}', 1)">+</button><input id="h${i}_${j}" class="hard-val-input" value="0" readonly></div></td>`; }); hb.innerHTML+=row+`</tr>`; }); }
         const today = new Date().toISOString().substring(0, 10);
         if(document.getElementById('reportDate')) document.getElementById('reportDate').value = today;
         if(document.getElementById('chargeDate')) document.getElementById('chargeDate').value = today;
-
-        if(localStorage.getItem('isLoggedIn') === 'true') {
-            showApp();
-        }
+        if(localStorage.getItem('isLoggedIn') === 'true') showApp();
         loadSavedData();
         initBackFilter();
     }
@@ -271,7 +230,6 @@
 
     function checkLogin(){
         const emailInput = document.getElementById('emailInput');
-        if(!emailInput) return;
         const email = emailInput.value.trim().toLowerCase();
         const keep = document.getElementById('keepLogin').checked;
         const user = userList.find(x => x.email.toLowerCase() === email);
@@ -282,20 +240,15 @@
             if(keep) localStorage.setItem('keepLogin', 'true');
             else localStorage.removeItem('keepLogin');
             showApp();
-        } else {
-            showModal("알림", "등록된 이메일이 아닙니다.", "alert");
-        }
+        } else { showModal("알림", "등록된 이메일이 아닙니다.", "alert"); }
     }
     
     function logout() {
         toggleMenu(); 
         showModal("로그아웃", "로그아웃 하시겠습니까?", "confirm", function() {
-            localStorage.removeItem('isLoggedIn');
-            localStorage.removeItem('userName');
-            localStorage.removeItem('userEmail');
-            localStorage.removeItem('keepLogin');
-            clearSavedData();
-            location.reload();
+            localStorage.removeItem('isLoggedIn'); localStorage.removeItem('userName');
+            localStorage.removeItem('userEmail'); localStorage.removeItem('keepLogin');
+            clearSavedData(); location.reload();
         });
     }
 
@@ -314,15 +267,12 @@
 
     function resetForm() {
         showModal("전체 초기화", "작성 중인 모든 내용이 삭제되고 페이지가 새로고침됩니다. 계속하시겠습니까?", "confirm", function() {
-            clearSavedData();
-            window.onbeforeunload = null;
-            location.reload();
+            clearSavedData(); window.onbeforeunload = null; location.reload();
         });
     }
 
     function selectUser(b,n,e){
-        if(b.classList.contains('selected')){
-            b.classList.remove('selected'); selectedUser=""; selectedEmail="";
+        if(b.classList.contains('selected')){ b.classList.remove('selected'); selectedUser=""; selectedEmail="";
             localStorage.removeItem('temp_selectedUser'); localStorage.removeItem('temp_selectedEmail');
         } else {
             document.querySelectorAll('#userBtnGroup .select-btn').forEach(x=>x.classList.remove('selected'));
@@ -331,14 +281,12 @@
         }
     }
 
-    // [중요 수정: selectType 함수]
     function selectType(b){
         const carArea = document.getElementById('carBtnGroup');
         const autoDriveArea = document.getElementById('autoDriveSections');
         const carBtns = carArea.querySelectorAll('.select-btn');
         const typeName = b.innerText;
 
-        // 이미 선택된 버튼을 다시 누른 경우 (선택 해제)
         if(b.classList.contains('selected')){ 
             b.classList.remove('selected'); selectedType=""; localStorage.removeItem('temp_selectedType'); 
             carArea.style.opacity = "1"; carArea.style.pointerEvents = "auto";
@@ -346,54 +294,42 @@
             return;
         }
 
-        // 동승/내근 선택 시 알림창 띄우기
         if(typeName === "동승" || typeName === "내근") {
             showModal("주의", "동승 또는 내근을 선택하면 입력된 5~10번 데이터가 초기화되고 잠깁니다. 계속하시겠습니까?", "confirm", function() {
-                // 확인 눌렀을 때만 실행
                 document.querySelectorAll('#typeBtnGroup .select-btn').forEach(x=>x.classList.remove('selected')); 
-                b.classList.add('selected'); 
-                selectedType = typeName; 
+                b.classList.add('selected'); selectedType = typeName; 
                 localStorage.setItem('temp_selectedType', selectedType); 
-                
-                resetAutoDriveData(); // 데이터 초기화
-                
-                carArea.style.opacity = "0.3"; 
-                carArea.style.pointerEvents = "none";
-                autoDriveArea.style.opacity = "0.3";
-                autoDriveArea.style.pointerEvents = "none";
+                resetAutoDriveData();
+                carArea.style.opacity = "0.3"; carArea.style.pointerEvents = "none";
+                autoDriveArea.style.opacity = "0.3"; autoDriveArea.style.pointerEvents = "none";
                 carBtns.forEach(btn => btn.classList.remove('selected'));
-                selectedCar = "";
-                localStorage.removeItem('temp_selectedCar');
+                selectedCar = ""; localStorage.removeItem('temp_selectedCar');
             });
         } else {
-            // '운행' 선택 시
             document.querySelectorAll('#typeBtnGroup .select-btn').forEach(x=>x.classList.remove('selected')); 
-            b.classList.add('selected'); 
-            selectedType = typeName; 
+            b.classList.add('selected'); selectedType = typeName; 
             localStorage.setItem('temp_selectedType', selectedType); 
-            
-            carArea.style.opacity = "1"; 
-            carArea.style.pointerEvents = "auto";
-            autoDriveArea.style.opacity = "1";
-            autoDriveArea.style.pointerEvents = "auto";
+            carArea.style.opacity = "1"; carArea.style.pointerEvents = "auto";
+            autoDriveArea.style.opacity = "1"; autoDriveArea.style.pointerEvents = "auto";
         }
     }
 
     function resetAutoDriveData() {
+        // 6~8번 항목 빈칸("") 처리
         ['autoDist', 'autoTime', 'totalOdo'].forEach(id => {
             const el = document.getElementById(id);
-            if(el) { el.value = ""; localStorage.setItem('temp_' + id, "0"); }
+            if(el) { el.value = ""; localStorage.setItem('temp_' + id, ""); }
         });
         const ssd = document.getElementById('ssdVersion');
         if(ssd) { ssd.value = ""; localStorage.setItem('temp_ssdVersion', ""); }
         for(let i=0; i<softKeys.length; i++) {
             const el = document.getElementById('s' + i);
-            if(el) { el.value = ""; localStorage.setItem('temp_s' + i, "0"); }
+            if(el) { el.value = "0"; localStorage.setItem('temp_s' + i, "0"); }
         }
         hardCauses.forEach((c, i) => {
             hardActions.forEach((a, j) => {
                 const el = document.getElementById(`h${i}_${j}`);
-                if(el) { el.value = ""; localStorage.setItem(`temp_h${i}_${j}`, "0"); }
+                if(el) { el.value = "0"; localStorage.setItem(`temp_h${i}_${j}`, "0"); }
             });
         });
         updateTotals();
@@ -420,27 +356,21 @@
         ['Type', 'Car', 'Shift'].forEach(key => { const val = localStorage.getItem('temp_selected' + key); if(val) { const btn = Array.from(document.querySelectorAll('.select-btn')).find(b => b.innerText === val); if(btn) key === 'Type' ? selectType(btn) : (key === 'Car' ? selectCar(btn) : selectShift(btn)); } }); 
         updateTotals(); 
     }
-    function clearSavedData() { 
-        Object.keys(localStorage).forEach(k => { if(k.startsWith('temp_')) localStorage.removeItem(k); }); 
-    }
+    function clearSavedData() { Object.keys(localStorage).forEach(k => { if(k.startsWith('temp_')) localStorage.removeItem(k); }); }
 
     function stepSoft(i,v){ const e=document.getElementById('s'+i); e.value=Math.max(0,parseInt(e.value)+v); localStorage.setItem('temp_s'+i, e.value); updateTotals(); }
     function stepHard(id,v){ const e=document.getElementById('h'+id); e.value=Math.max(0,parseInt(e.value)+v); localStorage.setItem('temp_h'+id, e.value); updateTotals(); }
-    function updateTotals(){ let st=0;for(let i=0;i<softKeys.length;i++)st+=parseInt(document.getElementById('s'+i).value);document.getElementById('softTotalDisp').innerText=st; let ht=0;for(let i=0;i<hardCauses.length;i++){for(let j=0;j<hardActions.length;j++)ht+=parseInt(document.getElementById(`h${i}_${j}`).value);}document.getElementById('hardTotalDisp').innerText=ht; }
+    function updateTotals(){ 
+        let st=0;for(let i=0;i<softKeys.length;i++)st+=parseInt(document.getElementById('s'+i).value||0);document.getElementById('softTotalDisp').innerText=st; 
+        let ht=0;for(let i=0;i<hardCauses.length;i++){for(let j=0;j<hardActions.length;j++)ht+=parseInt(document.getElementById(`h${i}_${j}`).value||0);}document.getElementById('hardTotalDisp').innerText=ht; 
+    }
     
     function showModal(t,txt,type,onC){ const m=document.getElementById('customModal'); document.getElementById('modalTitle').innerText=t; document.getElementById('modalText').innerText=txt; const f=document.getElementById('modalFooter'); m.style.display='flex'; if(type==='confirm'){ f.innerHTML=`<button class="modal-btn" style="color:#888; border-right:1px solid #eee;" onclick="closeModal()">취소</button><button class="modal-btn" style="color:#1a73e8;" id="mCBtn">확인</button>`; document.getElementById('mCBtn').onclick=()=>{closeModal(); if(onC) onC();}; }else{ f.innerHTML=`<button class="modal-btn" style="color:#1a73e8; width:100%;" onclick="closeModal(); if(window.finalReload) { window.onbeforeunload = null; location.reload(); }">확인</button>`; } }
     function closeModal(){document.getElementById('customModal').style.display='none';}
     
     function initBackFilter() { 
         window.history.pushState({page: 1}, "", window.location.href); 
-        window.onpopstate = function() { 
-            window.history.pushState({page: 1}, "", window.location.href); 
-            showModal("경고", "페이지를 새로고침하시겠습니까? 확인을 누르면 작성 중인 내용이 초기화됩니다.", "confirm", function() { 
-                window.onbeforeunload = null; 
-                clearSavedData(); 
-                location.reload(); 
-            }); 
-        }; 
+        window.onpopstate = function() { window.history.pushState({page: 1}, "", window.location.href); showModal("경고", "페이지를 새로고침하시겠습니까? 확인을 누르면 작성 중인 내용이 초기화됩니다.", "confirm", function() { window.onbeforeunload = null; clearSavedData(); location.reload(); }); }; 
     }
 
     function startVoice(tid,bid){ window.SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition; if(!window.SpeechRecognition)return; const r=new window.SpeechRecognition(); r.lang='ko-KR'; r.onstart=()=>document.getElementById(bid).innerHTML="🔴"; r.onresult=(e)=>{ const res = e.results[0][0].transcript; const target = document.getElementById(tid); target.value += res; saveInput(target); }; r.onend=()=>document.getElementById(bid).innerHTML="🎤"; r.start(); }
@@ -449,30 +379,13 @@
         if(!selectedUser)return showModal("알림","작성자를 선택하세요.","alert");
         const reportDate = document.getElementById('reportDate').value;
         if(!reportDate) return showModal("알림", "운행 날짜를 선택하세요.", "alert");
+        if(selectedType === "동승" || selectedType === "내근") resetAutoDriveData();
 
-        // 전송 직전 업무가 동승/내근이면 모든 자율주행 데이터 강제 초기화
-        if(selectedType === "동승" || selectedType === "내근") {
-            resetAutoDriveData();
-        }
-
-        const btn=document.getElementById('submitBtn'); 
-        btn.disabled=true; btn.innerText="전송 중...";
-        
+        const btn=document.getElementById('submitBtn'); btn.disabled=true; btn.innerText="전송 중...";
         const payload={ 
-            "type":"report", 
-            "날짜": reportDate, 
-            "작성자":selectedUser, 
-            "이메일":selectedEmail, 
-            "업무":selectedType, 
-            "차량":selectedCar, 
-            "근무":selectedShift, 
-            "SSD버전":document.getElementById('ssdVersion').value, 
-            "자율거리":document.getElementById('autoDist').value||"0", 
-            "자율시간":document.getElementById('autoTime').value||"000000", 
-            "누적ODO":document.getElementById('totalOdo').value||"0", 
-            "소프트합계":document.getElementById('softTotalDisp').innerText, 
-            "하드합계":document.getElementById('hardTotalDisp').innerText, 
-            "이슈사항":document.getElementById('workIssue').value 
+            "type":"report", "날짜": reportDate, "작성자":selectedUser, "이메일":selectedEmail, "업무":selectedType, "차량":selectedCar, "근무":selectedShift, 
+            "SSD버전":document.getElementById('ssdVersion').value, "자율거리":document.getElementById('autoDist').value||"0", "자율시간":document.getElementById('autoTime').value||"000000", 
+            "누적ODO":document.getElementById('totalOdo').value||"0", "소프트합계":document.getElementById('softTotalDisp').innerText, "하드합계":document.getElementById('hardTotalDisp').innerText, "이슈사항":document.getElementById('workIssue').value 
         };
         softKeys.forEach((k,i)=>payload[k]=document.getElementById('s'+i).value);
         hardCauses.forEach((c,i)=>{ hardActions.forEach((a,j)=>payload[`하드(${c}-${actionMap[a]})`]=document.getElementById(`h${i}_${j}`).value); });
@@ -489,31 +402,10 @@
         if(!amt) return showModal("알림", "충전량을 입력하세요.", "alert");
         const btn = document.getElementById('chargeSubmitBtn');
         btn.disabled = true; btn.innerText = "전송 중...";
-        const payload = {
-            "type": "charge",
-            "날짜": document.getElementById('chargeDate').value,
-            "차량": selectedChargeCar,
-            "충전량": amt,
-            "충전시간": document.getElementById('chargeTime').value,
-            "기타": document.getElementById('chargeMemo').value,
-            "작성자": selectedUser || localStorage.getItem('userName')
-        };
-        fetch(GAS_URL, {
-            method: 'POST',
-            body: JSON.stringify(payload)
-        })
-        .then(() => {
-            showModal("완료", "충전 기록이 전송되었습니다.", "alert");
-            document.getElementById('chargeAmount').value = "";
-            document.getElementById('chargeTime').value = "";
-            document.getElementById('chargeMemo').value = "";
-            btn.disabled = false; btn.innerText = "충전량 기록하기";
-        })
-        .catch(() => { 
-            showModal("오류", "전송 실패", "alert"); 
-            btn.disabled = false; 
-            btn.innerText = "충전량 기록하기";
-        });
+        const payload = { "type": "charge", "날짜": document.getElementById('chargeDate').value, "차량": selectedChargeCar, "충전량": amt, "충전시간": document.getElementById('chargeTime').value, "기타": document.getElementById('chargeMemo').value, "작성자": selectedUser || localStorage.getItem('userName') };
+        fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) })
+        .then(() => { showModal("완료", "충전 기록이 전송되었습니다.", "alert"); document.getElementById('chargeAmount').value = ""; document.getElementById('chargeTime').value = ""; document.getElementById('chargeMemo').value = ""; btn.disabled = false; btn.innerText = "충전량 기록하기"; })
+        .catch(() => { showModal("오류", "전송 실패", "alert"); btn.disabled = false; btn.innerText = "충전량 기록하기"; });
     }
 </script>
 </body>
