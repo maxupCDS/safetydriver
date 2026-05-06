@@ -3,180 +3,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>안전운행팀 보고서</title>
+    <title>안전운행팀 보고서 (최종 수정본)</title>
     <style>
-        /* 기본 스타일 유지 */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-        body { font-family: sans-serif; padding: 12px; background-color: #f5f7fa; }
+        body { font-family: -apple-system, sans-serif; padding: 12px; background-color: #f5f7fa; }
         #mainApp { max-width: 600px; margin: 0 auto; background: white; padding: 15px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .section { margin-bottom: 15px; padding: 15px; border: 1px solid #edf2f7; border-radius: 12px; position: relative; }
-        label { display: block; margin-bottom: 10px; font-weight: bold; }
+        .section { margin-bottom: 15px; padding: 15px; border: 1px solid #edf2f7; border-radius: 12px; transition: all 0.3s ease; }
+        label { display: block; margin-bottom: 10px; font-weight: bold; font-size: 15px; }
         
         .btn-grid { display: grid; gap: 8px; }
         .grid-3 { grid-template-columns: repeat(3, 1fr); }
         .grid-2 { grid-template-columns: repeat(2, 1fr); }
         
-        .select-btn { padding: 14px 2px; border: 1px solid #e2e8f0; background: #fff; border-radius: 8px; cursor: pointer; font-weight: 600; text-align: center; }
-        .select-btn.selected { background-color: #1a73e8 !important; color: white !important; }
-        .text-input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; }
+        .select-btn { padding: 14px 2px; border: 1px solid #e2e8f0; background: #fff; border-radius: 8px; cursor: pointer; font-weight: 600; text-align: center; font-size: 13px; }
+        .select-btn.active-type { background-color: #1a73e8 !important; color: white !important; border-color: #1a73e8; }
+        .text-input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; outline: none; }
 
-        /* [핵심] 비활성화 시 효과 */
-        .locked { 
-            opacity: 0.2 !important; 
-            pointer-events: none !important; 
-            filter: grayscale(1);
-            user-select: none;
-        }
+        /* 커스텀 모달 스타일 */
+        #alertModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 99999; }
+        .m-card { background: white; border-radius: 20px; width: 85%; max-width: 300px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .m-body { padding: 25px 20px; text-align: center; font-size: 15px; line-height: 1.5; color: #333; }
+        .m-footer { display: flex; border-top: 1px solid #eee; }
+        .m-btn { flex: 1; padding: 15px; border: none; background: transparent; font-size: 16px; font-weight: bold; cursor: pointer; }
 
-        /* 모달 스타일 */
-        #customModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 10000; }
-        .modal-card { background: white; border-radius: 15px; width: 85%; max-width: 300px; overflow: hidden; text-align: center; }
-        .modal-body { padding: 25px 20px; font-size: 15px; border-bottom: 1px solid #eee; }
-        .modal-footer { display: flex; }
-        .modal-btn { flex: 1; padding: 15px; border: none; background: transparent; font-size: 16px; font-weight: bold; cursor: pointer; }
-
-        /* 카운터/테이블 스타일 */
-        .category-item { display: flex; justify-content: space-between; background: #f8fafc; padding: 10px; margin-bottom: 5px; border-radius: 8px; }
-        .hard-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        .hard-table th, .hard-table td { border: 1px solid #eee; padding: 5px; text-align: center; }
-        .btn-sm { width: 30px; height: 30px; background: #1a73e8; color: white; border: none; border-radius: 50%; }
+        /* 카운터 및 테이블 스타일 */
+        .category-item { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 10px; margin-bottom: 5px; border-radius: 8px; border: 1px solid #eee; }
+        .btn-sm { width: 32px; height: 32px; background: #1a73e8; color: white; border: none; border-radius: 50%; font-size: 18px; }
+        .hard-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 5px; }
+        .hard-table th, .hard-table td { border: 1px solid #eee; padding: 8px 4px; text-align: center; }
     </style>
 </head>
 <body>
 
-<div id="customModal">
-    <div class="modal-card">
-        <div class="modal-body" id="modalText">내용이 초기화됩니다. 계속하시겠습니까?</div>
-        <div class="modal-footer">
-            <button class="modal-btn" style="color:#888; border-right:1px solid #eee;" onclick="closeModal()">취소</button>
-            <button class="modal-btn" style="color:#1a73e8;" id="modalConfirmBtn">확인</button>
+<div id="alertModal">
+    <div class="m-card">
+        <div class="m-body"><b>알림</b><br><br>동승 또는 내근을 선택하면 기존에 작성된 5~10번 항목이 모두 초기화됩니다.<br>계속하시겠습니까?</div>
+        <div class="m-footer">
+            <button class="m-btn" style="color:#999; border-right:1px solid #eee;" onclick="closeMyModal()">취소</button>
+            <button class="m-btn" style="color:#1a73e8;" id="confirmActionBtn">확인</button>
         </div>
     </div>
 </div>
 
 <div id="mainApp">
-    <h3 style="color:#1a73e8; margin-bottom:15px;">📋 운행 보고서</h3>
+    <h2 style="color:#1a73e8; margin-bottom:20px; text-align:center;">📋 운행 보고서</h2>
 
     <div class="section"><label>1. 운행 날짜</label><input type="date" id="reportDate" class="text-input"></div>
 
-    <div class="section">
+    <div class="section" id="section-3">
         <label>3. 업무 및 차량 선택</label>
-        <div class="btn-grid grid-3" id="typeBtnGroup" style="margin-bottom:10px;">
-            <button class="select-btn" onclick="onWorkTypeClick(this, '운행')">운행</button>
-            <button class="select-btn" onclick="onWorkTypeClick(this, '동승')">동승</button>
-            <button class="select-btn" onclick="onWorkTypeClick(this, '내근')">내근</button>
+        <div class="btn-grid grid-3" id="workTypeContainer" style="margin-bottom:12px;">
+            <button class="select-btn" onclick="forceWorkTypeChange(this, '운행')">운행</button>
+            <button class="select-btn" onclick="forceWorkTypeChange(this, '동승')">동승</button>
+            <button class="select-btn" onclick="forceWorkTypeChange(this, '내근')">내근</button>
         </div>
-        <div class="btn-grid grid-2" id="carArea">
-            <script>for(let i=801;i<=810;i++) document.write(`<button class="select-btn" onclick="selectCar(this)">gs${i}</button>`);</script>
+        <div class="btn-grid grid-2" id="carSelectionBox">
+            <script>for(let i=801;i<=810;i++) document.write(`<button class="select-btn" onclick="markCar(this)">gs${i}</button>`);</script>
         </div>
     </div>
 
-    <div id="autoDriveArea">
-        <div class="section"><label>5. SSD 버전</label><input type="text" id="ssdVersion" class="text-input"></div>
-        <div class="section"><label>6. 자율거리(km)</label><input type="number" id="autoDist" class="text-input"></div>
-        <div class="section"><label>7. 자율시간</label><input type="number" id="autoTime" class="text-input"></div>
-        <div class="section"><label>8. 누적 ODO</label><input type="number" id="totalOdo" class="text-input"></div>
+    <div class="section"><label>4. 근무방식</label><div class="btn-grid grid-2"><button class="select-btn" onclick="markShift(this)">주간</button><button class="select-btn" onclick="markShift(this)">야간</button></div></div>
+
+    <div id="targetBlockArea">
+        <div class="section"><label>5. SSD 버전</label><input type="text" id="ssdVer" class="text-input"></div>
+        <div class="section"><label>6. 자율거리(km)</label><input type="number" id="aDist" class="text-input"></div>
+        <div class="section"><label>7. 자율시간</label><input type="number" id="aTime" class="text-input"></div>
+        <div class="section"><label>8. 누적 ODO</label><input type="number" id="oOdo" class="text-input"></div>
         <div class="section">
             <label>9. 소프트 테이크오버</label>
-            <div id="softList"></div>
+            <div id="softWrap"></div>
         </div>
         <div class="section">
             <label>10. 하드 테이크오버</label>
             <table class="hard-table">
                 <thead><tr><th>구분</th><th>B</th><th>H</th><th>A</th><th>S</th></tr></thead>
-                <tbody id="hardList"></tbody>
+                <tbody id="hardWrap"></tbody>
             </table>
         </div>
     </div>
 
-    <div class="section"><label>11. 이슈 사항</label><textarea id="issue" class="text-input" style="height:80px;"></textarea></div>
-    <button onclick="alert('기록완료')" style="width:100%; padding:18px; background:#28a745; color:white; border:none; border-radius:12px; font-size:18px; font-weight:bold;">보고서 기록하기</button>
+    <div class="section"><label>11. 이슈 사항</label><textarea id="issueNote" class="text-input" style="height:80px;"></textarea></div>
+    <button onclick="alert('데이터가 전송되었습니다.')" style="width:100%; padding:18px; background:#28a745; color:white; border:none; border-radius:12px; font-size:18px; font-weight:bold; margin-top:10px;">보고서 기록하기</button>
 </div>
 
 <script>
-    let currentType = "";
-    const softKeys = ["운전자판단", "시스템이상", "교통약자", "신호위반", "신호등지시"];
-
+    // 초기 화면 구성
     window.onload = function() {
-        // 초기화 세팅
         document.getElementById('reportDate').value = new Date().toISOString().substring(0, 10);
         
-        // 소프트 리스트 생성
-        const sl = document.getElementById('softList');
-        softKeys.forEach((k, i) => {
-            sl.innerHTML += `<div class="category-item"><span>${k}</span><div><button class="btn-sm" onclick="changeVal('s${i}',-1)">-</button> <input id="s${i}" value="0" style="width:30px; text-align:center; border:none;" readonly> <button class="btn-sm" onclick="changeVal('s${i}',1)">+</button></div></div>`;
+        const sw = document.getElementById('softWrap');
+        ["운전자판단", "시스템이상", "도로상황"].forEach((name, i) => {
+            sw.innerHTML += `<div class="category-item"><span>${name}</span><div><button class="btn-sm" onclick="plusVal('sv${i}',-1)">-</button> <input id="sv${i}" value="0" style="width:30px; text-align:center; border:none; background:none;" readonly> <button class="btn-sm" onclick="plusVal('sv${i}',1)">+</button></div></div>`;
         });
 
-        // 하드 리스트 생성
-        const hl = document.getElementById('hardList');
-        ["시스템", "신호위반", "상황"].forEach((c, i) => {
-            let row = `<tr><td>${c}</td>`;
-            for(let j=0; j<4; j++) row += `<td><input id="h${i}_${j}" value="0" style="width:25px; text-align:center; border:none;" readonly><br><button onclick="changeVal('h${i}_${j}',1)" style="font-size:10px;">+</button></td>`;
-            hl.innerHTML += row + `</tr>`;
+        const hw = document.getElementById('hardWrap');
+        ["시스템", "신호위반"].forEach((name, i) => {
+            let r = `<tr><td>${name}</td>`;
+            for(let j=0; j<4; j++) r += `<td><input id="hv${i}_${j}" value="0" style="width:25px; text-align:center; border:none; background:none;" readonly><br><button onclick="plusVal('hv${i}_${j}',1)" style="font-size:10px; margin-top:3px;">+</button></td>`;
+            hw.innerHTML += r + `</tr>`;
         });
-    }
+    };
 
-    // [버튼 클릭 이벤트]
-    function onWorkTypeClick(btn, typeName) {
-        if (typeName === "동승" || typeName === "내근") {
-            // 알림창 띄움
-            document.getElementById('customModal').style.display = 'flex';
-            document.getElementById('modalConfirmBtn').onclick = function() {
-                applyWorkType(btn, typeName, true);
-                closeModal();
+    // [중요] 업무 유형 변경 함수
+    function forceWorkTypeChange(btn, type) {
+        if (type === '동승' || type === '내근') {
+            // 모달 띄우기
+            document.getElementById('alertModal').style.display = 'flex';
+            document.getElementById('confirmActionBtn').onclick = function() {
+                processLock(btn, type);
+                closeMyModal();
             };
         } else {
-            // '운행' 클릭 시 잠금 해제
-            applyWorkType(btn, typeName, false);
+            // 운행 선택 시
+            processUnlock(btn, type);
         }
     }
 
-    // [핵심 로직 실행]
-    function applyWorkType(btn, typeName, isLock) {
-        // 1. 모든 버튼 선택 해제 후 클릭한 버튼만 활성화
-        const btns = document.querySelectorAll('#typeBtnGroup .select-btn');
-        btns.forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        currentType = typeName;
+    // [확인] 클릭 시 실행되는 함수
+    function processLock(btn, type) {
+        // 1. 버튼 스타일 변경
+        const allBtns = document.querySelectorAll('#workTypeContainer .select-btn');
+        allBtns.forEach(b => b.classList.remove('active-type'));
+        btn.classList.add('active-type');
 
-        const autoArea = document.getElementById('autoDriveArea');
-        const carArea = document.getElementById('carArea');
+        // 2. 5~10번 항목 강제 초기화
+        document.getElementById('ssdVer').value = "";
+        document.getElementById('aDist').value = "";
+        document.getElementById('aTime').value = "";
+        document.getElementById('oOdo').value = "";
+        
+        // 카운터 input들 모두 0으로
+        const targetArea = document.getElementById('targetBlockArea');
+        const numInputs = targetArea.querySelectorAll('input');
+        numInputs.forEach(input => { input.value = (input.type === 'number') ? "" : "0"; });
 
-        if (isLock) {
-            // 2. 데이터 초기화
-            document.getElementById('ssdVersion').value = "";
-            document.getElementById('autoDist').value = "";
-            document.getElementById('autoTime').value = "";
-            document.getElementById('totalOdo').value = "";
-            const inputs = autoArea.querySelectorAll('input');
-            inputs.forEach(input => { if(input.type === 'number' || input.readOnly) input.value = "0"; });
+        // 3. 5~10번 영역 강제 잠금 (자바스크립트로 직접 주입)
+        targetArea.style.opacity = "0.2";
+        targetArea.style.pointerEvents = "none";
+        targetArea.style.filter = "grayscale(1)";
 
-            // 3. 잠금 처리 (CSS 클래스 추가)
-            autoArea.classList.add('locked');
-            carArea.classList.add('locked');
-            
-            // 4. 차량 선택 초기화
-            document.querySelectorAll('#carArea .select-btn').forEach(b => b.classList.remove('selected'));
-        } else {
-            // 5. 잠금 해제
-            autoArea.classList.remove('locked');
-            carArea.classList.remove('locked');
-        }
+        // 4. 차량 선택 영역도 잠금 및 초기화
+        const carBox = document.getElementById('carSelectionBox');
+        carBox.style.opacity = "0.2";
+        carBox.style.pointerEvents = "none";
+        document.querySelectorAll('#carSelectionBox .select-btn').forEach(cb => cb.classList.remove('active-type'));
     }
 
-    function selectCar(btn) {
-        document.querySelectorAll('#carArea .select-btn').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
+    // [운행] 클릭 시 잠금 해제
+    function processUnlock(btn, type) {
+        const allBtns = document.querySelectorAll('#workTypeContainer .select-btn');
+        allBtns.forEach(b => b.classList.remove('active-type'));
+        btn.classList.add('active-type');
+
+        // 잠금 해제
+        const targetArea = document.getElementById('targetBlockArea');
+        targetArea.style.opacity = "1";
+        targetArea.style.pointerEvents = "auto";
+        targetArea.style.filter = "none";
+
+        const carBox = document.getElementById('carSelectionBox');
+        carBox.style.opacity = "1";
+        carBox.style.pointerEvents = "auto";
     }
 
-    function changeVal(id, v) {
+    function markCar(btn) {
+        document.querySelectorAll('#carSelectionBox .select-btn').forEach(b => b.classList.remove('active-type'));
+        btn.classList.add('active-type');
+    }
+
+    function markShift(btn) {
+        const p = btn.parentNode.querySelectorAll('.select-btn');
+        p.forEach(b => b.classList.remove('active-type'));
+        btn.classList.add('active-type');
+    }
+
+    function plusVal(id, v) {
         const el = document.getElementById(id);
         el.value = Math.max(0, parseInt(el.value) + v);
     }
 
-    function closeModal() {
-        document.getElementById('customModal').style.display = 'none';
-    }
+    function closeMyModal() { document.getElementById('alertModal').style.display = 'none'; }
 </script>
 
 </body>
