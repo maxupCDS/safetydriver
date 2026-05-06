@@ -215,7 +215,6 @@
         {name:'차두원', email:'dwcha@future-link.ai'}
     ];
 
-    // [운행보고 전용 명단] 신규 3명 제외
     const reportAuthors = userList.filter(user => 
         !['윤승현', '김선규', '차두원'].includes(user.name)
     );
@@ -226,7 +225,6 @@
     const actionMap={"브레이크":"B","핸들":"H","엑셀":"A","시스템":"S"};
 
     window.onload = function(){
-        // 운행보고 작성자 그룹 생성 (reportAuthors 사용)
         const ug = document.getElementById('userBtnGroup');
         if(ug) {
             ug.innerHTML = "";
@@ -304,13 +302,11 @@
     function showApp(){
         document.getElementById('loginOverlay').style.display='none';
         document.getElementById('mainApp').style.display='block';
-        
         const savedName = localStorage.getItem('userName');
         const savedEmail = localStorage.getItem('userEmail');
         if(savedName) {
             document.getElementById('displayUserName').innerText = savedName + " 님";
             document.getElementById('displayUserEmail').innerText = savedEmail;
-            
             const btn = Array.from(document.querySelectorAll('#userBtnGroup .select-btn')).find(b => b.dataset.name === savedName);
             if(btn) selectUser(btn, savedName, savedEmail);
         }
@@ -350,9 +346,7 @@
             b.classList.add('selected'); selectedType=b.innerText; localStorage.setItem('temp_selectedType', selectedType); 
             
             if(selectedType === "동승" || selectedType === "내근") {
-                // [신규 로직 추가] 비활성 항목 데이터 0으로 초기화
                 resetAutoDriveData();
-                
                 carArea.style.opacity = "0.3"; 
                 carArea.style.pointerEvents = "none";
                 autoDriveArea.style.opacity = "0.3";
@@ -369,30 +363,23 @@
         }
     }
 
-    // [신규 함수 추가] 동승/내근 시 모든 수치를 0으로 초기화
     function resetAutoDriveData() {
-        // 숫자형 입력칸 초기화
         ['autoDist', 'autoTime', 'totalOdo'].forEach(id => {
             const el = document.getElementById(id);
             if(el) { el.value = "0"; localStorage.setItem('temp_' + id, "0"); }
         });
-        // SSD 버전은 텍스트이므로 빈값
         const ssd = document.getElementById('ssdVersion');
         if(ssd) { ssd.value = ""; localStorage.setItem('temp_ssdVersion', ""); }
-
-        // 소프트 카운터 초기화
         for(let i=0; i<softKeys.length; i++) {
             const el = document.getElementById('s' + i);
             if(el) { el.value = "0"; localStorage.setItem('temp_s' + i, "0"); }
         }
-        // 하드 카운터 초기화
         hardCauses.forEach((c, i) => {
             hardActions.forEach((a, j) => {
                 const el = document.getElementById(`h${i}_${j}`);
                 if(el) { el.value = "0"; localStorage.setItem(`temp_h${i}_${j}`, "0"); }
             });
         });
-        // 합계 갱신
         updateTotals();
     }
 
@@ -447,12 +434,33 @@
         const reportDate = document.getElementById('reportDate').value;
         if(!reportDate) return showModal("알림", "운행 날짜를 선택하세요.", "alert");
 
+        // 전송 직전 업무가 동승/내근이면 모든 자율주행 데이터 강제 초기화
+        if(selectedType === "동승" || selectedType === "내근") {
+            resetAutoDriveData();
+        }
+
         const btn=document.getElementById('submitBtn'); 
         btn.disabled=true; btn.innerText="전송 중...";
         
-        const payload={ "type":"report", "날짜": reportDate, "작성자":selectedUser, "이메일":selectedEmail, "업무":selectedType, "차량":selectedCar, "근무":selectedShift, "SSD버전":document.getElementById('ssdVersion').value, "자율거리":document.getElementById('autoDist').value||"0", "자율시간":document.getElementById('autoTime').value||"000000", "누적ODO":document.getElementById('totalOdo').value||"0", "소프트합계":document.getElementById('softTotalDisp').innerText, "하드합계":document.getElementById('hardTotalDisp').innerText, "이슈사항":document.getElementById('workIssue').value };
+        const payload={ 
+            "type":"report", 
+            "날짜": reportDate, 
+            "작성자":selectedUser, 
+            "이메일":selectedEmail, 
+            "업무":selectedType, 
+            "차량":selectedCar, 
+            "근무":selectedShift, 
+            "SSD버전":document.getElementById('ssdVersion').value, 
+            "자율거리":document.getElementById('autoDist').value||"0", 
+            "자율시간":document.getElementById('autoTime').value||"000000", 
+            "누적ODO":document.getElementById('totalOdo').value||"0", 
+            "소프트합계":document.getElementById('softTotalDisp').innerText, 
+            "하드합계":document.getElementById('hardTotalDisp').innerText, 
+            "이슈사항":document.getElementById('workIssue').value 
+        };
         softKeys.forEach((k,i)=>payload[k]=document.getElementById('s'+i).value);
         hardCauses.forEach((c,i)=>{ hardActions.forEach((a,j)=>payload[`하드(${c}-${actionMap[a]})`]=document.getElementById(`h${i}_${j}`).value); });
+        
         window.onbeforeunload = null;
         fetch(GAS_URL,{method:'POST',body:JSON.stringify(payload)})
         .then(()=>{ window.finalReload=true; clearSavedData(); showModal("완료", "보고서가 성공적으로 전송되었습니다.", "alert"); })
