@@ -350,6 +350,9 @@
             b.classList.add('selected'); selectedType=b.innerText; localStorage.setItem('temp_selectedType', selectedType); 
             
             if(selectedType === "동승" || selectedType === "내근") {
+                // [신규 로직 추가] 비활성 항목 데이터 0으로 초기화
+                resetAutoDriveData();
+                
                 carArea.style.opacity = "0.3"; 
                 carArea.style.pointerEvents = "none";
                 autoDriveArea.style.opacity = "0.3";
@@ -364,6 +367,33 @@
                 autoDriveArea.style.pointerEvents = "auto";
             }
         }
+    }
+
+    // [신규 함수 추가] 동승/내근 시 모든 수치를 0으로 초기화
+    function resetAutoDriveData() {
+        // 숫자형 입력칸 초기화
+        ['autoDist', 'autoTime', 'totalOdo'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) { el.value = "0"; localStorage.setItem('temp_' + id, "0"); }
+        });
+        // SSD 버전은 텍스트이므로 빈값
+        const ssd = document.getElementById('ssdVersion');
+        if(ssd) { ssd.value = ""; localStorage.setItem('temp_ssdVersion', ""); }
+
+        // 소프트 카운터 초기화
+        for(let i=0; i<softKeys.length; i++) {
+            const el = document.getElementById('s' + i);
+            if(el) { el.value = "0"; localStorage.setItem('temp_s' + i, "0"); }
+        }
+        // 하드 카운터 초기화
+        hardCauses.forEach((c, i) => {
+            hardActions.forEach((a, j) => {
+                const el = document.getElementById(`h${i}_${j}`);
+                if(el) { el.value = "0"; localStorage.setItem(`temp_h${i}_${j}`, "0"); }
+            });
+        });
+        // 합계 갱신
+        updateTotals();
     }
 
     function selectCar(b){
