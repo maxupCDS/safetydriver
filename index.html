@@ -3,114 +3,502 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>운행 보고서 - 최종 점검본</title>
+    
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#1a73e8">
+    
+    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/maxupCDS/safetydriver/main/logo_app.png">
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/maxupCDS/safetydriver/main/logo_app.png">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <title>안전운행팀 보고서</title>
     <style>
-        body { font-family: sans-serif; padding: 15px; background-color: #f0f2f5; line-height: 1.6; }
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 500px; margin: 0 auto; }
-        .section { border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
-        .title { font-weight: bold; color: #1a73e8; margin-bottom: 10px; display: block; }
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .btn { padding: 12px; border: 1px solid #ccc; background: #fff; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        .btn.active { background: #1a73e8; color: white; border-color: #1a73e8; }
-        input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        /* [1. 전역 스타일] */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 12px; background-color: #f5f7fa; color: #333; overflow-x: hidden; width: 100%; }
         
-        /* 잠금 스타일 */
-        .lock-visual { opacity: 0.3 !important; pointer-events: none !important; filter: grayscale(1) !important; background-color: #eee !important; }
+        /* [추가 수정] 숫자 입력창 우측 화살표(스핀버튼) 제거 */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield; /* 파이어폭스 대응 */
+        }
+        /* [2. 로그인 화면] */
+        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+        .login-card { background: white; padding: 40px 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; width: 90%; max-width: 350px; }
+        .team-title { color: #1a73e8; font-size: 1.4rem; font-weight: 900; margin-bottom: 25px; }
+        .login-input { width: 100%; padding: 14px; margin-bottom: 12px; border: 2px solid #edf2f7; border-radius: 12px; font-size: 16px; text-align: center; outline: none; }
+        .keep-login-wrap { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px; color: #666; font-size: 14px; }
+        .keep-login-wrap input { width: 18px; height: 18px; }
+        .btn-login { width: 100%; padding: 15px; background: #1a73e8; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; }
+
+        /* [3. 메인 앱 레이아웃] */
+        #mainApp { display: none; width: 100%; max-width: 600px; margin: 0 auto; background: white; padding: 15px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 50px; }
+        .header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #f1f3f5; padding-bottom: 10px; }
+        .header-title { color: #1a73e8; font-size: 1.1rem; font-weight: bold; }
+        .section { margin-bottom: 15px; padding: 15px; border: 1px solid #edf2f7; border-radius: 12px; background-color: #fdfdfe; width: 100%; transition: 0.3s; }
+        label { display: block; margin-bottom: 12px; font-weight: bold; font-size: 16px; color: #333; }
+        
+        .btn-grid { display: grid; gap: 8px; width: 100%; }
+        .grid-3 { grid-template-columns: repeat(3, 1fr); }
+        .grid-2 { grid-template-columns: repeat(2, 1fr); }
+        .select-btn { padding: 14px 2px; border: 1px solid #e2e8f0; background: #fff; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #4a5568; text-align: center; transition: 0.2s; }
+        .select-btn.selected { background-color: #1a73e8 !important; color: white !important; border-color: #1a73e8; }
+        .text-input { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; outline: none; background: #fff; }
+
+        /* [4. 카운터 및 테이블] */
+        .category-item { background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid #eef2f8; display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .category-name { font-size: 14px; font-weight: 600; color: #333; flex: 1; margin-right: 10px; }
+        .counter-group { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+        .btn-sm { width: 38px; height: 38px; border-radius: 50%; border: none; background: #1a73e8; color: white; font-size: 22px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+        .counter-val { width: 40px; text-align: center; font-weight: 800; font-size: 18px; border: none; background: transparent; color: #1a73e8; }
+
+        .hard-table-wrapper { width: 100%; border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
+        .hard-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        .hard-table th { font-size: 11px; background: #f8fafc; padding: 10px 2px; border: 1px solid #eee; color: #4a5568; font-weight: bold; }
+        .hard-table td { border: 1px solid #eee; text-align: center; padding: 8px 0; background: #fff; vertical-align: middle; }
+        
+        .hard-cause-label { font-size: 10.5px; font-weight: bold; color: #333; word-break: keep-all; line-height: 1.2; }
+        .hard-btn-plus { border: none; background: #1a73e8; color: white; border-radius: 50%; width: 30px; height: 30px; font-weight: bold; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+        .hard-val-input { width: 100%; text-align: center; border: none; font-weight: 800; font-size: 16px; color: #1a73e8; background: transparent; outline: none; }
+
+        .btn-add { width: 100%; padding: 18px; border: none; border-radius: 14px; font-size: 18px; font-weight: bold; color: white; background: #28a745; margin-top: 15px; }
+
+        /* [5. 모달] */
+        #customModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 20000; padding: 20px; }
+        .modal-card { background: white; border-radius: 20px; width: 100%; max-width: 320px; overflow: hidden; }
+        .modal-body { padding: 25px 20px; text-align: center; border-bottom: 1px solid #eee; }
+        .modal-footer { display: flex; }
+        .modal-btn { flex: 1; padding: 15px; border: none; background: transparent; font-size: 16px; font-weight: bold; }
+
+        /* [6. 사이드 메뉴 스타일] */
+        .menu-btn { font-size: 26px; background: none; border: none; color: #1a73e8; cursor: pointer; padding-right: 10px; }
+        #sideMenu { position: fixed; top: 0; left: -280px; width: 260px; height: 100%; background: white; z-index: 25000; transition: 0.3s; box-shadow: 2px 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
+        #sideMenu.active { left: 0; }
+        
+        .menu-header { padding: 50px 20px 25px; background: #1a73e8; color: white; }
+        .user-name { font-size: 1.2rem; font-weight: bold; margin-bottom: 4px; display: block; }
+        .user-email { font-size: 0.85rem; opacity: 0.85; display: block; }
+        
+        .menu-list { flex: 1; overflow-y: auto; padding-top: 10px; }
+        .menu-item { padding: 18px 20px; border-bottom: 1px solid #f1f3f5; cursor: pointer; font-size: 15px; font-weight: 600; color: #444; }
+        
+        .menu-logout { padding: 18px 20px; border-top: 1px solid #eee; color: #666; font-weight: 600; font-size: 14px; cursor: pointer; background: #fcfcfc; display: flex; justify-content: space-between; align-items: center; }
+        .logout-text { color: #d32f2f; }
+        
+        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 24000; display: none; }
+        .app-page { display: none; }
+        .app-page.active { display: block; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2 style="text-align: center;">📋 업무 보고서</h2>
-
-    <div class="section">
-        <span class="title">3. 업무 및 차량 선택</span>
-        <div class="btn-grid" id="workTypeContainer">
-            <button class="btn active" onclick="SUPER_CLICK(this, '운행')">운행</button>
-            <button class="btn" onclick="SUPER_CLICK(this, '동승')">동승</button>
-            <button class="btn" onclick="SUPER_CLICK(this, '내근')">내근</button>
+<div id="loginOverlay">
+    <div class="login-card">
+        <div class="team-title">FUTURE LINK</div>
+        <input type="email" id="emailInput" class="login-input" placeholder="사내 이메일 입력">
+        <div class="keep-login-wrap">
+            <input type="checkbox" id="keepLogin">
+            <label for="keepLogin" style="margin:0; font-size:14px; font-weight:normal;">자동 로그인 유지</label>
         </div>
-        <div id="carSelectionArea" style="margin-top:10px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
-            <script>for(let i=801;i<=804;i++) document.write(`<button class="btn car-btn" onclick="SELECT_CAR(this)">gs${i}</button>`);</script>
+        <button class="btn-login" onclick="checkLogin()">시작하기</button>
+    </div>
+</div>
+
+<div id="menuOverlay" class="menu-overlay" onclick="toggleMenu()"></div>
+<div id="sideMenu">
+    <div class="menu-header">
+        <span id="displayUserName" class="user-name">사용자님</span>
+        <span id="displayUserEmail" class="user-email">email@future-link.ai</span>
+    </div>
+    <div class="menu-list">
+        <div class="menu-item" onclick="switchPage('reportPage', '📋 자율주행 운행보고')">📋 자율주행 운행보고</div>
+        <div class="menu-item" onclick="switchPage('chargePage', '⚡ 충전 관리')">⚡ 충전 관리</div>
+    </div>
+    <div class="menu-logout" onclick="logout()">
+        <span class="logout-text">로그아웃</span>
+        <span style="font-size: 12px; color: #999;">Sign Out</span>
+    </div>
+</div>
+
+<div id="customModal"><div class="modal-card"><div class="modal-body"><div id="modalTitle" style="font-weight:bold; color:#1a73e8; margin-bottom:8px; font-size:18px;">알림</div><div id="modalText" style="font-size:15px; color:#555;">내용</div></div><div class="modal-footer" id="modalFooter"></div></div></div>
+
+<div id="mainApp">
+    <div class="header-area">
+        <div style="display:flex; align-items:center;">
+            <button class="menu-btn" onclick="toggleMenu()">☰</button>
+            <div class="header-title" id="mainHeaderTitle">📋 자율주행 운행보고</div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <button onclick="resetForm()" style="background:none; border:none; font-size:22px; cursor:pointer;" title="전체 초기화">🔄</button>
         </div>
     </div>
 
-    <div id="BLOCK_TARGET">
+    <div id="reportPage" class="app-page active">
         <div class="section">
-            <span class="title">5. SSD 버전</span>
-            <input type="text" id="input_ssd" class="clear-target" placeholder="내용 입력">
+            <label>1. 운행 날짜</label>
+            <input type="date" id="reportDate" class="text-input">
         </div>
+
         <div class="section">
-            <span class="title">6. 자율 주행 데이터</span>
-            <input type="number" id="input_dist" class="clear-target" placeholder="0">
+            <label>2. 작성자 선택</label>
+            <div class="btn-grid grid-2" id="userBtnGroup"></div>
         </div>
+
         <div class="section">
-            <span class="title">9. 테이크오버 카운트</span>
-            <div style="display:flex; justify-content: space-between; align-items: center;">
-                <span>시스템 이상</span>
-                <input type="number" class="clear-target" value="0" style="width: 60px; text-align: center;">
+            <label>3. 업무 및 차량 선택</label>
+            <div class="btn-grid grid-3" style="margin-bottom:12px;" id="typeBtnGroup">
+                <button class="select-btn" onclick="selectType(this)">운행</button>
+                <button class="select-btn" onclick="selectType(this)">동승</button>
+                <button class="select-btn" onclick="selectType(this)">내근</button>
+            </div>
+            <div class="btn-grid grid-2" id="carBtnGroup">
+                <script>for(let i=801;i<=810;i++)document.write(`<button class="select-btn" onclick="selectCar(this)">gs${i}</button>`);</script>
             </div>
         </div>
+
+        <div class="section"><label>4. 근무방식</label><div class="btn-grid grid-2" id="shiftBtnGroup"><button class="select-btn" onclick="selectShift(this)">주간</button><button class="select-btn" onclick="selectShift(this)">야간</button></div></div>
+        
+        <div id="autoDriveSections">
+            <div class="section"><label>5. SSD 버전</label><input type="text" id="ssdVersion" class="text-input" oninput="saveInput(this)"></div>
+            <div class="section"><label>6. 자율거리(km)</label><input type="number" id="autoDist" class="text-input" step="any" inputmode="decimal" oninput="saveInput(this)"></div>
+            <div class="section"><label>7. 자율시간(6자리)</label><input type="number" id="autoTime" class="text-input" inputmode="numeric" oninput="saveInput(this)"></div>
+            <div class="section"><label>8. 누적 ODO(km)</label><input type="number" id="totalOdo" class="text-input" inputmode="decimal" oninput="saveInput(this)"></div>
+            <div class="section"><label>9. 소프트 테이크오버</label><div id="softContainer"></div><div style="text-align:right; font-weight:bold; color:#1a73e8; margin-top:8px; font-size:15px;">소프트 합계: <span id="softTotalDisp">0</span></div></div>
+            <div class="section"><label>10. 하드 테이크오버</label><div class="hard-table-wrapper"><table class="hard-table"><thead><tr><th style="width:24%">구분</th><th>브레이크</th><th>핸들</th><th>엑셀</th><th>시스템</th></tr></thead><tbody id="hardBody"></tbody></table></div><div style="text-align:right; font-weight:bold; color:#1a73e8; margin-top:10px; font-size:15px;">하드 합계: <span id="hardTotalDisp">0</span></div></div>
+        </div>
+        <div class="section"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><label style="margin:0;">11. 이슈 사항</label><button id="voiceBtn_issue" style="background:#f1f3f5; border:none; border-radius:50%; width:40px; height:40px;" onclick="startVoice('workIssue','voiceBtn_issue')">🎤</button></div><textarea id="workIssue" class="text-input" style="height:100px; resize:none;" oninput="saveInput(this)"></textarea></div>
+
+        <button class="btn-add" id="submitBtn" onclick="addRecord()">보고서 기록하기</button>
     </div>
 
-    <div class="section">
-        <span class="title">11. 기타 이슈</span>
-        <textarea rows="3" placeholder="이슈 입력"></textarea>
+    <div id="chargePage" class="app-page">
+        <div class="section"><label>1. 날짜</label><input type="date" id="chargeDate" class="text-input"></div>
+        <div class="section">
+            <label>2. 차량 선택</label>
+            <div class="btn-grid grid-2" id="chargeCarBtnGroup">
+                <script>for(let i=801;i<=810;i++)document.write(`<button class="select-btn" onclick="selectChargeCar(this)">gs${i}</button>`);</script>
+            </div>
+        </div>
+        <div class="section"><label>3. 충전량(kWh)</label><input type="number" id="chargeAmount" class="text-input" inputmode="decimal" placeholder="0.0"></div>
+        <div class="section"><label>4. 충전시간</label><input type="number" id="chargeTime" class="text-input" placeholder="충전 소요 시간"></div>
+        <div class="section"><label>기타 내용 작성</label><textarea id="chargeMemo" class="text-input" style="height:100px; resize:none;"></textarea></div>
+        
+        <button class="btn-add" id="chargeSubmitBtn" style="background:#1a73e8;" onclick="addChargeRecord()">충전량 기록하기</button>
     </div>
-
-    <button onclick="alert('제출 완료')" style="width:100%; padding:15px; background:#28a745; color:white; border:none; border-radius:8px; font-size:16px; font-weight:bold;">기록하기</button>
 </div>
 
 <script>
-    // [전역 함수 - 절대 덮어씌워지지 않게 고유한 이름 사용]
-    function SUPER_CLICK(element, type) {
-        const buttons = document.querySelectorAll('#workTypeContainer .btn');
-        const targetArea = document.getElementById('BLOCK_TARGET');
-        const carArea = document.getElementById('carSelectionArea');
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbwDGt7slvfyvirjejYnOTdgxnLrp2-WqaY3Xr-a-h2QSrd9TaS62JKQ6TP4R5jMxX3T/exec';
+    let selectedUser="", selectedEmail="", selectedType="", selectedCar="", selectedShift="", selectedChargeCar="";
+    
+    // [최종 명단]
+    const userList=[
+        {name:'황금철', email:'kchwang@future-link.ai'},
+        {name:'윤길홍', email:'khyoon@future-link.ai'},
+        {name:'예준우', email:'star7760@future-link.ai'},
+        {name:'길광림', email:'volfgangk@future-link.ai'},
+        {name:'전재훈', email:'level5@future-link.ai'},
+        {name:'오진혁', email:'dhwlstnwkd@future-link.ai'},
+        {name:'김준혁', email:'kirk@future-link.ai'},
+        {name:'박승규', email:'jeffstyle@future-link.ai'},
+        {name:'유승민', email:'max0825@future-link.ai'},
+        {name:'최대섭', email:'chleotjq1@future-link.ai'},
+        {name:'윤승현', email:'shyoon@future-link.ai'},
+        {name:'김선규', email:'skkim@future-link.ai'},
+        {name:'차두원', email:'dwcha@future-link.ai'}
+    ];
 
-        // 1. 동승/내근 클릭 시
-        if (type === '동승' || type === '내근') {
-            if (confirm("⚠️ 경고!\n\n동승/내근 선택 시 5~10번 항목이 초기화되고 잠깁니다. 진행할까요?")) {
-                
-                // 버튼 상태 변경
-                buttons.forEach(b => b.classList.remove('active'));
-                element.classList.add('active');
+    const reportAuthors = userList.filter(user => 
+        !['윤승현', '김선규', '차두원'].includes(user.name)
+    );
 
-                // 데이터 초기화
-                const inputs = document.querySelectorAll('.clear-target');
-                inputs.forEach(i => {
-                    if(i.type === 'number') i.value = 0;
-                    else i.value = "";
-                });
+    const softKeys=["운전자판단","시스템이상","교통약자보호","신호위반","신호등지시","교차로딜레마","도로상황","차선변경","급정지/서행","보호의무"];
+    const hardCauses=["시스템이상","신호위반","교차로딜레마","도로상황","운전자실수"];
+    const hardActions=["브레이크","핸들","엑셀","시스템"];
+    const actionMap={"브레이크":"B","핸들":"H","엑셀":"A","시스템":"S"};
 
-                // 차량 선택 해제
-                document.querySelectorAll('.car-btn').forEach(c => c.classList.remove('active'));
+    window.onload = function(){
+        const ug = document.getElementById('userBtnGroup');
+        if(ug) {
+            ug.innerHTML = "";
+            reportAuthors.forEach(u=> ug.innerHTML += `<button class="select-btn" data-name="${u.name}" onclick="selectUser(this,'${u.name}','${u.email}')">${u.name}</button>`);
+        }
 
-                // 강제 잠금 (인라인 스타일 주입)
-                targetArea.classList.add('lock-visual');
-                carArea.classList.add('lock-visual');
-                
-                console.log(type + " 모드 활성화: 잠금 완료");
-            }
-        } 
-        // 2. 운행 클릭 시
-        else {
-            buttons.forEach(b => b.classList.remove('active'));
-            element.classList.add('active');
+        const sc=document.getElementById('softContainer');
+        if(sc) {
+            sc.innerHTML = "";
+            softKeys.forEach((n,i)=>{ sc.innerHTML+=`<div class="category-item"><span class="category-name">${i+1}. ${n}</span><div class="counter-group"><button class="btn-sm" onclick="stepSoft(${i},-1)">-</button><input id="s${i}" class="counter-val" value="0" readonly><button class="btn-sm" onclick="stepSoft(${i},1)">+</button></div></div>`; });
+        }
+        
+        const hb=document.getElementById('hardBody');
+        if(hb) {
+            hb.innerHTML = "";
+            hardCauses.forEach((c,i)=>{ let row=`<tr><td class="hard-cause-label">${c}</td>`; hardActions.forEach((a,j)=>{ row+=`<td><div class="hard-cell-content"><button class="hard-btn-plus" onclick="stepHard('${i}_${j}', 1)">+</button><input id="h${i}_${j}" class="hard-val-input" value="0" readonly></div></td>`; }); hb.innerHTML+=row+`</tr>`; });
+        }
 
-            // 잠금 해제
-            targetArea.classList.remove('lock-visual');
-            carArea.classList.remove('lock-visual');
-            
-            console.log("운행 모드 활성화: 잠금 해제");
+        const today = new Date().toISOString().substring(0, 10);
+        if(document.getElementById('reportDate')) document.getElementById('reportDate').value = today;
+        if(document.getElementById('chargeDate')) document.getElementById('chargeDate').value = today;
+
+        if(localStorage.getItem('isLoggedIn') === 'true') {
+            showApp();
+        }
+        loadSavedData();
+        initBackFilter();
+    }
+
+    function toggleMenu() {
+        const menu = document.getElementById('sideMenu');
+        const overlay = document.getElementById('menuOverlay');
+        const isActive = menu.classList.contains('active');
+        menu.classList.toggle('active');
+        overlay.style.display = isActive ? 'none' : 'block';
+    }
+
+    function switchPage(pid, title) {
+        document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active'));
+        document.getElementById(pid).classList.add('active');
+        document.getElementById('mainHeaderTitle').innerText = title;
+        toggleMenu();
+    }
+
+    function checkLogin(){
+        const emailInput = document.getElementById('emailInput');
+        if(!emailInput) return;
+        const email = emailInput.value.trim().toLowerCase();
+        const keep = document.getElementById('keepLogin').checked;
+        const user = userList.find(x => x.email.toLowerCase() === email);
+        if(user){
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('userName', user.name);
+            localStorage.setItem('userEmail', user.email);
+            if(keep) localStorage.setItem('keepLogin', 'true');
+            else localStorage.removeItem('keepLogin');
+            showApp();
+        } else {
+            showModal("알림", "등록된 이메일이 아닙니다.", "alert");
+        }
+    }
+    
+    function logout() {
+        toggleMenu(); 
+        showModal("로그아웃", "로그아웃 하시겠습니까?", "confirm", function() {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('userName');
+            localStorage.removeItem('userEmail');
+            localStorage.removeItem('keepLogin');
+            clearSavedData();
+            location.reload();
+        });
+    }
+
+    function showApp(){
+        document.getElementById('loginOverlay').style.display='none';
+        document.getElementById('mainApp').style.display='block';
+        const savedName = localStorage.getItem('userName');
+        const savedEmail = localStorage.getItem('userEmail');
+        if(savedName) {
+            document.getElementById('displayUserName').innerText = savedName + " 님";
+            document.getElementById('displayUserEmail').innerText = savedEmail;
+            const btn = Array.from(document.querySelectorAll('#userBtnGroup .select-btn')).find(b => b.dataset.name === savedName);
+            if(btn) selectUser(btn, savedName, savedEmail);
         }
     }
 
-    function SELECT_CAR(btn) {
-        document.querySelectorAll('.car-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+    function resetForm() {
+        showModal("전체 초기화", "작성 중인 모든 내용이 삭제되고 페이지가 새로고침됩니다. 계속하시겠습니까?", "confirm", function() {
+            clearSavedData();
+            window.onbeforeunload = null;
+            location.reload();
+        });
+    }
+
+    function selectUser(b,n,e){
+        if(b.classList.contains('selected')){
+            b.classList.remove('selected'); selectedUser=""; selectedEmail="";
+            localStorage.removeItem('temp_selectedUser'); localStorage.removeItem('temp_selectedEmail');
+        } else {
+            document.querySelectorAll('#userBtnGroup .select-btn').forEach(x=>x.classList.remove('selected'));
+            b.classList.add('selected'); selectedUser=n; selectedEmail=e;
+            localStorage.setItem('temp_selectedUser', n); localStorage.setItem('temp_selectedEmail', e);
+        }
+    }
+
+    function selectType(b){
+        const carArea = document.getElementById('carBtnGroup');
+        const autoDriveArea = document.getElementById('autoDriveSections');
+        const carBtns = carArea.querySelectorAll('.select-btn');
+
+        if(b.classList.contains('selected')){ 
+            b.classList.remove('selected'); selectedType=""; localStorage.removeItem('temp_selectedType'); 
+            carArea.style.opacity = "1"; carArea.style.pointerEvents = "auto";
+            autoDriveArea.style.opacity = "1"; autoDriveArea.style.pointerEvents = "auto";
+        }
+        else { 
+            document.querySelectorAll('#typeBtnGroup .select-btn').forEach(x=>x.classList.remove('selected')); 
+            b.classList.add('selected'); selectedType=b.innerText; localStorage.setItem('temp_selectedType', selectedType); 
+            
+            if(selectedType === "동승" || selectedType === "내근") {
+                resetAutoDriveData();
+                carArea.style.opacity = "0.3"; 
+                carArea.style.pointerEvents = "none";
+                autoDriveArea.style.opacity = "0.3";
+                autoDriveArea.style.pointerEvents = "none";
+                carBtns.forEach(btn => btn.classList.remove('selected'));
+                selectedCar = "";
+                localStorage.removeItem('temp_selectedCar');
+            } else {
+                carArea.style.opacity = "1"; 
+                carArea.style.pointerEvents = "auto";
+                autoDriveArea.style.opacity = "1";
+                autoDriveArea.style.pointerEvents = "auto";
+            }
+        }
+    }
+
+    function resetAutoDriveData() {
+        ['autoDist', 'autoTime', 'totalOdo'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) { el.value = "0"; localStorage.setItem('temp_' + id, "0"); }
+        });
+        const ssd = document.getElementById('ssdVersion');
+        if(ssd) { ssd.value = ""; localStorage.setItem('temp_ssdVersion', ""); }
+        for(let i=0; i<softKeys.length; i++) {
+            const el = document.getElementById('s' + i);
+            if(el) { el.value = "0"; localStorage.setItem('temp_s' + i, "0"); }
+        }
+        hardCauses.forEach((c, i) => {
+            hardActions.forEach((a, j) => {
+                const el = document.getElementById(`h${i}_${j}`);
+                if(el) { el.value = "0"; localStorage.setItem(`temp_h${i}_${j}`, "0"); }
+            });
+        });
+        updateTotals();
+    }
+
+    function selectCar(b){
+        if(b.classList.contains('selected')){ b.classList.remove('selected'); selectedCar=""; localStorage.removeItem('temp_selectedCar'); }
+        else { document.querySelectorAll('#carBtnGroup .select-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); selectedCar=b.innerText; localStorage.setItem('temp_selectedCar', selectedCar); }
+    }
+    function selectShift(b){
+        if(b.classList.contains('selected')){ b.classList.remove('selected'); selectedShift=""; localStorage.removeItem('temp_selectedShift'); }
+        else { document.querySelectorAll('#shiftBtnGroup .select-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); selectedShift=b.innerText; localStorage.setItem('temp_selectedShift', selectedShift); }
+    }
+    function selectChargeCar(b){
+        document.querySelectorAll('#chargeCarBtnGroup .select-btn').forEach(x=>x.classList.remove('selected'));
+        b.classList.add('selected'); selectedChargeCar=b.innerText;
+    }
+
+    function saveInput(el) { localStorage.setItem('temp_' + el.id, el.value); }
+    function loadSavedData() { 
+        ['ssdVersion', 'autoDist', 'autoTime', 'totalOdo', 'workIssue'].forEach(id => { const val = localStorage.getItem('temp_' + id); if (val !== null) document.getElementById(id).value = val; }); 
+        for(let i=0; i<softKeys.length; i++) { const val = localStorage.getItem('temp_s' + i); if(val) document.getElementById('s' + i).value = val; } 
+        hardCauses.forEach((c, i) => { hardActions.forEach((a, j) => { const val = localStorage.getItem(`temp_h${i}_${j}`); if(val) document.getElementById(`h${i}_${j}`).value = val; }); }); 
+        ['Type', 'Car', 'Shift'].forEach(key => { const val = localStorage.getItem('temp_selected' + key); if(val) { const btn = Array.from(document.querySelectorAll('.select-btn')).find(b => b.innerText === val); if(btn) key === 'Type' ? selectType(btn) : (key === 'Car' ? selectCar(btn) : selectShift(btn)); } }); 
+        updateTotals(); 
+    }
+    function clearSavedData() { 
+        Object.keys(localStorage).forEach(k => { if(k.startsWith('temp_')) localStorage.removeItem(k); }); 
+    }
+
+    function stepSoft(i,v){ const e=document.getElementById('s'+i); e.value=Math.max(0,parseInt(e.value)+v); localStorage.setItem('temp_s'+i, e.value); updateTotals(); }
+    function stepHard(id,v){ const e=document.getElementById('h'+id); e.value=Math.max(0,parseInt(e.value)+v); localStorage.setItem('temp_h'+id, e.value); updateTotals(); }
+    function updateTotals(){ let st=0;for(let i=0;i<softKeys.length;i++)st+=parseInt(document.getElementById('s'+i).value);document.getElementById('softTotalDisp').innerText=st; let ht=0;for(let i=0;i<hardCauses.length;i++){for(let j=0;j<hardActions.length;j++)ht+=parseInt(document.getElementById(`h${i}_${j}`).value);}document.getElementById('hardTotalDisp').innerText=ht; }
+    
+    function showModal(t,txt,type,onC){ const m=document.getElementById('customModal'); document.getElementById('modalTitle').innerText=t; document.getElementById('modalText').innerText=txt; const f=document.getElementById('modalFooter'); m.style.display='flex'; if(type==='confirm'){ f.innerHTML=`<button class="modal-btn" style="color:#888; border-right:1px solid #eee;" onclick="closeModal()">취소</button><button class="modal-btn" style="color:#1a73e8;" id="mCBtn">확인</button>`; document.getElementById('mCBtn').onclick=()=>{closeModal(); if(onC) onC();}; }else{ f.innerHTML=`<button class="modal-btn" style="color:#1a73e8; width:100%;" onclick="closeModal(); if(window.finalReload) { window.onbeforeunload = null; location.reload(); }">확인</button>`; } }
+    function closeModal(){document.getElementById('customModal').style.display='none';}
+    
+    function initBackFilter() { 
+        window.history.pushState({page: 1}, "", window.location.href); 
+        window.onpopstate = function() { 
+            window.history.pushState({page: 1}, "", window.location.href); 
+            showModal("경고", "페이지를 새로고침하시겠습니까? 확인을 누르면 작성 중인 내용이 초기화됩니다.", "confirm", function() { 
+                window.onbeforeunload = null; 
+                clearSavedData(); 
+                location.reload(); 
+            }); 
+        }; 
+    }
+
+    function startVoice(tid,bid){ window.SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition; if(!window.SpeechRecognition)return; const r=new window.SpeechRecognition(); r.lang='ko-KR'; r.onstart=()=>document.getElementById(bid).innerHTML="🔴"; r.onresult=(e)=>{ const res = e.results[0][0].transcript; const target = document.getElementById(tid); target.value += res; saveInput(target); }; r.onend=()=>document.getElementById(bid).innerHTML="🎤"; r.start(); }
+    
+    function addRecord(){
+        if(!selectedUser)return showModal("알림","작성자를 선택하세요.","alert");
+        const reportDate = document.getElementById('reportDate').value;
+        if(!reportDate) return showModal("알림", "운행 날짜를 선택하세요.", "alert");
+
+        // 전송 직전 업무가 동승/내근이면 모든 자율주행 데이터 강제 초기화
+        if(selectedType === "동승" || selectedType === "내근") {
+            resetAutoDriveData();
+        }
+
+        const btn=document.getElementById('submitBtn'); 
+        btn.disabled=true; btn.innerText="전송 중...";
+        
+        const payload={ 
+            "type":"report", 
+            "날짜": reportDate, 
+            "작성자":selectedUser, 
+            "이메일":selectedEmail, 
+            "업무":selectedType, 
+            "차량":selectedCar, 
+            "근무":selectedShift, 
+            "SSD버전":document.getElementById('ssdVersion').value, 
+            "자율거리":document.getElementById('autoDist').value||"0", 
+            "자율시간":document.getElementById('autoTime').value||"000000", 
+            "누적ODO":document.getElementById('totalOdo').value||"0", 
+            "소프트합계":document.getElementById('softTotalDisp').innerText, 
+            "하드합계":document.getElementById('hardTotalDisp').innerText, 
+            "이슈사항":document.getElementById('workIssue').value 
+        };
+        softKeys.forEach((k,i)=>payload[k]=document.getElementById('s'+i).value);
+        hardCauses.forEach((c,i)=>{ hardActions.forEach((a,j)=>payload[`하드(${c}-${actionMap[a]})`]=document.getElementById(`h${i}_${j}`).value); });
+        
+        window.onbeforeunload = null;
+        fetch(GAS_URL,{method:'POST',body:JSON.stringify(payload)})
+        .then(()=>{ window.finalReload=true; clearSavedData(); showModal("완료", "보고서가 성공적으로 전송되었습니다.", "alert"); })
+        .catch(()=>{ showModal("오류","전송에 실패했습니다.","alert"); btn.disabled=false; btn.innerText="보고서 기록하기"; });
+    }
+
+    function addChargeRecord() {
+        if(!selectedChargeCar) return showModal("알림", "차량을 선택하세요.", "alert");
+        const amt = document.getElementById('chargeAmount').value;
+        if(!amt) return showModal("알림", "충전량을 입력하세요.", "alert");
+        const btn = document.getElementById('chargeSubmitBtn');
+        btn.disabled = true; btn.innerText = "전송 중...";
+        const payload = {
+            "type": "charge",
+            "날짜": document.getElementById('chargeDate').value,
+            "차량": selectedChargeCar,
+            "충전량": amt,
+            "충전시간": document.getElementById('chargeTime').value,
+            "기타": document.getElementById('chargeMemo').value,
+            "작성자": selectedUser || localStorage.getItem('userName')
+        };
+        fetch(GAS_URL, {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        })
+        .then(() => {
+            showModal("완료", "충전 기록이 전송되었습니다.", "alert");
+            document.getElementById('chargeAmount').value = "";
+            document.getElementById('chargeTime').value = "";
+            document.getElementById('chargeMemo').value = "";
+            btn.disabled = false; btn.innerText = "충전량 기록하기";
+        })
+        .catch(() => { 
+            showModal("오류", "전송 실패", "alert"); 
+            btn.disabled = false; 
+            btn.innerText = "충전량 기록하기";
+        });
     }
 </script>
-
 </body>
 </html>
