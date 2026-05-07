@@ -24,29 +24,31 @@
         input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type="number"] { -moz-appearance: textfield; }
 
-        /* [2. 로그인 및 메인 레이아웃] */
+        /* [2. 로그인 화면] */
         #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%); display: flex; align-items: center; justify-content: center; z-index: 9999; }
         .login-card { background: white; padding: 40px 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; width: 90%; max-width: 350px; }
         .team-title { color: #1a73e8; font-size: 1.4rem; font-weight: 900; margin-bottom: 25px; }
         .login-input { width: 100%; padding: 14px; margin-bottom: 12px; border: 2px solid #edf2f7; border-radius: 12px; font-size: 16px; text-align: center; outline: none; }
         .btn-login { width: 100%; padding: 15px; background: #1a73e8; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; }
 
+        /* [3. 메인 앱 레이아웃] */
         #mainApp { display: none; width: 100%; max-width: 600px; margin: 0 auto; background: white; min-height: 100vh; padding: 15px; position: relative; }
         .header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #f1f3f5; padding-bottom: 10px; }
         .header-title { color: #1a73e8; font-size: 1.1rem; font-weight: bold; }
         .section { margin-bottom: 15px; padding: 15px; border: 1px solid #edf2f7; border-radius: 12px; background-color: #fdfdfe; width: 100%; }
         label { display: block; margin-bottom: 12px; font-weight: bold; font-size: 16px; color: #333; }
         
-        /* [3. 홈 대시보드] */
+        /* [4. 홈 대시보드] */
         #homePage { padding: 30px 10px; text-align: center; }
         .home-logo { width: 140px; margin-bottom: 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .home-welcome { font-size: 1.2rem; font-weight: bold; margin-bottom: 30px; color: #444; }
         .home-menu-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
         .home-card { background: white; border: 1px solid #eef2f8; border-radius: 18px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; gap: 15px; cursor: pointer; transition: 0.2s; }
+        .home-card:active { transform: scale(0.97); background: #f8faff; }
         .home-card-icon { font-size: 28px; }
         .home-card-text { font-size: 17px; font-weight: bold; color: #333; }
 
-        /* [4. 버튼 및 입력 스타일] */
+        /* [5. 공통 폼 요소] */
         .btn-grid { display: grid; gap: 8px; width: 100%; }
         .grid-3 { grid-template-columns: repeat(3, 1fr); }
         .grid-2 { grid-template-columns: repeat(2, 1fr); }
@@ -54,14 +56,22 @@
         .select-btn.selected { background-color: #1a73e8 !important; color: white !important; border-color: #1a73e8 !important; }
         .text-input { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; outline: none; }
 
-        /* [5. 소프트 테이크오버 복구 스타일] */
+        /* 차량 관리 버튼 스타일 */
+        .check-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px dashed #eee; }
+        .check-label { font-size: 14px; color: #444; font-weight: 500; }
+        .check-options { display: flex; gap: 5px; }
+        .opt-btn { padding: 8px 12px; border: 1px solid #e2e8f0; background: #fff; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: bold; color: #999; }
+        .opt-btn.good.selected { background: #28a745; color: white; border-color: #28a745; }
+        .opt-btn.bad.selected { background: #dc3545; color: white; border-color: #dc3545; }
+
+        /* 소프트 테이크오버 스타일 유지 */
         .category-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f8fafc; }
         .category-name { font-size: 14px; font-weight: 600; color: #4a5568; }
         .counter-group { display: flex; align-items: center; gap: 10px; }
         .btn-sm { width: 32px; height: 32px; border-radius: 8px; border: 1px solid #cbd5e0; background: white; font-size: 18px; display: flex; align-items: center; justify-content: center; color: #4a5568; }
         .counter-val { width: 40px; text-align: center; border: none; font-weight: bold; font-size: 16px; background: transparent; }
 
-        /* [6. 하드 테이크오버 복구 스타일 (10.5px)] */
+        /* 하드 테이크오버 글자 크기 10.5px 유지 */
         .hard-table-wrapper { width: 100%; border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
         .hard-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         .hard-table th { font-size: 11px; background: #f8fafc; padding: 10px 2px; border: 1px solid #eee; }
@@ -69,14 +79,6 @@
         .hard-cause-label { font-size: 10.5px; font-weight: bold; color: #333; line-height: 1.2; word-break: keep-all; padding: 0 2px; }
         .hard-btn-plus { border: none; background: #1a73e8; color: white; border-radius: 50%; width: 30px; height: 30px; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; }
         .hard-val-input { width: 100%; text-align: center; border: none; font-weight: 800; font-size: 16px; color: #1a73e8; background: transparent; outline: none; }
-
-        /* [7. 차량 관리 체크 양호/불량 스타일] */
-        .check-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px dashed #eee; }
-        .check-label { font-size: 14px; color: #444; font-weight: 500; }
-        .check-options { display: flex; gap: 5px; }
-        .opt-btn { padding: 8px 12px; border: 1px solid #e2e8f0; background: #fff; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: bold; color: #999; }
-        .opt-btn.good.selected { background: #28a745; color: white; border-color: #28a745; }
-        .opt-btn.bad.selected { background: #dc3545; color: white; border-color: #dc3545; }
 
         .btn-add { width: 100%; padding: 18px; border: none; border-radius: 14px; font-size: 18px; font-weight: bold; color: white; background: #28a745; margin-top: 15px; }
 
@@ -86,11 +88,13 @@
         .menu-header { padding: 50px 20px 25px; background: #1a73e8; color: white; }
         .menu-list { flex: 1; display: flex; flex-direction: column; }
         .menu-item { padding: 18px 20px; border-bottom: 1px solid #f1f3f5; cursor: pointer; font-size: 15px; font-weight: 600; color: #444; }
+        .menu-footer { margin-top: auto; padding: 20px; border-top: 1px solid #eee; background: #fcfcfc; }
+        .logout-btn { color: #d32f2f; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+
+        /* 모달 및 기타 */
         .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 24000; display: none; }
         .app-page { display: none; }
         .app-page.active { display: block; }
-
-        /* 모달 */
         #customModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 30000; padding: 20px; }
         .modal-card { background: white; border-radius: 20px; width: 100%; max-width: 320px; overflow: hidden; }
         .modal-body { padding: 25px 20px; text-align: center; border-bottom: 1px solid #eee; }
@@ -100,7 +104,7 @@
 </head>
 <body>
 
-<div id="loginOverlay"><div class="login-card"><div class="team-title">FUTURE LINK</div><input type="email" id="emailInput" class="login-input" placeholder="사내 이메일 입력"><button class="btn-login" onclick="checkLogin()">시작하기</button></div></div>
+<div id="loginOverlay"><div class="login-card"><div class="team-title">FUTURE LINK</div><input type="email" id="emailInput" class="login-input" placeholder="사내 이메일 입력"><div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:20px; color:#666; font-size:14px;"><input type="checkbox" id="keepLogin"><label for="keepLogin" style="margin:0; font-size:14px; font-weight:normal;">자동 로그인 유지</label></div><button class="btn-login" onclick="checkLogin()">시작하기</button></div></div>
 <div id="menuOverlay" class="menu-overlay" onclick="toggleMenu()"></div>
 <div id="sideMenu">
     <div class="menu-header"><span id="displayUserName" style="font-size:1.2rem; font-weight:bold; display:block;">사용자님</span><span id="displayUserEmail" style="font-size:0.85rem; opacity:0.85;">email@future-link.ai</span></div>
@@ -110,6 +114,7 @@
         <div class="menu-item" onclick="switchPage('reportPage', '📋 자율주행 운행보고')">📋 자율주행 운행보고</div>
         <div class="menu-item" onclick="switchPage('chargePage', '⚡ 충전 관리')">⚡ 충전 관리</div>
     </div>
+    <div class="menu-footer"><div class="logout-btn" onclick="logout()"><span>로그아웃</span><span style="font-size:12px; color:#999; font-weight:normal;">Sign Out</span></div></div>
 </div>
 
 <div id="customModal"><div class="modal-card"><div class="modal-body"><div id="modalTitle" style="font-weight:bold; color:#1a73e8; margin-bottom:8px; font-size:18px;">알림</div><div id="modalText" style="font-size:15px; color:#555;">내용</div></div><div class="modal-footer" id="modalFooter"></div></div></div>
@@ -133,7 +138,10 @@
     <div id="checkPage" class="app-page">
         <div class="section"><label>1. 점검 날짜</label><input type="date" id="checkDate" class="text-input"></div>
         <div class="section"><label>2. 점검 차량</label><div class="btn-grid grid-2" id="checkCarBtnGroup"><script>for(let i=801;i<=810;i++)document.write(`<button class="select-btn" onclick="selectCheckCar(this)">gs${i}</button>`);</script></div></div>
-        <div class="section"><label>3. 기본 점검 항목</label><div id="checkListContainer"></div></div>
+        <div class="section">
+            <label>3. 기본 점검 항목</label>
+            <div id="checkListContainer"></div>
+        </div>
         <div class="section"><label>특이사항 메모</label><textarea id="checkMemo" class="text-input" style="height:100px; resize:none;" placeholder="정비가 필요한 내용을 입력하세요."></textarea></div>
         <button class="btn-add" id="checkSubmitBtn" style="background:#1a73e8;" onclick="addCheckRecord()">점검 결과 저장하기</button>
     </div>
@@ -159,7 +167,7 @@
             <div class="section"><label>9. 소프트 테이크오버</label><div id="softContainer"></div><div style="text-align:right; font-weight:bold; color:#1a73e8; margin-top:8px; font-size:15px;">소프트 합계: <span id="softTotalDisp">0</span></div></div>
             <div class="section"><label>10. 하드 테이크오버</label><div class="hard-table-wrapper"><table class="hard-table"><thead><tr><th style="width:24%">구분</th><th>브레이크</th><th>핸들</th><th>엑셀</th><th>시스템</th></tr></thead><tbody id="hardBody"></tbody></table></div><div style="text-align:right; font-weight:bold; color:#1a73e8; margin-top:10px; font-size:15px;">하드 합계: <span id="hardTotalDisp">0</span></div></div>
         </div>
-        <div class="section"><label>11. 이슈 사항</label><textarea id="workIssue" class="text-input" style="height:100px; resize:none;" oninput="saveInput(this)"></textarea></div>
+        <div class="section"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><label style="margin:0;">11. 이슈 사항</label><button id="voiceBtn_issue" style="background:#f1f3f5; border:none; border-radius:50%; width:40px; height:40px;" onclick="startVoice('workIssue','voiceBtn_issue')">🎤</button></div><textarea id="workIssue" class="text-input" style="height:100px; resize:none;" oninput="saveInput(this)"></textarea></div>
         <button class="btn-add" id="submitBtn" onclick="addRecord()">보고서 기록하기</button>
     </div>
 
@@ -179,6 +187,7 @@
     const userList=[{name:'황금철', email:'kchwang@future-link.ai'}, {name:'윤길홍', email:'khyoon@future-link.ai'}, {name:'예준우', email:'star7760@future-link.ai'}, {name:'길광림', email:'volfgangk@future-link.ai'}, {name:'전재훈', email:'level5@future-link.ai'}, {name:'오진혁', email:'dhwlstnwkd@future-link.ai'}, {name:'김준혁', email:'kirk@future-link.ai'}, {name:'박승규', email:'jeffstyle@future-link.ai'}, {name:'유승민', email:'max0825@future-link.ai'}, {name:'최대섭', email:'chleotjq1@future-link.ai'}, {name:'윤승현', email:'shyoon@future-link.ai'}, {name:'김선규', email:'skkim@future-link.ai'}, {name:'차두원', email:'dwcha@future-link.ai'}];
     const reportAuthors = userList.filter(user => !['윤승현', '김선규', '차두원'].includes(user.name));
     
+    // 차량 체크 항목 및 결과 저장용
     const checkItems = ["내외관 파손/청결", "타이어 상태/압력", "등화장치 작동", "브레이크 성능", "엔진/소모품류", "내부 장비 상태"];
     let checkResults = {};
 
@@ -191,57 +200,105 @@
         const ug = document.getElementById('userBtnGroup');
         if(ug) { ug.innerHTML = ""; reportAuthors.forEach(u=> ug.innerHTML += `<button class="select-btn" data-name="${u.name}" onclick="selectUser(this,'${u.name}','${u.email}')">${u.name}</button>`); }
         
+        // 차량 체크 리스트 생성
         const cl = document.getElementById('checkListContainer');
-        if(cl) { cl.innerHTML = ""; checkItems.forEach(item => { checkResults[item] = ""; cl.innerHTML += `<div class="check-item"><span class="check-label">${item}</span><div class="check-options"><button class="opt-btn good" onclick="toggleCheck('${item}', '양호', this)">양호</button><button class="opt-btn bad" onclick="toggleCheck('${item}', '불량', this)">불량</button></div></div>`; }); }
+        if(cl) {
+            cl.innerHTML = "";
+            checkItems.forEach(item => {
+                checkResults[item] = "";
+                cl.innerHTML += `
+                    <div class="check-item">
+                        <span class="check-label">${item}</span>
+                        <div class="check-options">
+                            <button class="opt-btn good" onclick="toggleCheck('${item}', '양호', this)">양호</button>
+                            <button class="opt-btn bad" onclick="toggleCheck('${item}', '불량', this)">불량</button>
+                        </div>
+                    </div>`;
+            });
+        }
 
         const sc=document.getElementById('softContainer');
         if(sc) { sc.innerHTML = ""; softKeys.forEach((n,i)=>{ sc.innerHTML+=`<div class="category-item"><span class="category-name">${i+1}. ${n}</span><div class="counter-group"><button class="btn-sm" onclick="stepSoft(${i},-1)">-</button><input id="s${i}" class="counter-val" value="0" readonly><button class="btn-sm" onclick="stepSoft(${i},1)">+</button></div></div>`; }); }
-        
         const hb=document.getElementById('hardBody');
-        if(hb) { hb.innerHTML = ""; hardCauses.forEach((c,i)=>{ let row=`<tr><td class="hard-cause-label">${c}</td>`; hardActions.forEach((a,j)=>{ row+=`<td><button class="hard-btn-plus" onclick="stepHard('${i}_${j}', 1)">+</button><br><input id="h${i}_${j}" class="hard-val-input" value="0" readonly></td>`; }); hb.innerHTML+=row+`</tr>`; }); }
-        
+        if(hb) { hb.innerHTML = ""; hardCauses.forEach((c,i)=>{ let row=`<tr><td class="hard-cause-label">${c}</td>`; hardActions.forEach((a,j)=>{ row+=`<td><div class="hard-cell-content"><button class="hard-btn-plus" onclick="stepHard('${i}_${j}', 1)">+</button><input id="h${i}_${j}" class="hard-val-input" value="0" readonly></div></td>`; }); hb.innerHTML+=row+`</tr>`; }); }
         const today = new Date().toISOString().substring(0, 10);
         ['reportDate', 'chargeDate', 'checkDate'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = today; });
         if(localStorage.getItem('isLoggedIn') === 'true') showApp();
         loadSavedData();
     }
 
+    // 차량 체크 토글 함수
     function toggleCheck(item, status, btn) {
         const parent = btn.parentElement;
-        if (checkResults[item] === status) { checkResults[item] = ""; btn.classList.remove('selected'); }
-        else { parent.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); checkResults[item] = status; }
+        if (checkResults[item] === status) {
+            checkResults[item] = "";
+            btn.classList.remove('selected');
+        } else {
+            parent.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            checkResults[item] = status;
+        }
     }
 
-    function selectUser(b, n, e) { document.querySelectorAll('#userBtnGroup .select-btn').forEach(x => x.classList.remove('selected')); b.classList.add('selected'); selectedUser = n; selectedEmail = e; }
-    function selectCar(b) { document.querySelectorAll('#carBtnGroup .select-btn').forEach(x => x.classList.remove('selected')); b.classList.add('selected'); selectedCar = b.innerText; }
-    function selectCheckCar(b) { document.querySelectorAll('#checkCarBtnGroup .select-btn').forEach(x => x.classList.remove('selected')); b.classList.add('selected'); selectedCheckCar = b.innerText; }
-    function selectChargeCar(b) { document.querySelectorAll('#chargeCarBtnGroup .select-btn').forEach(x => x.classList.remove('selected')); b.classList.add('selected'); selectedChargeCar = b.innerText; }
+    /* 토글식 선택 함수 */
+    function selectUser(b, n, e) {
+        const isSelected = b.classList.contains('selected');
+        document.querySelectorAll('#userBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
+        if (isSelected) { selectedUser = ""; selectedEmail = ""; } else { b.classList.add('selected'); selectedUser = n; selectedEmail = e; }
+    }
+    function selectCar(b) {
+        const isSelected = b.classList.contains('selected');
+        document.querySelectorAll('#carBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
+        if (isSelected) { selectedCar = ""; } else { b.classList.add('selected'); selectedCar = b.innerText; }
+    }
+    function selectChargeCar(b) {
+        const isSelected = b.classList.contains('selected');
+        document.querySelectorAll('#chargeCarBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
+        if (isSelected) { selectedChargeCar = ""; } else { b.classList.add('selected'); selectedChargeCar = b.innerText; }
+    }
+    function selectCheckCar(b) {
+        const isSelected = b.classList.contains('selected');
+        document.querySelectorAll('#checkCarBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
+        if (isSelected) { selectedCheckCar = ""; } else { b.classList.add('selected'); selectedCheckCar = b.innerText; }
+    }
     function selectType(b) { document.querySelectorAll('#typeBtnGroup .select-btn').forEach(x => x.classList.remove('selected')); b.classList.add('selected'); selectedType = b.innerText; }
     function selectShift(b) { document.querySelectorAll('#shiftBtnGroup .select-btn').forEach(x => x.classList.remove('selected')); b.classList.add('selected'); selectedShift = b.innerText; }
 
+    /* 기본 기능 */
     function toggleMenu() { const m = document.getElementById('sideMenu'); const o = document.getElementById('menuOverlay'); const a = m.classList.contains('active'); m.classList.toggle('active'); o.style.display = a ? 'none' : 'block'; }
     function switchPage(pid, title) { document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active')); document.getElementById(pid).classList.add('active'); document.getElementById('mainHeaderTitle').innerText = title; document.getElementById('headerActions').style.display = (pid === 'reportPage') ? 'block' : 'none'; const m = document.getElementById('sideMenu'); if(m.classList.contains('active')) toggleMenu(); window.scrollTo(0,0); }
     function checkLogin(){ const e = document.getElementById('emailInput').value.trim().toLowerCase(); const u = userList.find(x => x.email.toLowerCase() === e); if(u){ localStorage.setItem('isLoggedIn', 'true'); localStorage.setItem('userName', u.name); localStorage.setItem('userEmail', u.email); showApp(); } else { showModal("알림", "등록된 이메일이 아닙니다.", "alert"); } }
     function showApp(){ document.getElementById('loginOverlay').style.display='none'; document.getElementById('mainApp').style.display='block'; document.getElementById('displayUserName').innerText = localStorage.getItem('userName') + " 님"; document.getElementById('displayUserEmail').innerText = localStorage.getItem('userEmail'); switchPage('homePage', '🏠 HOME'); }
+    function logout() { localStorage.clear(); location.reload(); }
     function showModal(t,txt,type,onC){ const m=document.getElementById('customModal'); document.getElementById('modalTitle').innerText=t; document.getElementById('modalText').innerText=txt; const f=document.getElementById('modalFooter'); m.style.display='flex'; if(type==='confirm'){ f.innerHTML=`<button class="modal-btn" style="color:#888; border-right:1px solid #eee;" onclick="closeModal()">취소</button><button class="modal-btn" style="color:#1a73e8;" id="mCBtn">확인</button>`; document.getElementById('mCBtn').onclick=()=>{closeModal(); if(onC) onC();}; }else{ f.innerHTML=`<button class="modal-btn" style="color:#1a73e8; width:100%;" onclick="closeModal()">확인</button>`; } }
     function closeModal(){document.getElementById('customModal').style.display='none';}
+    function resetForm() { showModal("초기화", "전체 내용을 지우시겠습니까?", "confirm", () => location.reload()); }
+    function saveInput(el) { localStorage.setItem('temp_' + el.id, el.value); }
+    function loadSavedData() { ['ssdVersion', 'autoDist', 'autoTime', 'totalOdo', 'workIssue'].forEach(id => { const val = localStorage.getItem('temp_' + id); if (val) document.getElementById(id).value = val; }); updateTotals(); }
     function updateTotals(){ let st=0; for(let i=0;i<softKeys.length;i++) st+=parseInt(document.getElementById('s'+i).value||0); document.getElementById('softTotalDisp').innerText=st; let ht=0; for(let i=0;i<hardCauses.length;i++){ for(let j=0;j<hardActions.length;j++) ht+=parseInt(document.getElementById(`h${i}_${j}`).value||0); } document.getElementById('hardTotalDisp').innerText=ht; }
     function stepSoft(i,v){ const e=document.getElementById('s'+i); e.value=Math.max(0,parseInt(e.value)+v); updateTotals(); }
     function stepHard(id,v){ const e=document.getElementById('h'+id); e.value=Math.max(0,parseInt(e.value)+v); updateTotals(); }
-    function saveInput(el) { localStorage.setItem('temp_' + el.id, el.value); }
-    function loadSavedData() { ['ssdVersion', 'autoDist', 'autoTime', 'totalOdo', 'workIssue'].forEach(id => { const val = localStorage.getItem('temp_' + id); if (val) document.getElementById(id).value = val; }); updateTotals(); }
 
+    /* 데이터 전송 */
     function addCheckRecord() {
         if(!selectedCheckCar) return showModal("알림", "차량 선택 필수", "alert");
         const btn = document.getElementById('checkSubmitBtn'); btn.disabled = true;
-        const payload = { "type": "car_check", "날짜": document.getElementById('checkDate').value, "차량": selectedCheckCar, "메모": document.getElementById('checkMemo').value, "작성자": selectedUser || localStorage.getItem('userName') };
+        const payload = { 
+            "type": "car_check", 
+            "날짜": document.getElementById('checkDate').value, 
+            "차량": selectedCheckCar, 
+            "메모": document.getElementById('checkMemo').value, 
+            "작성자": selectedUser || localStorage.getItem('userName') 
+        };
+        // 동적 결과 추가
         checkItems.forEach(item => payload[item] = checkResults[item] || "미선택");
+        
         fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) }).then(() => location.reload()).catch(() => btn.disabled = false);
     }
     function addRecord(){
         if(!selectedUser) return showModal("알림","작성자 선택 필수","alert");
         const btn=document.getElementById('submitBtn'); btn.disabled=true;
-        const payload={"type":"report", "날짜": document.getElementById('reportDate').value, "작성자":selectedUser, "차량":selectedCar, "업무":selectedType, "근무":selectedShift, "SSD버전":document.getElementById('ssdVersion').value, "자율거리":document.getElementById('autoDist').value||"0", "자율시간":document.getElementById('autoTime').value||"0", "누적ODO":document.getElementById('totalOdo').value||"0", "소프트합계":document.getElementById('softTotalDisp').innerText, "하드합계":document.getElementById('hardTotalDisp').innerText, "이슈사항":document.getElementById('workIssue').value };
+        const payload={"type":"report", "날짜": document.getElementById('reportDate').value, "작성자":selectedUser, "이메일":selectedEmail, "업무":selectedType, "차량":selectedCar, "근무":selectedShift, "SSD버전":document.getElementById('ssdVersion').value, "자율거리":document.getElementById('autoDist').value||"0", "자율시간":document.getElementById('autoTime').value||"0", "누적ODO":document.getElementById('totalOdo').value||"0", "소프트합계":document.getElementById('softTotalDisp').innerText, "하드합계":document.getElementById('hardTotalDisp').innerText, "이슈사항":document.getElementById('workIssue').value };
         softKeys.forEach((k,i)=>payload[k]=document.getElementById('s'+i).value);
         hardCauses.forEach((c,i)=>{ hardActions.forEach((a,j)=>payload[`하드(${c}-${actionMap[a]})`]=document.getElementById(`h${i}_${j}`).value); });
         fetch(GAS_URL,{method:'POST',body:JSON.stringify(payload)}).then(()=>location.reload()).catch(()=> btn.disabled=false);
