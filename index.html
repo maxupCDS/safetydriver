@@ -53,28 +53,28 @@
         .grid-3 { grid-template-columns: repeat(3, 1fr); }
         .grid-2 { grid-template-columns: repeat(2, 1fr); }
         .select-btn { padding: 14px 2px; border: 1px solid #e2e8f0; background: #fff; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #4a5568; text-align: center; }
-        .select-btn.selected { background-color: #1a73e8 !important; color: white !important; }
+        .select-btn.selected { background-color: #1a73e8 !important; color: white !important; border-color: #1a73e8 !important; }
         .text-input { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; outline: none; }
 
-        /* 9. 소프트 테이크오버 스타일 */
+        /* 9. 소프트 테이크오버 - 좌우 배치 */
         .category-item { background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid #eef2f8; display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
         .category-name { font-size: 14px; font-weight: 600; flex: 1; margin-right: 10px; }
         .counter-group { display: flex !important; flex-direction: row !important; align-items: center; gap: 5px; min-width: 110px; justify-content: flex-end; }
         .btn-sm { width: 35px; height: 35px; border-radius: 50%; border: none; background: #1a73e8; color: white; font-size: 20px; font-weight: bold; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .counter-val { width: 30px; text-align: center; font-weight: 800; font-size: 17px; color: #1a73e8; border: none; background: transparent; outline: none; }
 
-        /* 10. 하드 테이크오버 스타일 */
+        /* 10. 하드 테이크오버 - 글자 크기 10.5px 수정 */
         .hard-table-wrapper { width: 100%; border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
         .hard-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         .hard-table th { font-size: 11px; background: #f8fafc; padding: 10px 2px; border: 1px solid #eee; }
         .hard-table td { border: 1px solid #eee; text-align: center; padding: 8px 0; }
-        .hard-cause-label { font-size: 10px; font-weight: bold; color: #333; line-height: 1.2; word-break: keep-all; padding: 0 2px; }
+        .hard-cause-label { font-size: 10.5px; font-weight: bold; color: #333; line-height: 1.2; word-break: keep-all; padding: 0 2px; }
         .hard-btn-plus { border: none; background: #1a73e8; color: white; border-radius: 50%; width: 30px; height: 30px; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; }
         .hard-val-input { width: 100%; text-align: center; border: none; font-weight: 800; font-size: 16px; color: #1a73e8; background: transparent; outline: none; }
 
         .btn-add { width: 100%; padding: 18px; border: none; border-radius: 14px; font-size: 18px; font-weight: bold; color: white; background: #28a745; margin-top: 15px; }
 
-        /* 사이드 메뉴 - 로그아웃 하단 고정 */
+        /* 사이드 메뉴 */
         #sideMenu { position: fixed; top: 0; left: -280px; width: 260px; height: 100%; background: white; z-index: 25000; transition: 0.3s; box-shadow: 2px 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
         #sideMenu.active { left: 0; }
         .menu-header { padding: 50px 20px 25px; background: #1a73e8; color: white; }
@@ -96,62 +96,23 @@
 </head>
 <body>
 
-<div id="loginOverlay">
-    <div class="login-card">
-        <div class="team-title">FUTURE LINK</div>
-        <input type="email" id="emailInput" class="login-input" placeholder="사내 이메일 입력">
-        <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:20px; color:#666; font-size:14px;">
-            <input type="checkbox" id="keepLogin">
-            <label for="keepLogin" style="margin:0; font-size:14px; font-weight:normal;">자동 로그인 유지</label>
-        </div>
-        <button class="btn-login" onclick="checkLogin()">시작하기</button>
-    </div>
-</div>
-
+<div id="loginOverlay"><div class="login-card"><div class="team-title">FUTURE LINK</div><input type="email" id="emailInput" class="login-input" placeholder="사내 이메일 입력"><div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:20px; color:#666; font-size:14px;"><input type="checkbox" id="keepLogin"><label for="keepLogin" style="margin:0; font-size:14px; font-weight:normal;">자동 로그인 유지</label></div><button class="btn-login" onclick="checkLogin()">시작하기</button></div></div>
 <div id="menuOverlay" class="menu-overlay" onclick="toggleMenu()"></div>
-<div id="sideMenu">
-    <div class="menu-header">
-        <span id="displayUserName" style="font-size:1.2rem; font-weight:bold; display:block;">사용자님</span>
-        <span id="displayUserEmail" style="font-size:0.85rem; opacity:0.85;">email@future-link.ai</span>
-    </div>
-    <div class="menu-list">
-        <div class="menu-item" onclick="switchPage('homePage', '🏠 HOME')">🏠 홈으로 가기</div>
-        <div class="menu-item" onclick="switchPage('reportPage', '📋 자율주행 운행보고')">📋 자율주행 운행보고</div>
-        <div class="menu-item" onclick="switchPage('chargePage', '⚡ 충전 관리')">⚡ 충전 관리</div>
-    </div>
-    <div class="menu-footer">
-        <div class="logout-btn" onclick="logout()">
-            <span>로그아웃</span>
-            <span style="font-size:12px; color:#999; font-weight:normal;">Sign Out</span>
-        </div>
-    </div>
-</div>
-
+<div id="sideMenu"><div class="menu-header"><span id="displayUserName" style="font-size:1.2rem; font-weight:bold; display:block;">사용자님</span><span id="displayUserEmail" style="font-size:0.85rem; opacity:0.85;">email@future-link.ai</span></div><div class="menu-list"><div class="menu-item" onclick="switchPage('homePage', '🏠 HOME')">🏠 홈으로 가기</div><div class="menu-item" onclick="switchPage('reportPage', '📋 자율주행 운행보고')">📋 자율주행 운행보고</div><div class="menu-item" onclick="switchPage('chargePage', '⚡ 충전 관리')">⚡ 충전 관리</div></div><div class="menu-footer"><div class="logout-btn" onclick="logout()"><span>로그아웃</span><span style="font-size:12px; color:#999; font-weight:normal;">Sign Out</span></div></div></div>
 <div id="customModal"><div class="modal-card"><div class="modal-body"><div id="modalTitle" style="font-weight:bold; color:#1a73e8; margin-bottom:8px; font-size:18px;">알림</div><div id="modalText" style="font-size:15px; color:#555;">내용</div></div><div class="modal-footer" id="modalFooter"></div></div></div>
 
 <div id="mainApp">
     <div class="header-area">
-        <div style="display:flex; align-items:center;">
-            <button onclick="toggleMenu()" style="font-size:26px; background:none; border:none; color:#1a73e8; cursor:pointer; padding-right:10px;">☰</button>
-            <div class="header-title" id="mainHeaderTitle">HOME</div>
-        </div>
-        <div id="headerActions" style="display: none;">
-            <button onclick="resetForm()" style="background:none; border:none; font-size:22px; cursor:pointer;">🔄</button>
-        </div>
+        <div style="display:flex; align-items:center;"><button onclick="toggleMenu()" style="font-size:26px; background:none; border:none; color:#1a73e8; cursor:pointer; padding-right:10px;">☰</button><div class="header-title" id="mainHeaderTitle">HOME</div></div>
+        <div id="headerActions" style="display: none;"><button onclick="resetForm()" style="background:none; border:none; font-size:22px; cursor:pointer;">🔄</button></div>
     </div>
 
     <div id="homePage" class="app-page active">
         <img src="https://raw.githubusercontent.com/maxupCDS/safetydriver/main/logo_app.png" class="home-logo" alt="Logo">
         <div class="home-welcome">안전운행팀 업무 시스템</div>
         <div class="home-menu-grid">
-            <div class="home-card" onclick="switchPage('reportPage', '📋 자율주행 운행보고')">
-                <span class="home-card-icon">📋</span>
-                <span class="home-card-text">자율주행 운행보고</span>
-            </div>
-            <div class="home-card" onclick="switchPage('chargePage', '⚡ 충전 관리')">
-                <span class="home-card-icon">⚡</span>
-                <span class="home-card-text">충전 관리 기록</span>
-            </div>
+            <div class="home-card" onclick="switchPage('reportPage', '📋 자율주행 운행보고')"><span class="home-card-icon">📋</span><span class="home-card-text">자율주행 운행보고</span></div>
+            <div class="home-card" onclick="switchPage('chargePage', '⚡ 충전 관리')"><span class="home-card-icon">⚡</span><span class="home-card-text">충전 관리 기록</span></div>
         </div>
     </div>
 
@@ -175,21 +136,8 @@
             <div class="section"><label>6. 자율거리(km)</label><input type="number" id="autoDist" class="text-input" step="any" oninput="saveInput(this)"></div>
             <div class="section"><label>7. 자율시간(6자리)</label><input type="number" id="autoTime" class="text-input" oninput="saveInput(this)"></div>
             <div class="section"><label>8. 누적 ODO(km)</label><input type="number" id="totalOdo" class="text-input" oninput="saveInput(this)"></div>
-            <div class="section">
-                <label>9. 소프트 테이크오버</label>
-                <div id="softContainer"></div>
-                <div style="text-align:right; font-weight:bold; color:#1a73e8; margin-top:8px; font-size:15px;">소프트 합계: <span id="softTotalDisp">0</span></div>
-            </div>
-            <div class="section">
-                <label>10. 하드 테이크오버</label>
-                <div class="hard-table-wrapper">
-                    <table class="hard-table">
-                        <thead><tr><th style="width:24%">구분</th><th>브레이크</th><th>핸들</th><th>엑셀</th><th>시스템</th></tr></thead>
-                        <tbody id="hardBody"></tbody>
-                    </table>
-                </div>
-                <div style="text-align:right; font-weight:bold; color:#1a73e8; margin-top:10px; font-size:15px;">하드 합계: <span id="hardTotalDisp">0</span></div>
-            </div>
+            <div class="section"><label>9. 소프트 테이크오버</label><div id="softContainer"></div><div style="text-align:right; font-weight:bold; color:#1a73e8; margin-top:8px; font-size:15px;">소프트 합계: <span id="softTotalDisp">0</span></div></div>
+            <div class="section"><label>10. 하드 테이크오버</label><div class="hard-table-wrapper"><table class="hard-table"><thead><tr><th style="width:24%">구분</th><th>브레이크</th><th>핸들</th><th>엑셀</th><th>시스템</th></tr></thead><tbody id="hardBody"></tbody></table></div><div style="text-align:right; font-weight:bold; color:#1a73e8; margin-top:10px; font-size:15px;">하드 합계: <span id="hardTotalDisp">0</span></div></div>
         </div>
         <div class="section"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><label style="margin:0;">11. 이슈 사항</label><button id="voiceBtn_issue" style="background:#f1f3f5; border:none; border-radius:50%; width:40px; height:40px;" onclick="startVoice('workIssue','voiceBtn_issue')">🎤</button></div><textarea id="workIssue" class="text-input" style="height:100px; resize:none;" oninput="saveInput(this)"></textarea></div>
         <button class="btn-add" id="submitBtn" onclick="addRecord()">보고서 기록하기</button>
@@ -222,7 +170,6 @@
         if(sc) { sc.innerHTML = ""; softKeys.forEach((n,i)=>{ sc.innerHTML+=`<div class="category-item"><span class="category-name">${i+1}. ${n}</span><div class="counter-group"><button class="btn-sm" onclick="stepSoft(${i},-1)">-</button><input id="s${i}" class="counter-val" value="0" readonly><button class="btn-sm" onclick="stepSoft(${i},1)">+</button></div></div>`; }); }
         const hb=document.getElementById('hardBody');
         if(hb) { hb.innerHTML = ""; hardCauses.forEach((c,i)=>{ let row=`<tr><td class="hard-cause-label">${c}</td>`; hardActions.forEach((a,j)=>{ row+=`<td><div class="hard-cell-content"><button class="hard-btn-plus" onclick="stepHard('${i}_${j}', 1)">+</button><input id="h${i}_${j}" class="hard-val-input" value="0" readonly></div></td>`; }); hb.innerHTML+=row+`</tr>`; }); }
-        
         const today = new Date().toISOString().substring(0, 10);
         if(document.getElementById('reportDate')) document.getElementById('reportDate').value = today;
         if(document.getElementById('chargeDate')) document.getElementById('chargeDate').value = today;
@@ -230,162 +177,85 @@
         loadSavedData();
     }
 
-    /* 사이드바 제어 */
-    function toggleMenu() {
-        const menu = document.getElementById('sideMenu');
-        const overlay = document.getElementById('menuOverlay');
-        const isActive = menu.classList.contains('active');
-        menu.classList.toggle('active');
-        overlay.style.display = isActive ? 'none' : 'block';
+    /* 토글식 버튼 선택 */
+    function selectUser(b, n, e) {
+        const isSelected = b.classList.contains('selected');
+        document.querySelectorAll('#userBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
+        if (isSelected) { selectedUser = ""; selectedEmail = ""; } else { b.classList.add('selected'); selectedUser = n; selectedEmail = e; }
+    }
+    function selectCar(b) {
+        const isSelected = b.classList.contains('selected');
+        document.querySelectorAll('#carBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
+        if (isSelected) { selectedCar = ""; } else { b.classList.add('selected'); selectedCar = b.innerText; }
+    }
+    function selectChargeCar(b) {
+        const isSelected = b.classList.contains('selected');
+        document.querySelectorAll('#chargeCarBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
+        if (isSelected) { selectedChargeCar = ""; } else { b.classList.add('selected'); selectedChargeCar = b.innerText; }
     }
 
-    function switchPage(pid, title) {
-        document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active'));
-        document.getElementById(pid).classList.add('active');
-        document.getElementById('mainHeaderTitle').innerText = title;
-        document.getElementById('headerActions').style.display = (pid === 'reportPage') ? 'block' : 'none';
-        const menu = document.getElementById('sideMenu');
-        if(menu.classList.contains('active')) toggleMenu();
-        window.scrollTo(0,0);
-    }
-
-    /* 로그인 처리 */
-    function checkLogin(){
-        const email = document.getElementById('emailInput').value.trim().toLowerCase();
-        const user = userList.find(x => x.email.toLowerCase() === email);
-        if(user){
-            localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('userName', user.name);
-            localStorage.setItem('userEmail', user.email);
-            showApp();
-        } else { showModal("알림", "등록된 이메일이 아닙니다.", "alert"); }
-    }
-
-    function showApp(){
-        document.getElementById('loginOverlay').style.display='none';
-        document.getElementById('mainApp').style.display='block';
-        document.getElementById('displayUserName').innerText = localStorage.getItem('userName') + " 님";
-        document.getElementById('displayUserEmail').innerText = localStorage.getItem('userEmail');
-        switchPage('homePage', '🏠 HOME');
-    }
-
-    function logout() { localStorage.clear(); location.reload(); }
-    function selectUser(b,n,e){ document.querySelectorAll('#userBtnGroup .select-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); selectedUser=n; selectedEmail=e; }
-
-    /* 업무 유형 선택 */
-    function selectType(b){
+    /* 업무 유형 처리 및 초기화 로직 */
+    function selectType(b) {
         const typeName = b.innerText;
         const carArea = document.getElementById('carBtnGroup');
         const autoSec = document.getElementById('autoDriveSections');
-
-        if(b.classList.contains('selected')){ 
-            b.classList.remove('selected'); selectedType="";
+        if (b.classList.contains('selected')) {
+            b.classList.remove('selected'); selectedType = "";
             carArea.style.opacity = "1"; carArea.style.pointerEvents = "auto";
             autoSec.style.opacity = "1"; autoSec.style.pointerEvents = "auto";
-            return; 
+            return;
         }
-
-        if(typeName === "동승" || typeName === "내근") {
-            showModal("주의", "동승 또는 내근을 선택하면 입력된 5~10번 데이터가 초기화되고 잠깁니다. 계속하시겠습니까?", "confirm", function() {
-                document.querySelectorAll('#typeBtnGroup .select-btn').forEach(x=>x.classList.remove('selected'));
+        if (typeName === "동승" || typeName === "내근") {
+            showModal("주의", "동승 또는 내근을 선택하면 5~10번 데이터가 초기화되고 잠깁니다. 계속하시겠습니까?", "confirm", function() {
+                document.querySelectorAll('#typeBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
                 b.classList.add('selected'); selectedType = typeName;
                 carArea.style.opacity = "0.3"; carArea.style.pointerEvents = "none";
                 autoSec.style.opacity = "0.3"; autoSec.style.pointerEvents = "none";
                 resetAutoDriveData();
             });
         } else {
-            document.querySelectorAll('#typeBtnGroup .select-btn').forEach(x=>x.classList.remove('selected'));
+            document.querySelectorAll('#typeBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
             b.classList.add('selected'); selectedType = typeName;
             carArea.style.opacity = "1"; carArea.style.pointerEvents = "auto";
             autoSec.style.opacity = "1"; autoSec.style.pointerEvents = "auto";
         }
     }
 
-    /* 5~10번 데이터 리셋 */
-    function resetAutoDriveData() {
-        ['ssdVersion', 'autoDist', 'autoTime', 'totalOdo'].forEach(id => {
-            const el = document.getElementById(id);
-            if(el) el.value = "";
-            localStorage.removeItem('temp_' + id); // 저장된 임시데이터도 명시적 삭제
-        });
-        for(let i=0; i<softKeys.length; i++) {
-            const el = document.getElementById('s'+i);
-            if(el) el.value = "0";
-        }
-        hardCauses.forEach((c, i) => {
-            hardActions.forEach((a, j) => {
-                const el = document.getElementById(`h${i}_${j}`);
-                if(el) el.value = "0";
-            });
-        });
-        updateTotals();
+    function selectShift(b) {
+        const isSelected = b.classList.contains('selected');
+        document.querySelectorAll('#shiftBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
+        if (isSelected) { selectedShift = ""; } else { b.classList.add('selected'); selectedShift = b.innerText; }
     }
 
-    function selectCar(b){ document.querySelectorAll('#carBtnGroup .select-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); selectedCar=b.innerText; }
-    function selectShift(b){ document.querySelectorAll('#shiftBtnGroup .select-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); selectedShift=b.innerText; }
-    function selectChargeCar(b){ document.querySelectorAll('#chargeCarBtnGroup .select-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); selectedChargeCar=b.innerText; }
+    /* 유틸리티 기능 */
+    function toggleMenu() { const m = document.getElementById('sideMenu'); const o = document.getElementById('menuOverlay'); const a = m.classList.contains('active'); m.classList.toggle('active'); o.style.display = a ? 'none' : 'block'; }
+    function switchPage(pid, title) { document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active')); document.getElementById(pid).classList.add('active'); document.getElementById('mainHeaderTitle').innerText = title; document.getElementById('headerActions').style.display = (pid === 'reportPage') ? 'block' : 'none'; const m = document.getElementById('sideMenu'); if(m.classList.contains('active')) toggleMenu(); window.scrollTo(0,0); }
+    function checkLogin(){ const e = document.getElementById('emailInput').value.trim().toLowerCase(); const u = userList.find(x => x.email.toLowerCase() === e); if(u){ localStorage.setItem('isLoggedIn', 'true'); localStorage.setItem('userName', u.name); localStorage.setItem('userEmail', u.email); showApp(); } else { showModal("알림", "등록된 이메일이 아닙니다.", "alert"); } }
+    function showApp(){ document.getElementById('loginOverlay').style.display='none'; document.getElementById('mainApp').style.display='block'; document.getElementById('displayUserName').innerText = localStorage.getItem('userName') + " 님"; document.getElementById('displayUserEmail').innerText = localStorage.getItem('userEmail'); switchPage('homePage', '🏠 HOME'); }
+    function logout() { localStorage.clear(); location.reload(); }
+    function resetAutoDriveData() { ['ssdVersion', 'autoDist', 'autoTime', 'totalOdo'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ""; localStorage.removeItem('temp_' + id); }); for(let i=0; i<softKeys.length; i++) { const el = document.getElementById('s'+i); if(el) el.value = "0"; } hardCauses.forEach((c, i) => { hardActions.forEach((a, j) => { const el = document.getElementById(`h${i}_${j}`); if(el) el.value = "0"; }); }); updateTotals(); }
     function stepSoft(i,v){ const e=document.getElementById('s'+i); e.value=Math.max(0,parseInt(e.value)+v); updateTotals(); }
     function stepHard(id,v){ const e=document.getElementById('h'+id); e.value=Math.max(0,parseInt(e.value)+v); updateTotals(); }
-    function updateTotals(){ 
-        let st=0; for(let i=0;i<softKeys.length;i++) st+=parseInt(document.getElementById('s'+i).value||0); document.getElementById('softTotalDisp').innerText=st;
-        let ht=0; for(let i=0;i<hardCauses.length;i++){ for(let j=0;j<hardActions.length;j++) ht+=parseInt(document.getElementById(`h${i}_${j}`).value||0); } document.getElementById('hardTotalDisp').innerText=ht;
-    }
-
-    /* 데이터 임시 저장 및 불러오기 */
+    function updateTotals(){ let st=0; for(let i=0;i<softKeys.length;i++) st+=parseInt(document.getElementById('s'+i).value||0); document.getElementById('softTotalDisp').innerText=st; let ht=0; for(let i=0;i<hardCauses.length;i++){ for(let j=0;j<hardActions.length;j++) ht+=parseInt(document.getElementById(`h${i}_${j}`).value||0); } document.getElementById('hardTotalDisp').innerText=ht; }
     function saveInput(el) { localStorage.setItem('temp_' + el.id, el.value); }
     function loadSavedData() { ['ssdVersion', 'autoDist', 'autoTime', 'totalOdo', 'workIssue'].forEach(id => { const val = localStorage.getItem('temp_' + id); if (val) document.getElementById(id).value = val; }); updateTotals(); }
-
-    /* 모달 */
     function showModal(t,txt,type,onC){ const m=document.getElementById('customModal'); document.getElementById('modalTitle').innerText=t; document.getElementById('modalText').innerText=txt; const f=document.getElementById('modalFooter'); m.style.display='flex'; if(type==='confirm'){ f.innerHTML=`<button class="modal-btn" style="color:#888; border-right:1px solid #eee;" onclick="closeModal()">취소</button><button class="modal-btn" style="color:#1a73e8;" id="mCBtn">확인</button>`; document.getElementById('mCBtn').onclick=()=>{closeModal(); if(onC) onC();}; }else{ f.innerHTML=`<button class="modal-btn" style="color:#1a73e8; width:100%;" onclick="closeModal()">확인</button>`; } }
     function closeModal(){document.getElementById('customModal').style.display='none';}
-
-    /* 음성인식 */
     function startVoice(tid,bid){ window.SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition; if(!window.SpeechRecognition)return; const r=new window.SpeechRecognition(); r.lang='ko-KR'; r.onstart=()=>document.getElementById(bid).innerHTML="🔴"; r.onresult=(e)=>{ document.getElementById(tid).value += e.results[0][0].transcript; }; r.onend=()=>document.getElementById(bid).innerHTML="🎤"; r.start(); }
-
-    /* [수정] 🔄 우측 상단 새로고침(초기화) 로직 */
-    function resetForm() { 
-        showModal("초기화", "모든 입력 내용을 지우시겠습니까? (저장된 데이터도 삭제됩니다)", "confirm", function() {
-            // 사용자 이름과 로그인 정보 제외한 모든 임시 입력 데이터 삭제
-            const uName = localStorage.getItem('userName');
-            const uEmail = localStorage.getItem('userEmail');
-            const isL = localStorage.getItem('isLoggedIn');
-            
-            localStorage.clear(); // 전체 삭제
-            
-            // 로그인 정보만 다시 복구 (로그아웃되지 않도록)
-            if(isL) {
-                localStorage.setItem('userName', uName);
-                localStorage.setItem('userEmail', uEmail);
-                localStorage.setItem('isLoggedIn', isL);
-            }
-            
-            location.reload(); // 새로고침
-        });
-    }
-
-    /* 전송 로직 */
+    function resetForm() { showModal("초기화", "모든 입력 내용을 지우시겠습니까?", "confirm", function() { const u = localStorage.getItem('userName'); const e = localStorage.getItem('userEmail'); const l = localStorage.getItem('isLoggedIn'); localStorage.clear(); if(l) { localStorage.setItem('userName', u); localStorage.setItem('userEmail', e); localStorage.setItem('isLoggedIn', l); } location.reload(); }); }
     function addRecord(){
         if(!selectedUser) return showModal("알림","작성자 선택 필수","alert");
         const btn=document.getElementById('submitBtn'); btn.disabled=true; btn.innerText="전송 중...";
         const payload={"type":"report", "날짜": document.getElementById('reportDate').value, "작성자":selectedUser, "이메일":selectedEmail, "업무":selectedType, "차량":selectedCar, "근무":selectedShift, "SSD버전":document.getElementById('ssdVersion').value, "자율거리":document.getElementById('autoDist').value||"0", "자율시간":document.getElementById('autoTime').value||"0", "누적ODO":document.getElementById('totalOdo').value||"0", "소프트합계":document.getElementById('softTotalDisp').innerText, "하드합계":document.getElementById('hardTotalDisp').innerText, "이슈사항":document.getElementById('workIssue').value };
         softKeys.forEach((k,i)=>payload[k]=document.getElementById('s'+i).value);
         hardCauses.forEach((c,i)=>{ hardActions.forEach((a,j)=>payload[`하드(${c}-${actionMap[a]})`]=document.getElementById(`h${i}_${j}`).value); });
-        fetch(GAS_URL,{method:'POST',body:JSON.stringify(payload)}).then(()=>{ 
-            // 전송 성공 시 임시 데이터 삭제
-            ['ssdVersion', 'autoDist', 'autoTime', 'totalOdo', 'workIssue'].forEach(id => localStorage.removeItem('temp_' + id));
-            showModal("완료", "전송되었습니다.", "alert", () => location.reload()); 
-        }).catch(()=> {
-            showModal("오류", "전송 실패. 인터넷 연결을 확인하세요.", "alert");
-            btn.disabled=false; 
-            btn.innerText="보고서 기록하기";
-        });
+        fetch(GAS_URL,{method:'POST',body:JSON.stringify(payload)}).then(()=>{ ['ssdVersion', 'autoDist', 'autoTime', 'totalOdo', 'workIssue'].forEach(id => localStorage.removeItem('temp_' + id)); showModal("완료", "전송되었습니다.", "alert", () => location.reload()); }).catch(()=> { showModal("오류", "전송 실패", "alert"); btn.disabled=false; btn.innerText="보고서 기록하기"; });
     }
-
     function addChargeRecord() {
         if(!selectedChargeCar) return showModal("알림", "차량 선택 필수", "alert");
         const btn = document.getElementById('chargeSubmitBtn'); btn.disabled = true;
         const payload = { "type": "charge", "날짜": document.getElementById('chargeDate').value, "차량": selectedChargeCar, "충전량": document.getElementById('chargeAmount').value, "충전시간": document.getElementById('chargeTime').value, "기타": document.getElementById('chargeMemo').value, "작성자": selectedUser || localStorage.getItem('userName') };
-        fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) }).then(() => { showModal("완료", "전송됨", "alert"); btn.disabled = false; }).catch(() => btn.disabled = false);
+        fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) }).then(() => { showModal("완료", "전송됨", "alert", () => location.reload()); btn.disabled = false; }).catch(() => btn.disabled = false);
     }
 </script>
 </body>
