@@ -56,14 +56,14 @@
         .select-btn.selected { background-color: #1a73e8 !important; color: white !important; }
         .text-input { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; outline: none; }
 
-        /* [수정] 9. 소프트 테이크오버 - 좌우 배치 고정 */
+        /* 9. 소프트 테이크오버 스타일 */
         .category-item { background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid #eef2f8; display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
         .category-name { font-size: 14px; font-weight: 600; flex: 1; margin-right: 10px; }
         .counter-group { display: flex !important; flex-direction: row !important; align-items: center; gap: 5px; min-width: 110px; justify-content: flex-end; }
         .btn-sm { width: 35px; height: 35px; border-radius: 50%; border: none; background: #1a73e8; color: white; font-size: 20px; font-weight: bold; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .counter-val { width: 30px; text-align: center; font-weight: 800; font-size: 17px; color: #1a73e8; border: none; background: transparent; outline: none; }
 
-        /* [수정] 10. 하드 테이크오버 - 글자 크기 축소 */
+        /* 10. 하드 테이크오버 스타일 */
         .hard-table-wrapper { width: 100%; border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
         .hard-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         .hard-table th { font-size: 11px; background: #f8fafc; padding: 10px 2px; border: 1px solid #eee; }
@@ -74,7 +74,7 @@
 
         .btn-add { width: 100%; padding: 18px; border: none; border-radius: 14px; font-size: 18px; font-weight: bold; color: white; background: #28a745; margin-top: 15px; }
 
-        /* [수정] 6. 사이드 메뉴 - 로그아웃 하단 고정 */
+        /* 사이드 메뉴 - 로그아웃 하단 고정 */
         #sideMenu { position: fixed; top: 0; left: -280px; width: 260px; height: 100%; background: white; z-index: 25000; transition: 0.3s; box-shadow: 2px 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
         #sideMenu.active { left: 0; }
         .menu-header { padding: 50px 20px 25px; background: #1a73e8; color: white; }
@@ -83,7 +83,7 @@
         .menu-footer { margin-top: auto; padding: 20px; border-top: 1px solid #eee; background: #fcfcfc; }
         .logout-btn { color: #d32f2f; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
 
-        /* [기타] */
+        /* 공통 컴포넌트 */
         .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 24000; display: none; }
         .app-page { display: none; }
         .app-page.active { display: block; }
@@ -230,6 +230,7 @@
         loadSavedData();
     }
 
+    /* 사이드바 제어 */
     function toggleMenu() {
         const menu = document.getElementById('sideMenu');
         const overlay = document.getElementById('menuOverlay');
@@ -248,6 +249,7 @@
         window.scrollTo(0,0);
     }
 
+    /* 로그인 처리 */
     function checkLogin(){
         const email = document.getElementById('emailInput').value.trim().toLowerCase();
         const user = userList.find(x => x.email.toLowerCase() === email);
@@ -270,6 +272,7 @@
     function logout() { localStorage.clear(); location.reload(); }
     function selectUser(b,n,e){ document.querySelectorAll('#userBtnGroup .select-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); selectedUser=n; selectedEmail=e; }
 
+    /* 업무 유형 선택 */
     function selectType(b){
         const typeName = b.innerText;
         const carArea = document.getElementById('carBtnGroup');
@@ -298,10 +301,12 @@
         }
     }
 
+    /* 5~10번 데이터 리셋 */
     function resetAutoDriveData() {
-        ['autoDist', 'autoTime', 'totalOdo', 'ssdVersion'].forEach(id => {
+        ['ssdVersion', 'autoDist', 'autoTime', 'totalOdo'].forEach(id => {
             const el = document.getElementById(id);
             if(el) el.value = "";
+            localStorage.removeItem('temp_' + id); // 저장된 임시데이터도 명시적 삭제
         });
         for(let i=0; i<softKeys.length; i++) {
             const el = document.getElementById('s'+i);
@@ -325,20 +330,57 @@
         let st=0; for(let i=0;i<softKeys.length;i++) st+=parseInt(document.getElementById('s'+i).value||0); document.getElementById('softTotalDisp').innerText=st;
         let ht=0; for(let i=0;i<hardCauses.length;i++){ for(let j=0;j<hardActions.length;j++) ht+=parseInt(document.getElementById(`h${i}_${j}`).value||0); } document.getElementById('hardTotalDisp').innerText=ht;
     }
+
+    /* 데이터 임시 저장 및 불러오기 */
     function saveInput(el) { localStorage.setItem('temp_' + el.id, el.value); }
     function loadSavedData() { ['ssdVersion', 'autoDist', 'autoTime', 'totalOdo', 'workIssue'].forEach(id => { const val = localStorage.getItem('temp_' + id); if (val) document.getElementById(id).value = val; }); updateTotals(); }
+
+    /* 모달 */
     function showModal(t,txt,type,onC){ const m=document.getElementById('customModal'); document.getElementById('modalTitle').innerText=t; document.getElementById('modalText').innerText=txt; const f=document.getElementById('modalFooter'); m.style.display='flex'; if(type==='confirm'){ f.innerHTML=`<button class="modal-btn" style="color:#888; border-right:1px solid #eee;" onclick="closeModal()">취소</button><button class="modal-btn" style="color:#1a73e8;" id="mCBtn">확인</button>`; document.getElementById('mCBtn').onclick=()=>{closeModal(); if(onC) onC();}; }else{ f.innerHTML=`<button class="modal-btn" style="color:#1a73e8; width:100%;" onclick="closeModal()">확인</button>`; } }
     function closeModal(){document.getElementById('customModal').style.display='none';}
+
+    /* 음성인식 */
     function startVoice(tid,bid){ window.SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition; if(!window.SpeechRecognition)return; const r=new window.SpeechRecognition(); r.lang='ko-KR'; r.onstart=()=>document.getElementById(bid).innerHTML="🔴"; r.onresult=(e)=>{ document.getElementById(tid).value += e.results[0][0].transcript; }; r.onend=()=>document.getElementById(bid).innerHTML="🎤"; r.start(); }
-    function resetForm() { showModal("초기화", "내용을 지우시겠습니까?", "confirm", () => location.reload()); }
+
+    /* [수정] 🔄 우측 상단 새로고침(초기화) 로직 */
+    function resetForm() { 
+        showModal("초기화", "모든 입력 내용을 지우시겠습니까? (저장된 데이터도 삭제됩니다)", "confirm", function() {
+            // 사용자 이름과 로그인 정보 제외한 모든 임시 입력 데이터 삭제
+            const uName = localStorage.getItem('userName');
+            const uEmail = localStorage.getItem('userEmail');
+            const isL = localStorage.getItem('isLoggedIn');
+            
+            localStorage.clear(); // 전체 삭제
+            
+            // 로그인 정보만 다시 복구 (로그아웃되지 않도록)
+            if(isL) {
+                localStorage.setItem('userName', uName);
+                localStorage.setItem('userEmail', uEmail);
+                localStorage.setItem('isLoggedIn', isL);
+            }
+            
+            location.reload(); // 새로고침
+        });
+    }
+
+    /* 전송 로직 */
     function addRecord(){
         if(!selectedUser) return showModal("알림","작성자 선택 필수","alert");
         const btn=document.getElementById('submitBtn'); btn.disabled=true; btn.innerText="전송 중...";
         const payload={"type":"report", "날짜": document.getElementById('reportDate').value, "작성자":selectedUser, "이메일":selectedEmail, "업무":selectedType, "차량":selectedCar, "근무":selectedShift, "SSD버전":document.getElementById('ssdVersion').value, "자율거리":document.getElementById('autoDist').value||"0", "자율시간":document.getElementById('autoTime').value||"0", "누적ODO":document.getElementById('totalOdo').value||"0", "소프트합계":document.getElementById('softTotalDisp').innerText, "하드합계":document.getElementById('hardTotalDisp').innerText, "이슈사항":document.getElementById('workIssue').value };
         softKeys.forEach((k,i)=>payload[k]=document.getElementById('s'+i).value);
         hardCauses.forEach((c,i)=>{ hardActions.forEach((a,j)=>payload[`하드(${c}-${actionMap[a]})`]=document.getElementById(`h${i}_${j}`).value); });
-        fetch(GAS_URL,{method:'POST',body:JSON.stringify(payload)}).then(()=>{ showModal("완료", "전송되었습니다.", "alert"); btn.disabled=false; btn.innerText="보고서 기록하기"; }).catch(()=>btn.disabled=false);
+        fetch(GAS_URL,{method:'POST',body:JSON.stringify(payload)}).then(()=>{ 
+            // 전송 성공 시 임시 데이터 삭제
+            ['ssdVersion', 'autoDist', 'autoTime', 'totalOdo', 'workIssue'].forEach(id => localStorage.removeItem('temp_' + id));
+            showModal("완료", "전송되었습니다.", "alert", () => location.reload()); 
+        }).catch(()=> {
+            showModal("오류", "전송 실패. 인터넷 연결을 확인하세요.", "alert");
+            btn.disabled=false; 
+            btn.innerText="보고서 기록하기";
+        });
     }
+
     function addChargeRecord() {
         if(!selectedChargeCar) return showModal("알림", "차량 선택 필수", "alert");
         const btn = document.getElementById('chargeSubmitBtn'); btn.disabled = true;
