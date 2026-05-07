@@ -3,78 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>안전운행팀 통합 관리</title>
+    
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#1a73e8">
+    
+    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/maxupCDS/safetydriver/main/logo_app.png">
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/maxupCDS/safetydriver/main/logo_app.png">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <title>안전운행팀 보고서</title>
     <style>
         /* [1. 전역 스타일] */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 0; background-color: #f5f7fa; color: #333; overflow-x: hidden; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 12px; background-color: #f5f7fa; color: #333; overflow-x: hidden; width: 100%; }
         
-        /* [2. 로그인 & 레이아웃] */
+        /* 숫자 입력창 우측 화살표 제거 */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        /* [2. 로그인 화면] */
         #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%); display: flex; align-items: center; justify-content: center; z-index: 9999; }
-        .login-card { background: white; padding: 40px 25px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; width: 90%; max-width: 350px; }
-        
-        #mainApp { display: none; width: 100%; max-width: 600px; margin: 0 auto; min-height: 100vh; background: white; position: relative; padding-bottom: 40px; }
-        .header-area { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #eee; background: #fff; position: sticky; top: 0; z-index: 100; }
+        .login-card { background: white; padding: 40px 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; width: 90%; max-width: 350px; }
+        .team-title { color: #1a73e8; font-size: 1.4rem; font-weight: 900; margin-bottom: 25px; }
+        .login-input { width: 100%; padding: 14px; margin-bottom: 12px; border: 2px solid #edf2f7; border-radius: 12px; font-size: 16px; text-align: center; outline: none; }
+        .keep-login-wrap { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px; color: #666; font-size: 14px; }
+        .keep-login-wrap input { width: 18px; height: 18px; }
+        .btn-login { width: 100%; padding: 15px; background: #1a73e8; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; }
+
+        /* [3. 메인 앱 레이아웃] */
+        #mainApp { display: none; width: 100%; max-width: 600px; margin: 0 auto; background: white; padding: 15px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 50px; }
+        .header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #f1f3f5; padding-bottom: 10px; }
         .header-title { color: #1a73e8; font-size: 1.1rem; font-weight: bold; }
-
-        /* [3. 메인 대시보드 (요청하신 부분)] */
-        #homePage { padding: 40px 20px; text-align: center; }
-        .main-logo-area { margin-bottom: 40px; }
-        .main-logo-area img { width: 180px; height: auto; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .welcome-msg { margin-top: 15px; font-size: 18px; font-weight: bold; color: #444; }
+        .section { margin-bottom: 15px; padding: 15px; border: 1px solid #edf2f7; border-radius: 12px; background-color: #fdfdfe; width: 100%; transition: 0.3s; }
+        label { display: block; margin-bottom: 12px; font-weight: bold; font-size: 16px; color: #333; }
         
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 30px; }
-        .menu-card { background: #fff; border: 1px solid #eef2f8; border-radius: 18px; padding: 25px 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); cursor: pointer; transition: 0.2s; }
-        .menu-card:active { transform: scale(0.95); background: #f8fafc; }
-        .menu-icon { font-size: 32px; margin-bottom: 10px; display: block; }
-        .menu-label { font-size: 15px; font-weight: bold; color: #333; }
-
-        /* [4. 폼 공통 스타일] */
-        .app-page { display: none; padding: 15px; }
-        .app-page.active { display: block; }
-        .section { margin-bottom: 15px; padding: 15px; border: 1px solid #edf2f7; border-radius: 12px; background-color: #fdfdfe; }
-        label { display: block; margin-bottom: 10px; font-weight: bold; color: #333; }
-        .text-input { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; outline: none; }
-        .btn-grid { display: grid; gap: 8px; }
+        .btn-grid { display: grid; gap: 8px; width: 100%; }
         .grid-3 { grid-template-columns: repeat(3, 1fr); }
         .grid-2 { grid-template-columns: repeat(2, 1fr); }
-        .select-btn { padding: 14px 2px; border: 1px solid #e2e8f0; background: #fff; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; text-align: center; }
-        .select-btn.selected { background-color: #1a73e8 !important; color: white !important; }
-        
-        /* [5. 테이크오버 카운터/테이블] */
-        .category-item { background: #f8fafc; padding: 10px; border-radius: 10px; border: 1px solid #eef2f8; display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+        .select-btn { padding: 14px 2px; border: 1px solid #e2e8f0; background: #fff; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #4a5568; text-align: center; transition: 0.2s; }
+        .select-btn.selected { background-color: #1a73e8 !important; color: white !important; border-color: #1a73e8; }
+        .text-input { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; outline: none; background: #fff; }
+
+        /* [4. 카운터 및 테이블] */
+        .category-item { background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid #eef2f8; display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .category-name { font-size: 14px; font-weight: 600; color: #333; flex: 1; margin-right: 10px; }
+        .counter-group { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+        .btn-sm { width: 38px; height: 38px; border-radius: 50%; border: none; background: #1a73e8; color: white; font-size: 22px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
         .counter-val { width: 40px; text-align: center; font-weight: 800; font-size: 18px; border: none; background: transparent; color: #1a73e8; }
-        .btn-sm { width: 34px; height: 34px; border-radius: 50%; border: none; background: #1a73e8; color: white; font-size: 20px; }
-        
+
         .hard-table-wrapper { width: 100%; border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
         .hard-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        .hard-table th { font-size: 11px; background: #f8fafc; padding: 8px; border: 1px solid #eee; }
-        .hard-table td { border: 1px solid #eee; text-align: center; padding: 5px 0; }
-        .hard-btn-plus { border: none; background: #1a73e8; color: white; border-radius: 50%; width: 28px; height: 28px; font-size: 18px; }
+        .hard-table th { font-size: 11px; background: #f8fafc; padding: 10px 2px; border: 1px solid #eee; color: #4a5568; font-weight: bold; }
+        .hard-table td { border: 1px solid #eee; text-align: center; padding: 8px 0; background: #fff; vertical-align: middle; }
+        
+        .hard-cause-label { font-size: 10.5px; font-weight: bold; color: #333; word-break: keep-all; line-height: 1.2; }
+        .hard-btn-plus { border: none; background: #1a73e8; color: white; border-radius: 50%; width: 30px; height: 30px; font-weight: bold; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+        .hard-val-input { width: 100%; text-align: center; border: none; font-weight: 800; font-size: 16px; color: #1a73e8; background: transparent; outline: none; }
 
-        .btn-submit { width: 100%; padding: 18px; border: none; border-radius: 14px; font-size: 18px; font-weight: bold; color: white; background: #28a745; margin-top: 10px; }
+        .btn-add { width: 100%; padding: 18px; border: none; border-radius: 14px; font-size: 18px; font-weight: bold; color: white; background: #28a745; margin-top: 15px; }
+
+        /* [5. 모달] */
+        #customModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 20000; padding: 20px; }
+        .modal-card { background: white; border-radius: 20px; width: 100%; max-width: 320px; overflow: hidden; }
+        .modal-body { padding: 25px 20px; text-align: center; border-bottom: 1px solid #eee; }
+        .modal-footer { display: flex; }
+        .modal-btn { flex: 1; padding: 15px; border: none; background: transparent; font-size: 16px; font-weight: bold; }
 
         /* [6. 사이드 메뉴] */
-        .menu-btn { font-size: 26px; background: none; border: none; color: #1a73e8; cursor: pointer; }
-        #sideMenu { position: fixed; top: 0; left: -280px; width: 260px; height: 100%; background: white; z-index: 25000; transition: 0.3s; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
+        .menu-btn { font-size: 26px; background: none; border: none; color: #1a73e8; cursor: pointer; padding-right: 10px; }
+        #sideMenu { position: fixed; top: 0; left: -280px; width: 260px; height: 100%; background: white; z-index: 25000; transition: 0.3s; box-shadow: 2px 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
         #sideMenu.active { left: 0; }
         .menu-header { padding: 50px 20px 25px; background: #1a73e8; color: white; }
-        .menu-item { padding: 18px 20px; border-bottom: 1px solid #f1f3f5; cursor: pointer; font-weight: 600; }
+        .user-name { font-size: 1.2rem; font-weight: bold; margin-bottom: 4px; display: block; }
+        .user-email { font-size: 0.85rem; opacity: 0.85; display: block; }
+        .menu-list { flex: 1; overflow-y: auto; padding-top: 10px; }
+        .menu-item { padding: 18px 20px; border-bottom: 1px solid #f1f3f5; cursor: pointer; font-size: 15px; font-weight: 600; color: #444; }
+        .menu-logout { padding: 18px 20px; border-top: 1px solid #eee; color: #666; font-weight: 600; font-size: 14px; cursor: pointer; background: #fcfcfc; display: flex; justify-content: space-between; align-items: center; }
+        .logout-text { color: #d32f2f; }
         .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 24000; display: none; }
-
-        /* 일정 카드 */
-        .sch-card { background: white; border: 1px solid #eee; border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; align-items: center; }
-        .sch-date { font-weight: 900; color: #1a73e8; font-size: 18px; margin-right: 15px; }
-        .sch-info { flex:1; text-align: left; }
+        .app-page { display: none; }
+        .app-page.active { display: block; }
     </style>
 </head>
 <body>
 
 <div id="loginOverlay">
     <div class="login-card">
-        <div style="font-size: 24px; font-weight: 900; color: #1a73e8; margin-bottom: 10px;">FUTURE LINK</div>
-        <p style="color: #666; font-size: 14px; margin-bottom: 25px;">안전운행팀 관리 시스템</p>
+        <div class="team-title">FUTURE LINK</div>
         <input type="email" id="emailInput" class="login-input" placeholder="사내 이메일 입력">
+        <div class="keep-login-wrap">
+            <input type="checkbox" id="keepLogin">
+            <label for="keepLogin" style="margin:0; font-size:14px; font-weight:normal;">자동 로그인 유지</label>
+        </div>
         <button class="btn-login" onclick="checkLogin()">시작하기</button>
     </div>
 </div>
@@ -82,54 +111,36 @@
 <div id="menuOverlay" class="menu-overlay" onclick="toggleMenu()"></div>
 <div id="sideMenu">
     <div class="menu-header">
-        <span id="displayUserName" style="font-size: 18px; font-weight: bold;">사용자님</span><br>
-        <span id="displayUserEmail" style="font-size: 12px; opacity: 0.8;">email@address.com</span>
+        <span id="displayUserName" class="user-name">사용자님</span>
+        <span id="displayUserEmail" class="user-email">email@future-link.ai</span>
     </div>
     <div class="menu-list">
-        <div class="menu-item" onclick="goHome()">🏠 홈으로</div>
         <div class="menu-item" onclick="switchPage('reportPage', '📋 자율주행 운행보고')">📋 자율주행 운행보고</div>
-        <div class="menu-item" onclick="loadSchedule()">📅 운행 일정 확인</div>
         <div class="menu-item" onclick="switchPage('chargePage', '⚡ 충전 관리')">⚡ 충전 관리</div>
-        <div class="menu-item" onclick="logout()" style="color:#d32f2f; margin-top:20px; border-top:1px solid #eee;">로그아웃</div>
+    </div>
+    <div class="menu-logout" onclick="logout()">
+        <span class="logout-text">로그아웃</span>
+        <span style="font-size: 12px; color: #999;">Sign Out</span>
     </div>
 </div>
 
+<div id="customModal"><div class="modal-card"><div class="modal-body"><div id="modalTitle" style="font-weight:bold; color:#1a73e8; margin-bottom:8px; font-size:18px;">알림</div><div id="modalText" style="font-size:15px; color:#555;">내용</div></div><div class="modal-footer" id="modalFooter"></div></div></div>
+
 <div id="mainApp">
     <div class="header-area">
-        <button class="menu-btn" onclick="toggleMenu()">☰</button>
-        <div class="header-title" id="mainHeaderTitle">HOME</div>
-        <div style="width:30px;"></div>
-    </div>
-
-    <div id="homePage" class="app-page active">
-        <div class="main-logo-area">
-            <img src="https://raw.githubusercontent.com/maxupCDS/safetydriver/main/logo_app.png" alt="Logo">
-            <div class="welcome-msg">반갑습니다, <span id="welcomeName" style="color:#1a73e8;">사용자</span>님!</div>
+        <div style="display:flex; align-items:center;">
+            <button class="menu-btn" onclick="toggleMenu()">☰</button>
+            <div class="header-title" id="mainHeaderTitle">📋 자율주행 운행보고</div>
         </div>
-
-        <div class="menu-grid">
-            <div class="menu-card" onclick="switchPage('reportPage', '📋 자율주행 운행보고')">
-                <span class="menu-icon">📋</span>
-                <span class="menu-label">운행 보고</span>
-            </div>
-            <div class="menu-card" onclick="loadSchedule()">
-                <span class="menu-icon">📅</span>
-                <span class="menu-label">운행 일정</span>
-            </div>
-            <div class="menu-card" onclick="switchPage('chargePage', '⚡ 충전 관리')">
-                <span class="menu-icon">⚡</span>
-                <span class="menu-label">충전 관리</span>
-            </div>
-            <div class="menu-card" onclick="toggleMenu()">
-                <span class="menu-icon">⚙️</span>
-                <span class="menu-label">설정/메뉴</span>
-            </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <button onclick="resetForm()" style="background:none; border:none; font-size:22px; cursor:pointer;" title="전체 초기화">🔄</button>
         </div>
     </div>
 
-    <div id="reportPage" class="app-page">
+    <div id="reportPage" class="app-page active">
         <div class="section"><label>1. 운행 날짜</label><input type="date" id="reportDate" class="text-input"></div>
         <div class="section"><label>2. 작성자 선택</label><div class="btn-grid grid-2" id="userBtnGroup"></div></div>
+
         <div class="section">
             <label>3. 업무 및 차량 선택</label>
             <div class="btn-grid grid-3" style="margin-bottom:12px;" id="typeBtnGroup">
@@ -141,117 +152,261 @@
                 <script>for(let i=801;i<=810;i++)document.write(`<button class="select-btn" onclick="selectCar(this)">gs${i}</button>`);</script>
             </div>
         </div>
-        <div id="autoDriveSections">
-            <div class="section"><label>5. SSD 버전</label><input type="text" id="ssdVersion" class="text-input"></div>
-            <div class="section"><label>6. 자율거리(km)</label><input type="number" id="autoDist" class="text-input"></div>
-            <div class="section"><label>7. 자율시간(6자리)</label><input type="number" id="autoTime" class="text-input"></div>
-            <div class="section"><label>8. 누적 ODO(km)</label><input type="number" id="totalOdo" class="text-input"></div>
-            <div class="section"><label>9. 소프트 카운터</label><div id="softContainer"></div></div>
-            <div class="section"><label>10. 하드 카운터</label><div class="hard-table-wrapper"><table class="hard-table"><tbody id="hardBody"></tbody></table></div></div>
-        </div>
-        <div class="section"><label>11. 이슈 사항</label><textarea id="workIssue" class="text-input" style="height:100px;"></textarea></div>
-        <button class="btn-submit" onclick="addRecord()">보고서 기록하기</button>
-    </div>
 
-    <div id="schedulePage" class="app-page">
-        <div id="scheduleListArea"></div>
+        <div class="section"><label>4. 근무방식</label><div class="btn-grid grid-2" id="shiftBtnGroup"><button class="select-btn" onclick="selectShift(this)">주간</button><button class="select-btn" onclick="selectShift(this)">야간</button></div></div>
+        
+        <div id="autoDriveSections">
+            <div class="section"><label>5. SSD 버전</label><input type="text" id="ssdVersion" class="text-input" oninput="saveInput(this)"></div>
+            <div class="section"><label>6. 자율거리(km)</label><input type="number" id="autoDist" class="text-input" step="any" inputmode="decimal" oninput="saveInput(this)"></div>
+            <div class="section"><label>7. 자율시간(6자리)</label><input type="number" id="autoTime" class="text-input" inputmode="numeric" oninput="saveInput(this)"></div>
+            <div class="section"><label>8. 누적 ODO(km)</label><input type="number" id="totalOdo" class="text-input" inputmode="decimal" oninput="saveInput(this)"></div>
+            <div class="section"><label>9. 소프트 테이크오버</label><div id="softContainer"></div><div style="text-align:right; font-weight:bold; color:#1a73e8; margin-top:8px; font-size:15px;">소프트 합계: <span id="softTotalDisp">0</span></div></div>
+            <div class="section"><label>10. 하드 테이크오버</label><div class="hard-table-wrapper"><table class="hard-table"><thead><tr><th style="width:24%">구분</th><th>브레이크</th><th>핸들</th><th>엑셀</th><th>시스템</th></tr></thead><tbody id="hardBody"></tbody></table></div><div style="text-align:right; font-weight:bold; color:#1a73e8; margin-top:10px; font-size:15px;">하드 합계: <span id="hardTotalDisp">0</span></div></div>
+        </div>
+        <div class="section"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><label style="margin:0;">11. 이슈 사항</label><button id="voiceBtn_issue" style="background:#f1f3f5; border:none; border-radius:50%; width:40px; height:40px;" onclick="startVoice('workIssue','voiceBtn_issue')">🎤</button></div><textarea id="workIssue" class="text-input" style="height:100px; resize:none;" oninput="saveInput(this)"></textarea></div>
+
+        <button class="btn-add" id="submitBtn" onclick="addRecord()">보고서 기록하기</button>
     </div>
 
     <div id="chargePage" class="app-page">
-        <div class="section"><label>차량 선택</label><div class="btn-grid grid-2" id="chargeCarBtnGroup"><script>for(let i=801;i<=810;i++)document.write(`<button class="select-btn" onclick="selectChargeCar(this)">gs${i}</button>`);</script></div></div>
-        <div class="section"><label>충전량(kWh)</label><input type="number" id="chargeAmount" class="text-input"></div>
-        <button class="btn-submit" style="background:#1a73e8;" onclick="addChargeRecord()">기록하기</button>
+        <div class="section"><label>1. 날짜</label><input type="date" id="chargeDate" class="text-input"></div>
+        <div class="section"><label>2. 차량 선택</label><div class="btn-grid grid-2" id="chargeCarBtnGroup"><script>for(let i=801;i<=810;i++)document.write(`<button class="select-btn" onclick="selectChargeCar(this)">gs${i}</button>`);</script></div></div>
+        <div class="section"><label>3. 충전량(kWh)</label><input type="number" id="chargeAmount" class="text-input" inputmode="decimal" placeholder="0.0"></div>
+        <div class="section"><label>4. 충전시간</label><input type="number" id="chargeTime" class="text-input" placeholder="충전 소요 시간"></div>
+        <div class="section"><label>기타 내용 작성</label><textarea id="chargeMemo" class="text-input" style="height:100px; resize:none;"></textarea></div>
+        <button class="btn-add" id="chargeSubmitBtn" style="background:#1a73e8;" onclick="addChargeRecord()">충전량 기록하기</button>
     </div>
 </div>
 
 <script>
-    // GAS URL은 본인의 것으로 유지하세요
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbwDGt7slvfyvirjejYnOTdgxnLrp2-WqaY3Xr-a-h2QSrd9TaS62JKQ6TP4R5jMxX3T/exec';
+    let selectedUser="", selectedEmail="", selectedType="", selectedCar="", selectedShift="", selectedChargeCar="";
     
-    let selectedUser="", selectedEmail="", selectedType="", selectedCar="";
+    const userList=[
+        {name:'황금철', email:'kchwang@future-link.ai'}, {name:'윤길홍', email:'khyoon@future-link.ai'},
+        {name:'예준우', email:'star7760@future-link.ai'}, {name:'길광림', email:'volfgangk@future-link.ai'},
+        {name:'전재훈', email:'level5@future-link.ai'}, {name:'오진혁', email:'dhwlstnwkd@future-link.ai'},
+        {name:'김준혁', email:'kirk@future-link.ai'}, {name:'박승규', email:'jeffstyle@future-link.ai'},
+        {name:'유승민', email:'max0825@future-link.ai'}, {name:'최대섭', email:'chleotjq1@future-link.ai'},
+        {name:'윤승현', email:'shyoon@future-link.ai'}, {name:'김선규', email:'skkim@future-link.ai'},
+        {name:'차두원', email:'dwcha@future-link.ai'}
+    ];
+    const reportAuthors = userList.filter(user => !['윤승현', '김선규', '차두원'].includes(user.name));
 
-    // 초기화 및 기본 로직 (이전 코드와 동일하되 6~8번 빈칸 로직 포함)
-    window.onload = function() {
+    const softKeys=["운전자판단","시스템이상","교통약자보호","신호위반","신호등지시","교차로딜레마","도로상황","차선변경","급정지/서행","보호의무"];
+    const hardCauses=["시스템이상","신호위반","교차로딜레마","도로상황","운전자실수"];
+    const hardActions=["브레이크","핸들","엑셀","시스템"];
+    const actionMap={"브레이크":"B","핸들":"H","엑셀":"A","시스템":"S"};
+
+    window.onload = function(){
+        const ug = document.getElementById('userBtnGroup');
+        if(ug) { ug.innerHTML = ""; reportAuthors.forEach(u=> ug.innerHTML += `<button class="select-btn" data-name="${u.name}" onclick="selectUser(this,'${u.name}','${u.email}')">${u.name}</button>`); }
+        const sc=document.getElementById('softContainer');
+        if(sc) { sc.innerHTML = ""; softKeys.forEach((n,i)=>{ sc.innerHTML+=`<div class="category-item"><span class="category-name">${i+1}. ${n}</span><div class="counter-group"><button class="btn-sm" onclick="stepSoft(${i},-1)">-</button><input id="s${i}" class="counter-val" value="0" readonly><button class="btn-sm" onclick="stepSoft(${i},1)">+</button></div></div>`; }); }
+        const hb=document.getElementById('hardBody');
+        if(hb) { hb.innerHTML = ""; hardCauses.forEach((c,i)=>{ let row=`<tr><td class="hard-cause-label">${c}</td>`; hardActions.forEach((a,j)=>{ row+=`<td><div class="hard-cell-content"><button class="hard-btn-plus" onclick="stepHard('${i}_${j}', 1)">+</button><input id="h${i}_${j}" class="hard-val-input" value="0" readonly></div></td>`; }); hb.innerHTML+=row+`</tr>`; }); }
         const today = new Date().toISOString().substring(0, 10);
         if(document.getElementById('reportDate')) document.getElementById('reportDate').value = today;
-        initUserButtons();
-        initCounterUI();
+        if(document.getElementById('chargeDate')) document.getElementById('chargeDate').value = today;
         if(localStorage.getItem('isLoggedIn') === 'true') showApp();
-    }
-
-    function checkLogin() {
-        const email = document.getElementById('emailInput').value.trim();
-        if(email) {
-            localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('userEmail', email);
-            showApp();
-        }
-    }
-
-    function showApp() {
-        document.getElementById('loginOverlay').style.display='none';
-        document.getElementById('mainApp').style.display='block';
-        document.getElementById('welcomeName').innerText = localStorage.getItem('userEmail').split('@')[0];
+        loadSavedData();
+        initBackFilter();
     }
 
     function toggleMenu() {
         const menu = document.getElementById('sideMenu');
         const overlay = document.getElementById('menuOverlay');
+        const isActive = menu.classList.contains('active');
         menu.classList.toggle('active');
-        overlay.style.display = menu.classList.contains('active') ? 'block' : 'none';
+        overlay.style.display = isActive ? 'none' : 'block';
     }
 
     function switchPage(pid, title) {
         document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active'));
         document.getElementById(pid).classList.add('active');
         document.getElementById('mainHeaderTitle').innerText = title;
-        if(document.getElementById('sideMenu').classList.contains('active')) toggleMenu();
-        window.scrollTo(0,0);
+        toggleMenu();
     }
 
-    function goHome() { switchPage('homePage', 'HOME'); }
-
-    // [기능] 운행 일정 불러오기
-    function loadSchedule() {
-        switchPage('schedulePage', '📅 운행 일정');
-        const area = document.getElementById('scheduleListArea');
-        area.innerHTML = '<p style="text-align:center; padding:20px; color:#999;">일정을 가져오는 중...</p>';
-
-        fetch(GAS_URL)
-        .then(res => res.json())
-        .then(data => {
-            area.innerHTML = "";
-            data.forEach(item => {
-                area.innerHTML += `
-                    <div class="sch-card">
-                        <div class="sch-date">${item.date}</div>
-                        <div class="sch-info">
-                            <div style="font-weight:bold;">${item.car}</div>
-                            <div style="font-size:13px; color:#666;">운전자: ${item.driver}</div>
-                        </div>
-                    </div>`;
-            });
-        }).catch(e => { area.innerHTML = "데이터를 불러오지 못했습니다."; });
-    }
-
-    // --- 이하 기존 보고서 관련 함수들 (동승/내근 시 6~8번 빈칸 로직 포함) ---
-    function selectType(b) {
-        document.querySelectorAll('#typeBtnGroup .select-btn').forEach(x=>x.classList.remove('selected'));
-        b.classList.add('selected'); selectedType = b.innerText;
-        const autoSec = document.getElementById('autoDriveSections');
-        if(selectedType === "동승" || selectedType === "내근") {
-            autoSec.style.opacity = "0.3"; autoSec.style.pointerEvents = "none";
-            // 6~8번 빈칸 처리
-            document.getElementById('autoDist').value = "";
-            document.getElementById('autoTime').value = "";
-            document.getElementById('totalOdo').value = "";
-        } else {
-            autoSec.style.opacity = "1"; autoSec.style.pointerEvents = "auto";
-        }
+    function checkLogin(){
+        const emailInput = document.getElementById('emailInput');
+        const email = emailInput.value.trim().toLowerCase();
+        const keep = document.getElementById('keepLogin').checked;
+        const user = userList.find(x => x.email.toLowerCase() === email);
+        if(user){
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('userName', user.name);
+            localStorage.setItem('userEmail', user.email);
+            if(keep) localStorage.setItem('keepLogin', 'true');
+            else localStorage.removeItem('keepLogin');
+            showApp();
+        } else { showModal("알림", "등록된 이메일이 아닙니다.", "alert"); }
     }
     
-    // ... (카운터, 테이블, 기록 전송 등 기존 로직들) ...
-    function logout() { localStorage.clear(); location.reload(); }
+    function logout() {
+        toggleMenu(); 
+        showModal("로그아웃", "로그아웃 하시겠습니까?", "confirm", function() {
+            localStorage.removeItem('isLoggedIn'); localStorage.removeItem('userName');
+            localStorage.removeItem('userEmail'); localStorage.removeItem('keepLogin');
+            clearSavedData(); location.reload();
+        });
+    }
+
+    function showApp(){
+        document.getElementById('loginOverlay').style.display='none';
+        document.getElementById('mainApp').style.display='block';
+        const savedName = localStorage.getItem('userName');
+        const savedEmail = localStorage.getItem('userEmail');
+        if(savedName) {
+            document.getElementById('displayUserName').innerText = savedName + " 님";
+            document.getElementById('displayUserEmail').innerText = savedEmail;
+            const btn = Array.from(document.querySelectorAll('#userBtnGroup .select-btn')).find(b => b.dataset.name === savedName);
+            if(btn) selectUser(btn, savedName, savedEmail);
+        }
+    }
+
+    function resetForm() {
+        showModal("전체 초기화", "작성 중인 모든 내용이 삭제되고 페이지가 새로고침됩니다. 계속하시겠습니까?", "confirm", function() {
+            clearSavedData(); window.onbeforeunload = null; location.reload();
+        });
+    }
+
+    function selectUser(b,n,e){
+        if(b.classList.contains('selected')){ b.classList.remove('selected'); selectedUser=""; selectedEmail="";
+            localStorage.removeItem('temp_selectedUser'); localStorage.removeItem('temp_selectedEmail');
+        } else {
+            document.querySelectorAll('#userBtnGroup .select-btn').forEach(x=>x.classList.remove('selected'));
+            b.classList.add('selected'); selectedUser=n; selectedEmail=e;
+            localStorage.setItem('temp_selectedUser', n); localStorage.setItem('temp_selectedEmail', e);
+        }
+    }
+
+    function selectType(b){
+        const carArea = document.getElementById('carBtnGroup');
+        const autoDriveArea = document.getElementById('autoDriveSections');
+        const carBtns = carArea.querySelectorAll('.select-btn');
+        const typeName = b.innerText;
+
+        if(b.classList.contains('selected')){ 
+            b.classList.remove('selected'); selectedType=""; localStorage.removeItem('temp_selectedType'); 
+            carArea.style.opacity = "1"; carArea.style.pointerEvents = "auto";
+            autoDriveArea.style.opacity = "1"; autoDriveArea.style.pointerEvents = "auto";
+            return;
+        }
+
+        if(typeName === "동승" || typeName === "내근") {
+            showModal("주의", "동승 또는 내근을 선택하면 입력된 5~10번 데이터가 초기화되고 잠깁니다. 계속하시겠습니까?", "confirm", function() {
+                document.querySelectorAll('#typeBtnGroup .select-btn').forEach(x=>x.classList.remove('selected')); 
+                b.classList.add('selected'); selectedType = typeName; 
+                localStorage.setItem('temp_selectedType', selectedType); 
+                resetAutoDriveData();
+                carArea.style.opacity = "0.3"; carArea.style.pointerEvents = "none";
+                autoDriveArea.style.opacity = "0.3"; autoDriveArea.style.pointerEvents = "none";
+                carBtns.forEach(btn => btn.classList.remove('selected'));
+                selectedCar = ""; localStorage.removeItem('temp_selectedCar');
+            });
+        } else {
+            document.querySelectorAll('#typeBtnGroup .select-btn').forEach(x=>x.classList.remove('selected')); 
+            b.classList.add('selected'); selectedType = typeName; 
+            localStorage.setItem('temp_selectedType', selectedType); 
+            carArea.style.opacity = "1"; carArea.style.pointerEvents = "auto";
+            autoDriveArea.style.opacity = "1"; autoDriveArea.style.pointerEvents = "auto";
+        }
+    }
+
+    function resetAutoDriveData() {
+        // 6~8번 항목 빈칸("") 처리
+        ['autoDist', 'autoTime', 'totalOdo'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) { el.value = ""; localStorage.setItem('temp_' + id, ""); }
+        });
+        const ssd = document.getElementById('ssdVersion');
+        if(ssd) { ssd.value = ""; localStorage.setItem('temp_ssdVersion', ""); }
+        for(let i=0; i<softKeys.length; i++) {
+            const el = document.getElementById('s' + i);
+            if(el) { el.value = "0"; localStorage.setItem('temp_s' + i, "0"); }
+        }
+        hardCauses.forEach((c, i) => {
+            hardActions.forEach((a, j) => {
+                const el = document.getElementById(`h${i}_${j}`);
+                if(el) { el.value = "0"; localStorage.setItem(`temp_h${i}_${j}`, "0"); }
+            });
+        });
+        updateTotals();
+    }
+
+    function selectCar(b){
+        if(b.classList.contains('selected')){ b.classList.remove('selected'); selectedCar=""; localStorage.removeItem('temp_selectedCar'); }
+        else { document.querySelectorAll('#carBtnGroup .select-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); selectedCar=b.innerText; localStorage.setItem('temp_selectedCar', selectedCar); }
+    }
+    function selectShift(b){
+        if(b.classList.contains('selected')){ b.classList.remove('selected'); selectedShift=""; localStorage.removeItem('temp_selectedShift'); }
+        else { document.querySelectorAll('#shiftBtnGroup .select-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); selectedShift=b.innerText; localStorage.setItem('temp_selectedShift', selectedShift); }
+    }
+    function selectChargeCar(b){
+        document.querySelectorAll('#chargeCarBtnGroup .select-btn').forEach(x=>x.classList.remove('selected'));
+        b.classList.add('selected'); selectedChargeCar=b.innerText;
+    }
+
+    function saveInput(el) { localStorage.setItem('temp_' + el.id, el.value); }
+    function loadSavedData() { 
+        ['ssdVersion', 'autoDist', 'autoTime', 'totalOdo', 'workIssue'].forEach(id => { const val = localStorage.getItem('temp_' + id); if (val !== null) document.getElementById(id).value = val; }); 
+        for(let i=0; i<softKeys.length; i++) { const val = localStorage.getItem('temp_s' + i); if(val) document.getElementById('s' + i).value = val; } 
+        hardCauses.forEach((c, i) => { hardActions.forEach((a, j) => { const val = localStorage.getItem(`temp_h${i}_${j}`); if(val) document.getElementById(`h${i}_${j}`).value = val; }); }); 
+        ['Type', 'Car', 'Shift'].forEach(key => { const val = localStorage.getItem('temp_selected' + key); if(val) { const btn = Array.from(document.querySelectorAll('.select-btn')).find(b => b.innerText === val); if(btn) key === 'Type' ? selectType(btn) : (key === 'Car' ? selectCar(btn) : selectShift(btn)); } }); 
+        updateTotals(); 
+    }
+    function clearSavedData() { Object.keys(localStorage).forEach(k => { if(k.startsWith('temp_')) localStorage.removeItem(k); }); }
+
+    function stepSoft(i,v){ const e=document.getElementById('s'+i); e.value=Math.max(0,parseInt(e.value)+v); localStorage.setItem('temp_s'+i, e.value); updateTotals(); }
+    function stepHard(id,v){ const e=document.getElementById('h'+id); e.value=Math.max(0,parseInt(e.value)+v); localStorage.setItem('temp_h'+id, e.value); updateTotals(); }
+    function updateTotals(){ 
+        let st=0;for(let i=0;i<softKeys.length;i++)st+=parseInt(document.getElementById('s'+i).value||0);document.getElementById('softTotalDisp').innerText=st; 
+        let ht=0;for(let i=0;i<hardCauses.length;i++){for(let j=0;j<hardActions.length;j++)ht+=parseInt(document.getElementById(`h${i}_${j}`).value||0);}document.getElementById('hardTotalDisp').innerText=ht; 
+    }
+    
+    function showModal(t,txt,type,onC){ const m=document.getElementById('customModal'); document.getElementById('modalTitle').innerText=t; document.getElementById('modalText').innerText=txt; const f=document.getElementById('modalFooter'); m.style.display='flex'; if(type==='confirm'){ f.innerHTML=`<button class="modal-btn" style="color:#888; border-right:1px solid #eee;" onclick="closeModal()">취소</button><button class="modal-btn" style="color:#1a73e8;" id="mCBtn">확인</button>`; document.getElementById('mCBtn').onclick=()=>{closeModal(); if(onC) onC();}; }else{ f.innerHTML=`<button class="modal-btn" style="color:#1a73e8; width:100%;" onclick="closeModal(); if(window.finalReload) { window.onbeforeunload = null; location.reload(); }">확인</button>`; } }
+    function closeModal(){document.getElementById('customModal').style.display='none';}
+    
+    function initBackFilter() { 
+        window.history.pushState({page: 1}, "", window.location.href); 
+        window.onpopstate = function() { window.history.pushState({page: 1}, "", window.location.href); showModal("경고", "페이지를 새로고침하시겠습니까? 확인을 누르면 작성 중인 내용이 초기화됩니다.", "confirm", function() { window.onbeforeunload = null; clearSavedData(); location.reload(); }); }; 
+    }
+
+    function startVoice(tid,bid){ window.SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition; if(!window.SpeechRecognition)return; const r=new window.SpeechRecognition(); r.lang='ko-KR'; r.onstart=()=>document.getElementById(bid).innerHTML="🔴"; r.onresult=(e)=>{ const res = e.results[0][0].transcript; const target = document.getElementById(tid); target.value += res; saveInput(target); }; r.onend=()=>document.getElementById(bid).innerHTML="🎤"; r.start(); }
+    
+    function addRecord(){
+        if(!selectedUser)return showModal("알림","작성자를 선택하세요.","alert");
+        const reportDate = document.getElementById('reportDate').value;
+        if(!reportDate) return showModal("알림", "운행 날짜를 선택하세요.", "alert");
+        if(selectedType === "동승" || selectedType === "내근") resetAutoDriveData();
+
+        const btn=document.getElementById('submitBtn'); btn.disabled=true; btn.innerText="전송 중...";
+        const payload={ 
+            "type":"report", "날짜": reportDate, "작성자":selectedUser, "이메일":selectedEmail, "업무":selectedType, "차량":selectedCar, "근무":selectedShift, 
+            "SSD버전":document.getElementById('ssdVersion').value, "자율거리":document.getElementById('autoDist').value||"0", "자율시간":document.getElementById('autoTime').value||"000000", 
+            "누적ODO":document.getElementById('totalOdo').value||"0", "소프트합계":document.getElementById('softTotalDisp').innerText, "하드합계":document.getElementById('hardTotalDisp').innerText, "이슈사항":document.getElementById('workIssue').value 
+        };
+        softKeys.forEach((k,i)=>payload[k]=document.getElementById('s'+i).value);
+        hardCauses.forEach((c,i)=>{ hardActions.forEach((a,j)=>payload[`하드(${c}-${actionMap[a]})`]=document.getElementById(`h${i}_${j}`).value); });
+        
+        window.onbeforeunload = null;
+        fetch(GAS_URL,{method:'POST',body:JSON.stringify(payload)})
+        .then(()=>{ window.finalReload=true; clearSavedData(); showModal("완료", "보고서가 성공적으로 전송되었습니다.", "alert"); })
+        .catch(()=>{ showModal("오류","전송에 실패했습니다.","alert"); btn.disabled=false; btn.innerText="보고서 기록하기"; });
+    }
+
+    function addChargeRecord() {
+        if(!selectedChargeCar) return showModal("알림", "차량을 선택하세요.", "alert");
+        const amt = document.getElementById('chargeAmount').value;
+        if(!amt) return showModal("알림", "충전량을 입력하세요.", "alert");
+        const btn = document.getElementById('chargeSubmitBtn');
+        btn.disabled = true; btn.innerText = "전송 중...";
+        const payload = { "type": "charge", "날짜": document.getElementById('chargeDate').value, "차량": selectedChargeCar, "충전량": amt, "충전시간": document.getElementById('chargeTime').value, "기타": document.getElementById('chargeMemo').value, "작성자": selectedUser || localStorage.getItem('userName') };
+        fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) })
+        .then(() => { showModal("완료", "충전 기록이 전송되었습니다.", "alert"); document.getElementById('chargeAmount').value = ""; document.getElementById('chargeTime').value = ""; document.getElementById('chargeMemo').value = ""; btn.disabled = false; btn.innerText = "충전량 기록하기"; })
+        .catch(() => { showModal("오류", "전송 실패", "alert"); btn.disabled = false; btn.innerText = "충전량 기록하기"; });
+    }
 </script>
 </body>
 </html>
