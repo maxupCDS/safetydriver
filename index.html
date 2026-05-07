@@ -64,17 +64,15 @@
         .opt-btn.good.selected { background: #28a745; color: white; border-color: #28a745; }
         .opt-btn.bad.selected { background: #dc3545; color: white; border-color: #dc3545; }
 
-        /* [7. 버튼 스타일 통일: 하드 버튼과 동일하게 적용] */
+        /* [7. 버튼 스타일 통일] */
         .circle-btn { border: none; background: #1a73e8; color: white; border-radius: 50%; width: 30px; height: 30px; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
         .circle-btn:active { background: #0d47a1; }
         
-        /* 9번 소프트 테이크오버 전용 스타일 */
         .category-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f8fafc; }
         .category-name { font-size: 14px; font-weight: 600; color: #4a5568; }
         .counter-group { display: flex; align-items: center; gap: 10px; }
         .counter-val { width: 35px; text-align: center; border: none; font-weight: bold; font-size: 16px; background: transparent; outline: none; }
 
-        /* 10번 하드 테이크오버 스타일 */
         .hard-table-wrapper { width: 100%; border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
         .hard-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         .hard-table th { font-size: 11px; background: #f8fafc; padding: 10px 2px; border: 1px solid #eee; }
@@ -138,26 +136,26 @@
     </div>
 
     <div id="checkPage" class="app-page">
-        <div class="section"><label>1. 점검 날짜</label><input type="date" id="checkDate" class="text-input"></div>
-        <div class="section"><label>2. 점검 차량</label><div class="btn-grid grid-2" id="checkCarBtnGroup"><script>for(let i=801;i<=810;i++)document.write(`<button class="select-btn" onclick="selectCheckCar(this)">gs${i}</button>`);</script></div></div>
+        <div class="section"><label>1. 점검 날짜</label><input type="date" id="checkDate" class="text-input" onchange="saveInput(this)"></div>
+        <div class="section"><label>2. 점검 차량</label><div class="btn-grid grid-2" id="checkCarBtnGroup"><script>for(let i=801;i<=810;i++)document.write(`<button class="select-btn" data-val="gs${i}" onclick="selectCheckCar(this)">gs${i}</button>`);</script></div></div>
         <div class="section"><label>3. 기본 점검 항목</label><div id="checkListContainer"></div></div>
-        <div class="section"><label>특이사항 메모</label><textarea id="checkMemo" class="text-input" style="height:100px; resize:none;" placeholder="정비가 필요한 내용을 입력하세요."></textarea></div>
+        <div class="section"><label>특이사항 메모</label><textarea id="checkMemo" class="text-input" style="height:100px; resize:none;" placeholder="정비가 필요한 내용을 입력하세요." oninput="saveInput(this)"></textarea></div>
         <button class="btn-add" id="checkSubmitBtn" style="background:#1a73e8;" onclick="addCheckRecord()">점검 결과 저장하기</button>
     </div>
 
     <div id="reportPage" class="app-page">
-        <div class="section"><label>1. 운행 날짜</label><input type="date" id="reportDate" class="text-input"></div>
+        <div class="section"><label>1. 운행 날짜</label><input type="date" id="reportDate" class="text-input" onchange="saveInput(this)"></div>
         <div class="section"><label>2. 작성자 선택</label><div class="btn-grid grid-2" id="userBtnGroup"></div></div>
         <div class="section">
             <label>3. 업무 및 차량 선택</label>
             <div class="btn-grid grid-3" style="margin-bottom:12px;" id="typeBtnGroup">
-                <button class="select-btn" onclick="selectType(this)">운행</button>
-                <button class="select-btn" onclick="selectType(this)">동승</button>
-                <button class="select-btn" onclick="selectType(this)">내근</button>
+                <button class="select-btn" data-val="운행" onclick="selectType(this)">운행</button>
+                <button class="select-btn" data-val="동승" onclick="selectType(this)">동승</button>
+                <button class="select-btn" data-val="내근" onclick="selectType(this)">내근</button>
             </div>
-            <div class="btn-grid grid-2" id="carBtnGroup"><script>for(let i=801;i<=810;i++)document.write(`<button class="select-btn" onclick="selectCar(this)">gs${i}</button>`);</script></div>
+            <div class="btn-grid grid-2" id="carBtnGroup"><script>for(let i=801;i<=810;i++)document.write(`<button class="select-btn" data-val="gs${i}" onclick="selectCar(this)">gs${i}</button>`);</script></div>
         </div>
-        <div class="section"><label>4. 근무방식</label><div class="btn-grid grid-2" id="shiftBtnGroup"><button class="select-btn" onclick="selectShift(this)">주간</button><button class="select-btn" onclick="selectShift(this)">야간</button></div></div>
+        <div class="section"><label>4. 근무방식</label><div class="btn-grid grid-2" id="shiftBtnGroup"><button class="select-btn" data-val="주간" onclick="selectShift(this)">주간</button><button class="select-btn" data-val="야간" onclick="selectShift(this)">야간</button></div></div>
         
         <div id="autoDriveSections">
             <div class="section"><label>5. SSD 버전</label><input type="text" id="ssdVersion" class="text-input" oninput="saveInput(this)"></div>
@@ -173,11 +171,11 @@
     </div>
 
     <div id="chargePage" class="app-page">
-        <div class="section"><label>1. 날짜</label><input type="date" id="chargeDate" class="text-input"></div>
-        <div class="section"><label>2. 차량 선택</label><div class="btn-grid grid-2" id="chargeCarBtnGroup"><script>for(let i=801;i<=810;i++)document.write(`<button class="select-btn" onclick="selectChargeCar(this)">gs${i}</button>`);</script></div></div>
-        <div class="section"><label>3. 충전량(kWh)</label><input type="number" id="chargeAmount" class="text-input" placeholder="0.0"></div>
-        <div class="section"><label>4. 충전시간</label><input type="number" id="chargeTime" class="text-input" placeholder="충전 소요 시간"></div>
-        <div class="section"><label>기타 내용 작성</label><textarea id="chargeMemo" class="text-input" style="height:100px; resize:none;"></textarea></div>
+        <div class="section"><label>1. 날짜</label><input type="date" id="chargeDate" class="text-input" onchange="saveInput(this)"></div>
+        <div class="section"><label>2. 차량 선택</label><div class="btn-grid grid-2" id="chargeCarBtnGroup"><script>for(let i=801;i<=810;i++)document.write(`<button class="select-btn" data-val="gs${i}" onclick="selectChargeCar(this)">gs${i}</button>`);</script></div></div>
+        <div class="section"><label>3. 충전량(kWh)</label><input type="number" id="chargeAmount" class="text-input" placeholder="0.0" oninput="saveInput(this)"></div>
+        <div class="section"><label>4. 충전시간</label><input type="number" id="chargeTime" class="text-input" placeholder="충전 소요 시간" oninput="saveInput(this)"></div>
+        <div class="section"><label>기타 내용 작성</label><textarea id="chargeMemo" class="text-input" style="height:100px; resize:none;" oninput="saveInput(this)"></textarea></div>
         <button class="btn-add" id="chargeSubmitBtn" style="background:#1a73e8;" onclick="addChargeRecord()">충전량 기록하기</button>
     </div>
 </div>
@@ -197,121 +195,234 @@
     const actionMap={"브레이크":"B","핸들":"H","엑셀":"A","시스템":"S"};
 
     window.onload = function(){
+        initUI();
+        loadSavedData();
+    }
+
+    function initUI() {
         const ug = document.getElementById('userBtnGroup');
-        if(ug) { ug.innerHTML = ""; reportAuthors.forEach(u=> ug.innerHTML += `<button class="select-btn" data-name="${u.name}" onclick="selectUser(this,'${u.name}','${u.email}')">${u.name}</button>`); }
+        if(ug) { 
+            ug.innerHTML = ""; 
+            reportAuthors.forEach(u=> ug.innerHTML += `<button class="select-btn" data-val="${u.name}" onclick="selectUser(this,'${u.name}','${u.email}')">${u.name}</button>`); 
+        }
         
-        // 차량 체크 리스트 초기화
         const cl = document.getElementById('checkListContainer');
         if(cl) {
             cl.innerHTML = "";
             checkItems.forEach(item => {
                 checkResults[item] = "";
-                cl.innerHTML += `<div class="check-item"><span class="check-label">${item}</span><div class="check-options"><button class="opt-btn good" onclick="toggleCheck('${item}', '양호', this)">양호</button><button class="opt-btn bad" onclick="toggleCheck('${item}', '불량', this)">불량</button></div></div>`;
+                cl.innerHTML += `<div class="check-item"><span class="check-label">${item}</span><div class="check-options"><button class="opt-btn good" data-item="${item}" onclick="toggleCheck('${item}', '양호', this)">양호</button><button class="opt-btn bad" data-item="${item}" onclick="toggleCheck('${item}', '불량', this)">불량</button></div></div>`;
             });
         }
 
-        // 9번 소프트 테이크오버 (스타일 변경 적용)
         const sc=document.getElementById('softContainer');
         if(sc) { sc.innerHTML = ""; softKeys.forEach((n,i)=>{ sc.innerHTML+=`<div class="category-item"><span class="category-name">${i+1}. ${n}</span><div class="counter-group"><button class="circle-btn" onclick="stepSoft(${i},-1)">-</button><input id="s${i}" class="counter-val" value="0" readonly><button class="circle-btn" onclick="stepSoft(${i},1)">+</button></div></div>`; }); }
         
-        // 10번 하드 테이크오버
         const hb=document.getElementById('hardBody');
         if(hb) { hb.innerHTML = ""; hardCauses.forEach((c,i)=>{ let row=`<tr><td class="hard-cause-label">${c}</td>`; hardActions.forEach((a,j)=>{ row+=`<td><div class="hard-cell-content"><button class="circle-btn" onclick="stepHard('${i}_${j}', 1)">+</button><input id="h${i}_${j}" class="hard-val-input" value="0" readonly></div></td>`; }); hb.innerHTML+=row+`</tr>`; }); }
         
         const today = new Date().toISOString().substring(0, 10);
         ['reportDate', 'chargeDate', 'checkDate'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = today; });
         if(localStorage.getItem('isLoggedIn') === 'true') showApp();
-        loadSavedData();
     }
 
-    /* 토글식 선택 함수 */
+    // [세션 스토리지 저장 및 복구]
+    function saveInput(el) { sessionStorage.setItem('sess_' + el.id, el.value); }
+
+    function loadSavedData() {
+        const inputs = ['ssdVersion', 'autoDist', 'autoTime', 'totalOdo', 'workIssue', 'checkMemo', 'chargeAmount', 'chargeTime', 'chargeMemo', 'reportDate', 'checkDate', 'chargeDate'];
+        inputs.forEach(id => {
+            const val = sessionStorage.getItem('sess_' + id);
+            if (val && document.getElementById(id)) document.getElementById(id).value = val;
+        });
+
+        for(let i=0; i<softKeys.length; i++) {
+            const val = sessionStorage.getItem('sess_s'+i);
+            if(val) document.getElementById('s'+i).value = val;
+        }
+        for(let i=0; i<hardCauses.length; i++) {
+            for(let j=0; j<hardActions.length; j++) {
+                const val = sessionStorage.getItem(`sess_h${i}_${j}`);
+                if(val) document.getElementById(`h${i}_${j}`).value = val;
+            }
+        }
+        updateTotals();
+
+        restoreSelectedBtn('sess_selectedUser', '#userBtnGroup .select-btn', (b) => {
+            const user = userList.find(u => u.name === b.dataset.val);
+            if(user) selectUser(b, user.name, user.email);
+        });
+        restoreSelectedBtn('sess_selectedType', '#typeBtnGroup .select-btn', (b) => selectType(b, true));
+        restoreSelectedBtn('sess_selectedCar', '#carBtnGroup .select-btn', (b) => selectCar(b));
+        restoreSelectedBtn('sess_selectedShift', '#shiftBtnGroup .select-btn', (b) => selectShift(b));
+        restoreSelectedBtn('sess_selectedCheckCar', '#checkCarBtnGroup .select-btn', (b) => selectCheckCar(b));
+        restoreSelectedBtn('sess_selectedChargeCar', '#chargeCarBtnGroup .select-btn', (b) => selectChargeCar(b));
+
+        checkItems.forEach(item => {
+            const val = sessionStorage.getItem('sess_check_' + item);
+            if(val) {
+                const btn = document.querySelector(`.opt-btn[data-item="${item}"][onclick*="${val}"]`);
+                if(btn) toggleCheck(item, val, btn);
+            }
+        });
+    }
+
+    function restoreSelectedBtn(storageKey, selector, callback) {
+        const val = sessionStorage.getItem(storageKey);
+        if(val) {
+            const btn = Array.from(document.querySelectorAll(selector)).find(b => b.dataset.val === val || b.innerText === val);
+            if(btn) callback(btn);
+        }
+    }
+
     function toggleCheck(item, status, btn) {
         const parent = btn.parentElement;
-        if (checkResults[item] === status) { checkResults[item] = ""; btn.classList.remove('selected'); } 
-        else { parent.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); checkResults[item] = status; }
+        if (checkResults[item] === status) { 
+            checkResults[item] = ""; btn.classList.remove('selected'); 
+            sessionStorage.removeItem('sess_check_' + item);
+        } else { 
+            parent.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected')); 
+            btn.classList.add('selected'); checkResults[item] = status; 
+            sessionStorage.setItem('sess_check_' + item, status);
+        }
     }
+
     function selectUser(b, n, e) {
         const isSelected = b.classList.contains('selected');
         document.querySelectorAll('#userBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
-        if (isSelected) { selectedUser = ""; selectedEmail = ""; } else { b.classList.add('selected'); selectedUser = n; selectedEmail = e; }
+        if (isSelected) { 
+            selectedUser = ""; selectedEmail = ""; sessionStorage.removeItem('sess_selectedUser');
+        } else { 
+            b.classList.add('selected'); selectedUser = n; selectedEmail = e; 
+            sessionStorage.setItem('sess_selectedUser', n);
+        }
     }
+
     function selectCar(b) {
         const isSelected = b.classList.contains('selected');
         document.querySelectorAll('#carBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
-        if (isSelected) { selectedCar = ""; } else { b.classList.add('selected'); selectedCar = b.innerText; }
+        if (isSelected) { 
+            selectedCar = ""; sessionStorage.removeItem('sess_selectedCar');
+        } else { 
+            b.classList.add('selected'); selectedCar = b.innerText;
+            sessionStorage.setItem('sess_selectedCar', b.innerText);
+        }
     }
-    function selectChargeCar(b) {
-        const isSelected = b.classList.contains('selected');
-        document.querySelectorAll('#chargeCarBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
-        if (isSelected) { selectedChargeCar = ""; } else { b.classList.add('selected'); selectedChargeCar = b.innerText; }
-    }
+
     function selectCheckCar(b) {
         const isSelected = b.classList.contains('selected');
         document.querySelectorAll('#checkCarBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
-        if (isSelected) { selectedCheckCar = ""; } else { b.classList.add('selected'); selectedCheckCar = b.innerText; }
+        if (isSelected) { 
+            selectedCheckCar = ""; sessionStorage.removeItem('sess_selectedCheckCar');
+        } else { 
+            b.classList.add('selected'); selectedCheckCar = b.innerText;
+            sessionStorage.setItem('sess_selectedCheckCar', b.innerText);
+        }
     }
-    function selectShift(b) { document.querySelectorAll('#shiftBtnGroup .select-btn').forEach(x => x.classList.remove('selected')); b.classList.add('selected'); selectedShift = b.innerText; }
 
-    /* 로직 복구된 selectType 함수 */
-    function selectType(b) {
+    function selectChargeCar(b) {
+        const isSelected = b.classList.contains('selected');
+        document.querySelectorAll('#chargeCarBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
+        if (isSelected) { 
+            selectedChargeCar = ""; sessionStorage.removeItem('sess_selectedChargeCar');
+        } else { 
+            b.classList.add('selected'); selectedChargeCar = b.innerText;
+            sessionStorage.setItem('sess_selectedChargeCar', b.innerText);
+        }
+    }
+
+    function selectShift(b) {
+        document.querySelectorAll('#shiftBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
+        b.classList.add('selected'); selectedShift = b.innerText;
+        sessionStorage.setItem('sess_selectedShift', b.innerText);
+    }
+
+    function selectType(b, isRestoring = false) {
         const typeName = b.innerText;
         const carArea = document.getElementById('carBtnGroup');
         const autoSec = document.getElementById('autoDriveSections');
+        
+        const applySelection = () => {
+            document.querySelectorAll('#typeBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
+            b.classList.add('selected'); selectedType = typeName;
+            sessionStorage.setItem('sess_selectedType', typeName);
+            
+            if (typeName === "동승" || typeName === "내근") {
+                carArea.style.opacity = "0.3"; carArea.style.pointerEvents = "none";
+                autoSec.style.opacity = "0.3"; autoSec.style.pointerEvents = "none";
+            } else {
+                carArea.style.opacity = "1"; carArea.style.pointerEvents = "auto";
+                autoSec.style.opacity = "1"; autoSec.style.pointerEvents = "auto";
+            }
+        };
+
+        if (isRestoring) { applySelection(); return; }
+
         if (b.classList.contains('selected')) {
             b.classList.remove('selected'); selectedType = "";
+            sessionStorage.removeItem('sess_selectedType');
             carArea.style.opacity = "1"; carArea.style.pointerEvents = "auto";
             autoSec.style.opacity = "1"; autoSec.style.pointerEvents = "auto";
             return;
         }
+
         if (typeName === "동승" || typeName === "내근") {
             showModal("주의", "동승 또는 내근을 선택하면 5~10번 데이터가 초기화되고 잠깁니다.", "confirm", function() {
-                document.querySelectorAll('#typeBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
-                b.classList.add('selected'); selectedType = typeName;
-                carArea.style.opacity = "0.3"; carArea.style.pointerEvents = "none";
-                autoSec.style.opacity = "0.3"; autoSec.style.pointerEvents = "none";
+                applySelection();
                 resetAutoDriveData();
                 selectedCar = "";
+                sessionStorage.removeItem('sess_selectedCar');
                 document.querySelectorAll('#carBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
             });
         } else {
-            document.querySelectorAll('#typeBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
-            b.classList.add('selected'); selectedType = typeName;
-            carArea.style.opacity = "1"; carArea.style.pointerEvents = "auto";
-            autoSec.style.opacity = "1"; autoSec.style.pointerEvents = "auto";
+            applySelection();
         }
     }
 
     function resetAutoDriveData() {
         ['ssdVersion', 'autoDist', 'autoTime', 'totalOdo', 'workIssue'].forEach(id => {
-            const el = document.getElementById(id); if(el) el.value = ""; localStorage.removeItem('temp_' + id);
+            const el = document.getElementById(id); if(el) el.value = ""; sessionStorage.removeItem('sess_' + id);
         });
-        for(let i=0; i<softKeys.length; i++) { const e = document.getElementById('s'+i); if(e) e.value = 0; }
-        for(let i=0; i<hardCauses.length; i++){ for(let j=0; j<hardActions.length; j++){ const e = document.getElementById(`h${i}_${j}`); if(e) e.value = 0; } }
+        for(let i=0; i<softKeys.length; i++) { const e = document.getElementById('s'+i); if(e) e.value = 0; sessionStorage.removeItem('sess_s'+i); }
+        for(let i=0; i<hardCauses.length; i++){ for(let j=0; j<hardActions.length; j++){ const e = document.getElementById(`h${i}_${j}`); if(e) e.value = 0; sessionStorage.removeItem(`sess_h${i}_${j}`); } }
         updateTotals();
     }
 
-    /* 기본 기능 */
+    function updateTotals(){
+        let st=0; for(let i=0;i<softKeys.length;i++) st+=parseInt(document.getElementById('s'+i).value||0);
+        document.getElementById('softTotalDisp').innerText=st;
+        let ht=0; for(let i=0;i<hardCauses.length;i++){ for(let j=0;j<hardActions.length;j++) ht+=parseInt(document.getElementById(`h${i}_${j}`).value||0); }
+        document.getElementById('hardTotalDisp').innerText=ht;
+    }
+
+    function stepSoft(i,v){
+        const e=document.getElementById('s'+i); e.value=Math.max(0,parseInt(e.value)+v);
+        sessionStorage.setItem('sess_s'+i, e.value); updateTotals();
+    }
+    function stepHard(id,v){
+        const e=document.getElementById('h'+id); e.value=Math.max(0,parseInt(e.value)+v);
+        sessionStorage.setItem('sess_h'+id, e.value); updateTotals();
+    }
+
+    function clearSessData() {
+        Object.keys(sessionStorage).forEach(key => { if(key.startsWith('sess_')) sessionStorage.removeItem(key); });
+    }
+
     function toggleMenu() { const m = document.getElementById('sideMenu'); const o = document.getElementById('menuOverlay'); const a = m.classList.contains('active'); m.classList.toggle('active'); o.style.display = a ? 'none' : 'block'; }
     function switchPage(pid, title) { document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active')); document.getElementById(pid).classList.add('active'); document.getElementById('mainHeaderTitle').innerText = title; document.getElementById('headerActions').style.display = (pid === 'reportPage') ? 'block' : 'none'; const m = document.getElementById('sideMenu'); if(m.classList.contains('active')) toggleMenu(); window.scrollTo(0,0); }
     function checkLogin(){ const e = document.getElementById('emailInput').value.trim().toLowerCase(); const u = userList.find(x => x.email.toLowerCase() === e); if(u){ localStorage.setItem('isLoggedIn', 'true'); localStorage.setItem('userName', u.name); localStorage.setItem('userEmail', u.email); showApp(); } else { showModal("알림", "등록된 이메일이 아닙니다.", "alert"); } }
     function showApp(){ document.getElementById('loginOverlay').style.display='none'; document.getElementById('mainApp').style.display='block'; document.getElementById('displayUserName').innerText = localStorage.getItem('userName') + " 님"; document.getElementById('displayUserEmail').innerText = localStorage.getItem('userEmail'); switchPage('homePage', '🏠 HOME'); }
-    function logout() { localStorage.clear(); location.reload(); }
+    function logout() { localStorage.clear(); sessionStorage.clear(); location.reload(); }
     function showModal(t,txt,type,onC){ const m=document.getElementById('customModal'); document.getElementById('modalTitle').innerText=t; document.getElementById('modalText').innerText=txt; const f=document.getElementById('modalFooter'); m.style.display='flex'; if(type==='confirm'){ f.innerHTML=`<button class="modal-btn" style="color:#888; border-right:1px solid #eee;" onclick="closeModal()">취소</button><button class="modal-btn" style="color:#1a73e8;" id="mCBtn">확인</button>`; document.getElementById('mCBtn').onclick=()=>{closeModal(); if(onC) onC();}; }else{ f.innerHTML=`<button class="modal-btn" style="color:#1a73e8; width:100%;" onclick="closeModal()">확인</button>`; } }
     function closeModal(){document.getElementById('customModal').style.display='none';}
-    function resetForm() { showModal("초기화", "전체 내용을 지우시겠습니까?", "confirm", () => location.reload()); }
-    function saveInput(el) { localStorage.setItem('temp_' + el.id, el.value); }
-    function loadSavedData() { ['ssdVersion', 'autoDist', 'autoTime', 'totalOdo', 'workIssue'].forEach(id => { const val = localStorage.getItem('temp_' + id); if (val) document.getElementById(id).value = val; }); updateTotals(); }
-    function updateTotals(){ let st=0; for(let i=0;i<softKeys.length;i++) st+=parseInt(document.getElementById('s'+i).value||0); document.getElementById('softTotalDisp').innerText=st; let ht=0; for(let i=0;i<hardCauses.length;i++){ for(let j=0;j<hardActions.length;j++) ht+=parseInt(document.getElementById(`h${i}_${j}`).value||0); } document.getElementById('hardTotalDisp').innerText=ht; }
-    function stepSoft(i,v){ const e=document.getElementById('s'+i); e.value=Math.max(0,parseInt(e.value)+v); updateTotals(); }
-    function stepHard(id,v){ const e=document.getElementById('h'+id); e.value=Math.max(0,parseInt(e.value)+v); updateTotals(); }
+    function resetForm() { showModal("초기화", "전체 내용을 지우시겠습니까?", "confirm", () => { clearSessData(); location.reload(); }); }
 
-    /* 데이터 전송 */
     function addCheckRecord() {
         if(!selectedCheckCar) return showModal("알림", "차량 선택 필수", "alert");
         const btn = document.getElementById('checkSubmitBtn'); btn.disabled = true;
         const payload = { "type": "car_check", "날짜": document.getElementById('checkDate').value, "차량": selectedCheckCar, "메모": document.getElementById('checkMemo').value, "작성자": selectedUser || localStorage.getItem('userName') };
         checkItems.forEach(item => payload[item] = checkResults[item] || "미선택");
-        fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) }).then(() => location.reload()).catch(() => btn.disabled = false);
+        fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) }).then(() => { clearSessData(); location.reload(); }).catch(() => btn.disabled = false);
     }
     function addRecord(){
         if(!selectedUser) return showModal("알림","작성자 선택 필수","alert");
@@ -319,13 +430,13 @@
         const payload={"type":"report", "날짜": document.getElementById('reportDate').value, "작성자":selectedUser, "이메일":selectedEmail, "업무":selectedType, "차량":selectedCar, "근무":selectedShift, "SSD버전":document.getElementById('ssdVersion').value, "자율거리":document.getElementById('autoDist').value||"0", "자율시간":document.getElementById('autoTime').value||"0", "누적ODO":document.getElementById('totalOdo').value||"0", "소프트합계":document.getElementById('softTotalDisp').innerText, "하드합계":document.getElementById('hardTotalDisp').innerText, "이슈사항":document.getElementById('workIssue').value };
         softKeys.forEach((k,i)=>payload[k]=document.getElementById('s'+i).value);
         hardCauses.forEach((c,i)=>{ hardActions.forEach((a,j)=>payload[`하드(${c}-${actionMap[a]})`]=document.getElementById(`h${i}_${j}`).value); });
-        fetch(GAS_URL,{method:'POST',body:JSON.stringify(payload)}).then(()=>location.reload()).catch(()=> btn.disabled=false);
+        fetch(GAS_URL,{method:'POST',body:JSON.stringify(payload)}).then(() => { clearSessData(); location.reload(); }).catch(()=> btn.disabled=false);
     }
     function addChargeRecord() {
         if(!selectedChargeCar) return showModal("알림", "차량 선택 필수", "alert");
         const btn = document.getElementById('chargeSubmitBtn'); btn.disabled = true;
         const payload = { "type": "charge", "날짜": document.getElementById('chargeDate').value, "차량": selectedChargeCar, "충전량": document.getElementById('chargeAmount').value, "충전시간": document.getElementById('chargeTime').value, "기타": document.getElementById('chargeMemo').value, "작성자": selectedUser || localStorage.getItem('userName') };
-        fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) }).then(() => location.reload()).catch(() => btn.disabled = false);
+        fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) }).then(() => { clearSessData(); location.reload(); }).catch(() => btn.disabled = false);
     }
 </script>
 </body>
