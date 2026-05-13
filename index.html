@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -80,9 +81,16 @@
         .hard-table td { border: 1px solid #eee; text-align: center; padding: 8px 0; }
         .hard-cause-label { font-size: 11.5px; font-weight: bold; color: #333; line-height: 1.2; word-break: keep-all; padding: 0 2px; }
         .hard-cell-content { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .hard-val-input { width: 100%; text-align: center; border: none; font-weight: 800; font-size: 16px; color: #1a73e8; background: transparent; outline: none; }
+        .hard-val-input { width: 100%; text-align: center; border: none; font-weight: 800; font-size: 16px; color: #333; background: transparent; outline: none; }
 
         .btn-add { width: 100%; padding: 18px; border: none; border-radius: 14px; font-size: 18px; font-weight: bold; color: white; background: #28a745; margin-top: 15px; }
+
+        /* 운행일정 스타일 */
+        .sched-header { display: flex; padding: 12px 5px; background: #f1f3f5; border-radius: 8px; margin-bottom: 10px; font-size: 13px; font-weight: bold; color: #495057; text-align: center; }
+        .sched-row { display: flex; align-items: center; padding: 15px 5px; margin-bottom: 5px; border-bottom: 1px solid #eee; background: #fff; text-align: center; }
+        .sched-col { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+        .sched-divider { border-left: 1px solid #dee2e6; border-right: 1px solid #dee2e6; }
+        .schedule-empty { text-align: center; padding: 50px; color: #bbb; border: 1px dashed #ddd; border-radius: 12px; margin-top: 10px; }
 
         /* 사이드 메뉴 */
         #sideMenu { position: fixed; top: 0; left: -280px; width: 260px; height: 100%; background: white; z-index: 25000; transition: 0.3s; box-shadow: 2px 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
@@ -100,7 +108,7 @@
         .modal-card { background: white; border-radius: 20px; width: 100%; max-width: 320px; overflow: hidden; }
         .modal-body { padding: 25px 20px; text-align: center; border-bottom: 1px solid #eee; }
         .modal-footer { display: flex; }
-        .modal-btn { flex: 1; padding: 15px; border: none; background: transparent; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .modal-btn { flex: 1; padding: 15px; border: none; background: transparent; font-size: 16px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -136,13 +144,12 @@
         </div>
     </div>
 
-    <div id="viewSchedulePage" class="app-page">
-        <div class="section">
-            <label>날짜 선택</label>
-            <input type="date" id="viewDate" class="text-input" onchange="renderSchedule()">
-        </div>
-        <div id="scheduleListContainer" style="padding:5px;">
-            </div>
+    <div id="checkPage" class="app-page">
+        <div class="section"><label>1. 점검 날짜</label><input type="date" id="checkDate" class="text-input" onchange="saveInput(this)"></div>
+        <div class="section"><label>2. 점검 차량</label><div class="btn-grid grid-2" id="checkCarBtnGroup"><script>for(let i=801;i<=810;i++)document.write(`<button class="select-btn" data-val="gs${i}" onclick="selectCheckCar(this)">gs${i}</button>`);</script></div></div>
+        <div class="section"><label>3. 기본 점검 항목</label><div id="checkListContainer"></div></div>
+        <div class="section"><label>특이사항 메모</label><textarea id="checkMemo" class="text-input" style="height:100px; resize:none;" placeholder="정비가 필요한 내용을 입력하세요." oninput="saveInput(this)"></textarea></div>
+        <button class="btn-add" id="checkSubmitBtn" style="background:#1a73e8;" onclick="addCheckRecord()">점검 결과 저장하기</button>
     </div>
 
     <div id="reportPage" class="app-page">
@@ -172,6 +179,14 @@
         <button class="btn-add" id="submitBtn" onclick="addRecord()">보고서 기록하기</button>
     </div>
 
+    <div id="viewSchedulePage" class="app-page">
+        <div class="section">
+            <label>날짜 선택</label>
+            <input type="date" id="viewDate" class="text-input" onchange="renderSchedule()">
+        </div>
+        <div id="scheduleListContainer" style="padding:5px;"></div>
+    </div>
+
     <div id="chargePage" class="app-page">
         <div class="section"><label>1. 날짜</label><input type="date" id="chargeDate" class="text-input" onchange="saveInput(this)"></div>
         <div class="section"><label>2. 차량 선택</label><div class="btn-grid grid-2" id="chargeCarBtnGroup"><script>for(let i=801;i<=810;i++)document.write(`<button class="select-btn" data-val="gs${i}" onclick="selectChargeCar(this)">gs${i}</button>`);</script></div></div>
@@ -183,65 +198,292 @@
 </div>
 
 <script>
-    /* ==========================================
-       [핵심 수정] 안드로이드 뒤로가기 제어 로직
-       ========================================== */
-    let currentPageId = 'homePage';
-
-    // 페이지가 바뀔 때마다 history stack에 상태를 추가하여 뒤로가기 버튼을 가로챕니다.
-    function pushState(pageId) {
-        currentPageId = pageId;
-        history.pushState({ page: pageId }, null, null);
-    }
-
-    // 뒤로가기(popstate) 이벤트 핸들러
-    window.onpopstate = function(event) {
-        if (currentPageId === 'homePage') {
-            // 홈 화면에서 뒤로가기 시 종료 확인 모달 표시
-            showModal("앱 종료", "앱을 종료하시겠습니까?", "confirm", function() {
-                history.back(); // 실제 종료(이전 페이지 이동)
-            });
-            // 모달을 띄운 후 다시 state를 밀어넣어 다음 뒤로가기에 대비
-            history.pushState({ page: 'homePage' }, null, null);
-        } else {
-            // 다른 페이지(보고서 등)에서 뒤로가기 시 홈으로 이동
-            switchPage('homePage', '🏠 HOME', true);
+    // [안드로이드 뒤로가기 버튼 종료 확인]
+    let backPressedOnce = false;
+    history.pushState(null, null, location.href);
+    window.addEventListener('popstate', function() {
+        if (backPressedOnce) {
+            // 두 번째 뒤로가기 -> 실제 종료
+            history.back();
+            return;
         }
-    };
+        history.pushState(null, null, location.href);
+        backPressedOnce = true;
+        showModal("앱 종료", "앱을 종료하시겠습니까?\n뒤로가기를 한 번 더 누르시면 앱이 종료됩니다.", "cancel_only");
+        setTimeout(() => { backPressedOnce = false; }, 3000);
+    });
 
-    // 초기 실행 시 history 상태 한 번 넣어주기
-    history.replaceState({ page: 'homePage' }, null, null);
+    // [3번] 안드로이드 pull-to-refresh 방지
+    let touchStartY = 0;
+    document.addEventListener('touchstart', function(e) { touchStartY = e.touches[0].clientY; }, { passive: true });
+    document.addEventListener('touchmove', function(e) {
+        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        if (scrollTop === 0 && e.touches[0].clientY > touchStartY) { e.preventDefault(); }
+    }, { passive: false });
 
-    /* ==========================================
-       [기존 로직 보존 영역]
-       ========================================== */
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycby6Z9qIvpB_2VdPvmtCqBdmEMUA41x3vP2o-7x8tsdsBnLJznz158rLwQ8fcS64uqx-/exec';
-    let allSchedules = [];
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbxwBNho7EAQUeofxMcEpOIKiKNUIgEHoTnXR14mR2JQDhJXmev9JAUTwDxGkv-7upCW/exec';
     let selectedUser="", selectedEmail="", selectedType="", selectedCar="", selectedShift="", selectedChargeCar="", selectedCheckCar="";
-    const userList=[{name:'황금철', email:'kchwang@future-link.ai'}, {name:'윤길홍', email:'khyoon@future-link.ai'}, {name:'예준우', email:'star7760@future-link.ai'}, {name:'길광림', email:'volfgangk@future-link.ai'}, {name:'전재훈', email:'level5@future-link.ai'}, {name:'오진혁', email:'dhwlstnwkd@future-link.ai'}, {name:'김준혁', email:'kirk@future-link.ai'}, {name:'박승규', email:'jeffstyle@future-link.ai'}, {name:'유승민', email:'max0825@future-link.ai'}, {name:'최대섭', email:'chleotjq1@future-link.ai'}, {name:'윤승현', email:'shyoon@future-link.ai'}, {name:'김선규', email:'skkim@future-link.ai'}, {name:'차두원', email:'dwcha@future-link.ai'}, {name:'박지혜', email:'jpark@future-link.ai'}];
+    const userList=[{name:'황금철', email:'kchwang@future-link.ai'}, {name:'윤길홍', email:'khyoon@future-link.ai'}, {name:'예준우', email:'star7760@future-link.ai'}, {name:'길광림', email:'volfgangk@future-link.ai'}, {name:'전재훈', email:'level5@future-link.ai'}, {name:'오진혁', email:'dhwlstnwkd@future-link.ai'}, {name:'김준혁', email:'kirk@future-link.ai'}, {name:'박승규', email:'jeffstyle@future-link.ai'}, {name:'유승민', email:'max0825@future-link.ai'}, {name:'최대섭', email:'chleotjq1@future-link.ai'}, {name:'윤승현', email:'shyoon@future-link.ai'}, {name:'김선규', email:'skkim@future-link.ai'}, {name:'차두원', email:'dwcha@future-link.ai'}
+                   , {name:'박지혜', email:'jpark@future-link.ai'}];
     const reportAuthors = userList.filter(user => !['윤승현', '김선규', '차두원', '박지혜'].includes(user.name));
     
+    const checkItems = ["내외관 파손/청결", "타이어 상태/압력", "등화장치 작동", "브레이크 성능", "엔진/소모품류", "내부 장비 상태"];
+    let checkResults = {};
+
     const softKeys=["운전자판단","시스템이상","교통약자보호","신호위반","신호등지시","교차로딜레마","도로상황","차선변경","급정지/서행","보호의무"];
     const hardCauses=["시스템이상","신호위반","교차로딜레마","도로상황","운전자실수"];
     const hardActions=["브레이크","핸들","엑셀","시스템"];
+    const actionMap={"브레이크":"B","핸들":"H","엑셀":"A","시스템":"S"};
 
     window.onload = function(){
         initUI();
         loadSavedData();
-        fetchSchedule(); // 일정 데이터 미리 불러오기
+        fetchSchedule();
     }
 
-    // 일정 데이터 가져오기
+    function initUI() {
+        const ug = document.getElementById('userBtnGroup');
+        if(ug) { 
+            ug.innerHTML = ""; 
+            reportAuthors.forEach(u=> ug.innerHTML += `<button class="select-btn" data-val="${u.name}" onclick="selectUser(this,'${u.name}','${u.email}')">${u.name}</button>`); 
+        }
+        
+        const cl = document.getElementById('checkListContainer');
+        if(cl) {
+            cl.innerHTML = "";
+            checkItems.forEach(item => {
+                checkResults[item] = "";
+                cl.innerHTML += `<div class="check-item"><span class="check-label">${item}</span><div class="check-options"><button class="opt-btn good" data-item="${item}" onclick="toggleCheck('${item}', '양호', this)">양호</button><button class="opt-btn bad" data-item="${item}" onclick="toggleCheck('${item}', '불량', this)">불량</button></div></div>`;
+            });
+        }
+
+        const sc=document.getElementById('softContainer');
+        if(sc) { sc.innerHTML = ""; softKeys.forEach((n,i)=>{ sc.innerHTML+=`<div class="category-item"><span class="category-name">${i+1}. ${n}</span><div class="counter-group"><button class="circle-btn" onclick="stepSoft(${i},-1)">-</button><input id="s${i}" class="counter-val" value="0" readonly><button class="circle-btn" onclick="stepSoft(${i},1)">+</button></div></div>`; }); }
+        
+        const hb=document.getElementById('hardBody');
+        if(hb) { hb.innerHTML = ""; hardCauses.forEach((c,i)=>{ let row=`<tr><td class="hard-cause-label">${c}</td>`; hardActions.forEach((a,j)=>{ row+=`<td><div class="hard-cell-content"><button class="circle-btn" onclick="stepHard('${i}_${j}',1)">+</button><input id="h${i}_${j}" class="hard-val-input" value="0" readonly></div></td>`; }); hb.innerHTML+=row+`</tr>`; }); }
+        
+        const today = new Date().toISOString().substring(0, 10);
+        ['reportDate', 'chargeDate', 'checkDate', 'viewDate'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = today; });
+        if(localStorage.getItem('isLoggedIn') === 'true') showApp();
+    }
+
+    // [세션 스토리지 저장 및 복구]
+    function saveInput(el) {
+        sessionStorage.setItem('sess_' + el.id, el.value);
+        updateFilledStyle(el);
+    }
+    function updateFilledStyle(el) {
+        if(['ssdVersion','autoDist','autoTime','totalOdo'].includes(el.id)) {
+            el.classList.toggle('filled', el.value.trim() !== '');
+        }
+    }
+
+    function loadSavedData() {
+        const inputs = ['ssdVersion', 'autoDist', 'autoTime', 'totalOdo', 'workIssue', 'checkMemo', 'chargeAmount', 'chargeTime', 'chargeMemo', 'reportDate', 'checkDate', 'chargeDate'];
+        inputs.forEach(id => {
+            const val = sessionStorage.getItem('sess_' + id);
+            if (val && document.getElementById(id)) document.getElementById(id).value = val;
+        });
+
+        for(let i=0; i<softKeys.length; i++) {
+            const val = sessionStorage.getItem('sess_s'+i);
+            if(val) document.getElementById('s'+i).value = val;
+        }
+        for(let i=0; i<hardCauses.length; i++) {
+            for(let j=0; j<hardActions.length; j++) {
+                const val = sessionStorage.getItem(`sess_h${i}_${j}`);
+                if(val) document.getElementById(`h${i}_${j}`).value = val;
+            }
+        }
+        updateTotals();
+
+        // 5~8번 항목 filled 스타일 복구
+        ['ssdVersion','autoDist','autoTime','totalOdo'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) updateFilledStyle(el);
+        });
+
+        restoreSelectedBtn('sess_selectedUser', '#userBtnGroup .select-btn', (b) => {
+            const user = userList.find(u => u.name === b.dataset.val);
+            if(user) selectUser(b, user.name, user.email);
+        });
+        restoreSelectedBtn('sess_selectedType', '#typeBtnGroup .select-btn', (b) => selectType(b, true));
+        restoreSelectedBtn('sess_selectedCar', '#carBtnGroup .select-btn', (b) => selectCar(b));
+        restoreSelectedBtn('sess_selectedShift', '#shiftBtnGroup .select-btn', (b) => selectShift(b));
+        restoreSelectedBtn('sess_selectedCheckCar', '#checkCarBtnGroup .select-btn', (b) => selectCheckCar(b));
+        restoreSelectedBtn('sess_selectedChargeCar', '#chargeCarBtnGroup .select-btn', (b) => selectChargeCar(b));
+
+        checkItems.forEach(item => {
+            const val = sessionStorage.getItem('sess_check_' + item);
+            if(val) {
+                const btn = document.querySelector(`.opt-btn[data-item="${item}"][onclick*="${val}"]`);
+                if(btn) toggleCheck(item, val, btn);
+            }
+        });
+    }
+
+    function restoreSelectedBtn(storageKey, selector, callback) {
+        const val = sessionStorage.getItem(storageKey);
+        if(val) {
+            const btn = Array.from(document.querySelectorAll(selector)).find(b => b.dataset.val === val || b.innerText === val);
+            if(btn) callback(btn);
+        }
+    }
+
+    function toggleCheck(item, status, btn) {
+        const parent = btn.parentElement;
+        if (checkResults[item] === status) { 
+            checkResults[item] = ""; btn.classList.remove('selected'); 
+            sessionStorage.removeItem('sess_check_' + item);
+        } else { 
+            parent.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected')); 
+            btn.classList.add('selected'); checkResults[item] = status; 
+            sessionStorage.setItem('sess_check_' + item, status);
+        }
+    }
+
+    function selectUser(b, n, e) {
+        const isSelected = b.classList.contains('selected');
+        document.querySelectorAll('#userBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
+        if (isSelected) { 
+            selectedUser = ""; selectedEmail = ""; sessionStorage.removeItem('sess_selectedUser');
+        } else { 
+            b.classList.add('selected'); selectedUser = n; selectedEmail = e; 
+            sessionStorage.setItem('sess_selectedUser', n);
+        }
+    }
+
+    function selectCar(b) {
+        const isSelected = b.classList.contains('selected');
+        document.querySelectorAll('#carBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
+        if (isSelected) { 
+            selectedCar = ""; sessionStorage.removeItem('sess_selectedCar');
+        } else { 
+            b.classList.add('selected'); selectedCar = b.innerText;
+            sessionStorage.setItem('sess_selectedCar', b.innerText);
+        }
+    }
+
+    function selectCheckCar(b) {
+        const isSelected = b.classList.contains('selected');
+        document.querySelectorAll('#checkCarBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
+        if (isSelected) { 
+            selectedCheckCar = ""; sessionStorage.removeItem('sess_selectedCheckCar');
+        } else { 
+            b.classList.add('selected'); selectedCheckCar = b.innerText;
+            sessionStorage.setItem('sess_selectedCheckCar', b.innerText);
+        }
+    }
+
+    function selectChargeCar(b) {
+        const isSelected = b.classList.contains('selected');
+        document.querySelectorAll('#chargeCarBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
+        if (isSelected) { 
+            selectedChargeCar = ""; sessionStorage.removeItem('sess_selectedChargeCar');
+        } else { 
+            b.classList.add('selected'); selectedChargeCar = b.innerText;
+            sessionStorage.setItem('sess_selectedChargeCar', b.innerText);
+        }
+    }
+
+    function selectShift(b) {
+        document.querySelectorAll('#shiftBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
+        b.classList.add('selected'); selectedShift = b.innerText;
+        sessionStorage.setItem('sess_selectedShift', b.innerText);
+    }
+
+    function selectType(b, isRestoring = false) {
+        const typeName = b.innerText;
+        const carArea = document.getElementById('carBtnGroup');
+        const autoSec = document.getElementById('autoDriveSections');
+        
+        const applySelection = () => {
+            document.querySelectorAll('#typeBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
+            b.classList.add('selected'); selectedType = typeName;
+            sessionStorage.setItem('sess_selectedType', typeName);
+            
+            if (typeName === "동승" || typeName === "내근") {
+                carArea.style.opacity = "0.3"; carArea.style.pointerEvents = "none";
+                autoSec.style.opacity = "0.3"; autoSec.style.pointerEvents = "none";
+            } else {
+                carArea.style.opacity = "1"; carArea.style.pointerEvents = "auto";
+                autoSec.style.opacity = "1"; autoSec.style.pointerEvents = "auto";
+            }
+        };
+
+        if (isRestoring) { applySelection(); return; }
+
+        if (b.classList.contains('selected')) {
+            b.classList.remove('selected'); selectedType = "";
+            sessionStorage.removeItem('sess_selectedType');
+            carArea.style.opacity = "1"; carArea.style.pointerEvents = "auto";
+            autoSec.style.opacity = "1"; autoSec.style.pointerEvents = "auto";
+            return;
+        }
+
+        if (typeName === "동승" || typeName === "내근") {
+            showModal("주의", "동승 또는 내근을 선택하면 5~10번 데이터가 초기화되고 잠깁니다.", "confirm", function() {
+                applySelection();
+                resetAutoDriveData();
+                selectedCar = "";
+                sessionStorage.removeItem('sess_selectedCar');
+                document.querySelectorAll('#carBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
+            });
+        } else {
+            applySelection();
+        }
+    }
+
+    function resetAutoDriveData() {
+        ['ssdVersion', 'autoDist', 'autoTime', 'totalOdo', 'workIssue'].forEach(id => {
+            const el = document.getElementById(id); if(el) el.value = ""; sessionStorage.removeItem('sess_' + id);
+        });
+        for(let i=0; i<softKeys.length; i++) { const e = document.getElementById('s'+i); if(e) e.value = 0; sessionStorage.removeItem('sess_s'+i); }
+        for(let i=0; i<hardCauses.length; i++){ for(let j=0; j<hardActions.length; j++){ const e = document.getElementById(`h${i}_${j}`); if(e) e.value = 0; sessionStorage.removeItem(`sess_h${i}_${j}`); } }
+        updateTotals();
+    }
+
+    function updateTotals(){
+        let st=0; for(let i=0;i<softKeys.length;i++) st+=parseInt(document.getElementById('s'+i).value||0);
+        document.getElementById('softTotalDisp').innerText=st;
+        let ht=0; for(let i=0;i<hardCauses.length;i++){ for(let j=0;j<hardActions.length;j++) ht+=parseInt(document.getElementById(`h${i}_${j}`).value||0); }
+        document.getElementById('hardTotalDisp').innerText=ht;
+    }
+
+    function stepSoft(i,v){
+        const e=document.getElementById('s'+i); e.value=Math.max(0,parseInt(e.value)+v);
+        sessionStorage.setItem('sess_s'+i, e.value); updateTotals();
+    }
+    function stepHard(id,v){
+        const e=document.getElementById('h'+id); e.value=Math.max(0,parseInt(e.value)+v);
+        sessionStorage.setItem('sess_h'+id, e.value); updateTotals();
+    }
+
+    function clearSessData() {
+        Object.keys(sessionStorage).forEach(key => { if(key.startsWith('sess_')) sessionStorage.removeItem(key); });
+    }
+
+    function toggleMenu() { const m = document.getElementById('sideMenu'); const o = document.getElementById('menuOverlay'); const a = m.classList.contains('active'); m.classList.toggle('active'); o.style.display = a ? 'none' : 'block'; }
+    function switchPage(pid, title) { document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active')); document.getElementById(pid).classList.add('active'); document.getElementById('mainHeaderTitle').innerText = title; document.getElementById('headerActions').style.display = (pid === 'reportPage') ? 'block' : 'none'; const m = document.getElementById('sideMenu'); if(m.classList.contains('active')) toggleMenu(); window.scrollTo(0,0); if(pid === 'viewSchedulePage') renderSchedule(); }
+    function checkLogin(){ const e = document.getElementById('emailInput').value.trim().toLowerCase(); const u = userList.find(x => x.email.toLowerCase() === e); if(u){ localStorage.setItem('isLoggedIn', 'true'); localStorage.setItem('userName', u.name); localStorage.setItem('userEmail', u.email); showApp(); } else { showModal("알림", "등록된 이메일이 아닙니다.", "alert"); } }
+    function showApp(){ document.getElementById('loginOverlay').style.display='none'; document.getElementById('mainApp').style.display='block'; document.getElementById('displayUserName').innerText = localStorage.getItem('userName') + " 님"; document.getElementById('displayUserEmail').innerText = localStorage.getItem('userEmail'); const rp = sessionStorage.getItem('restorePage'); const rt = sessionStorage.getItem('restoreTitle'); if(rp){ sessionStorage.removeItem('restorePage'); sessionStorage.removeItem('restoreTitle'); switchPage(rp, rt); } else { switchPage('homePage', '🏠 HOME'); } }
+    function logout() { localStorage.clear(); sessionStorage.clear(); location.reload(); }
+    function showModal(t,txt,type,onC){ const m=document.getElementById('customModal'); document.getElementById('modalTitle').innerText=t; document.getElementById('modalText').innerText=txt; const f=document.getElementById('modalFooter'); m.style.display='flex'; if(type==='confirm'){ f.innerHTML=`<button class="modal-btn" style="color:#888; border-right:1px solid #eee;" onclick="closeModal()">취소</button><button class="modal-btn" style="color:#1a73e8;" id="mCBtn">확인</button>`; document.getElementById('mCBtn').onclick=()=>{closeModal(); if(onC) onC();}; }else if(type==='cancel_only'){ f.innerHTML=`<button class="modal-btn" style="color:#1a73e8; width:100%;" onclick="closeModal()">취소</button>`; }else{ f.innerHTML=`<button class="modal-btn" style="color:#1a73e8; width:100%;" id="mABtn">확인</button>`; document.getElementById('mABtn').onclick=()=>{closeModal(); if(onC) onC();}; } }
+    function closeModal(){document.getElementById('customModal').style.display='none';}
+    function resetForm() { const rp = document.querySelector('.app-page.active')?.id || 'homePage'; const rt = document.getElementById('mainHeaderTitle').innerText; showModal("초기화", "전체 내용을 지우시겠습니까?", "confirm", () => { clearSessData(); sessionStorage.setItem('restorePage', rp); sessionStorage.setItem('restoreTitle', rt); location.reload(); }); }
+
+    let allSchedules = [];
+
     function fetchSchedule() {
-        fetch(`${GAS_URL}?type=schedule`)
+        fetch(GAS_URL + '?type=schedule')
             .then(res => res.json())
             .then(data => { allSchedules = data; renderSchedule(); })
             .catch(err => console.error("일정 로드 실패:", err));
     }
 
-    // [수정된 부분] 일정 3단 균등 배분 렌더링
     function renderSchedule() {
-        const selectedDate = document.getElementById('viewDate').value;
+        const selectedDate = document.getElementById('viewDate') ? document.getElementById('viewDate').value : '';
         const container = document.getElementById('scheduleListContainer');
         if(!container) return;
         container.innerHTML = "";
@@ -254,109 +496,74 @@
         });
 
         if (filtered.length === 0) {
-            container.innerHTML = `<div style="text-align:center; padding:50px; color:#bbb; border:1px dashed #ddd; border-radius:12px;">배정된 일정이 없습니다.</div>`;
+            container.innerHTML = `<div class="schedule-empty">배정된 일정이 없습니다.</div>`;
             return;
         }
 
-        let html = `
-            <div style="display: flex; padding: 12px 5px; background: #f1f3f5; border-radius: 8px; margin-bottom: 10px; font-size: 13px; font-weight: bold; color: #495057; text-align: center;">
-                <div style="flex: 1;">차량번호</div>
-                <div style="flex: 1; border-left: 1px solid #dee2e6; border-right: 1px solid #dee2e6;">드라이버</div>
-                <div style="flex: 1;">미션내용</div>
-            </div>
-        `;
+        let html = `<div class="sched-header">
+            <div class="sched-col">차량번호</div>
+            <div class="sched-col sched-divider">드라이버</div>
+            <div class="sched-col">미션내용</div>
+        </div>`;
 
         filtered.forEach(item => {
-            html += `
-                <div style="display: flex; align-items: center; padding: 15px 5px; margin-bottom: 5px; border-bottom: 1px solid #eee; background: #fff; text-align: center;">
-                    <div style="flex: 1; font-weight: 700; color: #1a73e8; font-size: 14px;">${item["차량번호"] || '-'}</div>
-                    <div style="flex: 1; font-weight: 600; color: #333; font-size: 14px; border-left: 1px solid #f8f9fa; border-right: 1px solid #f8f9fa;">${item["드라이버"] || '-'}</div>
-                    <div style="flex: 1; font-size: 13px; color: #666; word-break: keep-all; padding: 0 5px;">${item["미션"] || '-'}</div>
-                </div>`;
+            html += `<div class="sched-row">
+                <div class="sched-col" style="font-weight:700; color:#1a73e8; font-size:14px;">${item["차량번호"] || item["차량"] || '-'}</div>
+                <div class="sched-col sched-divider" style="font-weight:600; color:#333; font-size:14px;">${item["드라이버"] || item["담당자"] || '-'}</div>
+                <div class="sched-col" style="font-size:13px; color:#666; word-break:keep-all; padding:0 5px;">${item["미션"] || item["구간목적"] || '-'}</div>
+            </div>`;
         });
         container.innerHTML = html;
     }
 
-    function initUI() {
-        const ug = document.getElementById('userBtnGroup');
-        if(ug) { 
-            ug.innerHTML = ""; 
-            reportAuthors.forEach(u=> ug.innerHTML += `<button class="select-btn" data-val="${u.name}" onclick="selectUser(this,'${u.name}','${u.email}')">${u.name}</button>`); 
+    function addCheckRecord() {
+        if(!selectedCheckCar) return showModal("알림", "차량 선택 필수", "alert");
+        const btn = document.getElementById('checkSubmitBtn'); btn.disabled = true;
+        const payload = { "type": "car_check", "날짜": document.getElementById('checkDate').value, "차량": selectedCheckCar, "메모": document.getElementById('checkMemo').value, "작성자": selectedUser || localStorage.getItem('userName') };
+        checkItems.forEach(item => payload[item] = checkResults[item] || "미선택");
+        fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) }).then(() => { clearSessData(); location.reload(); }).catch(() => btn.disabled = false);
+    }
+    function addRecord(){
+        if(!selectedUser) return showModal("알림","작성자 선택 필수","alert");
+
+        // 운행 선택 시 5~8번 필수 입력 검사
+        if(selectedType === "운행") {
+            const required = [
+                { id: 'ssdVersion',  label: '5. SSD 버전' },
+                { id: 'autoDist',    label: '6. 자율거리' },
+                { id: 'autoTime',    label: '7. 자율시간' },
+                { id: 'totalOdo',    label: '8. 누적 ODO' },
+            ];
+            for(const f of required) {
+                const el = document.getElementById(f.id);
+                if(!el.value || el.value.trim() === '') {
+                    showModal("입력 필요", f.label + " 항목을 입력해주세요.", "alert", () => {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        el.focus();
+                    });
+                    return;
+                }
+            }
         }
-        const sc=document.getElementById('softContainer');
-        if(sc) { sc.innerHTML = ""; softKeys.forEach((n,i)=>{ sc.innerHTML+=`<div class="category-item"><span class="category-name">${i+1}. ${n}</span><div class="counter-group"><button class="circle-btn" onclick="stepSoft(${i},-1)">-</button><input id="s${i}" class="counter-val" value="0" readonly><button class="circle-btn" onclick="stepSoft(${i},1)">+</button></div></div>`; }); }
-        const hb=document.getElementById('hardBody');
-        if(hb) { hb.innerHTML = ""; hardCauses.forEach((c,i)=>{ let row=`<tr><td class="hard-cause-label">${c}</td>`; hardActions.forEach((a,j)=>{ row+=`<td><div class="hard-cell-content"><button class="circle-btn" onclick="stepHard('${i}_${j}', 1)">+</button><input id="h${i}_${j}" class="hard-val-input" value="0" readonly></div></td>`; }); hb.innerHTML+=row+`</tr>`; }); }
-        
-        const today = new Date().toISOString().substring(0, 10);
-        ['reportDate', 'chargeDate', 'viewDate'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = today; });
-        if(localStorage.getItem('isLoggedIn') === 'true') showApp();
-    }
 
-    function switchPage(pid, title, isBack = false) { 
-        document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active')); 
-        document.getElementById(pid).classList.add('active'); 
-        document.getElementById('mainHeaderTitle').innerText = title; 
-        document.getElementById('headerActions').style.display = (pid === 'reportPage') ? 'block' : 'none'; 
-        const m = document.getElementById('sideMenu'); 
-        if(m.classList.contains('active')) toggleMenu(); 
-        
-        // 뒤로가기를 통한 이동이 아닐 때만 history stack에 추가
-        if(!isBack) pushState(pid);
-        else currentPageId = pid;
-
-        window.scrollTo(0,0); 
+        const btn=document.getElementById('submitBtn'); btn.disabled=true;
+        const payload={"type":"report", "날짜": document.getElementById('reportDate').value, "작성자":selectedUser, "이메일":selectedEmail, "업무":selectedType, "차량":selectedCar, "근무":selectedShift, "SSD버전":document.getElementById('ssdVersion').value, "자율거리":document.getElementById('autoDist').value||"0", "자율시간":document.getElementById('autoTime').value||"0", "누적ODO":document.getElementById('totalOdo').value||"0", "소프트합계":document.getElementById('softTotalDisp').innerText, "하드합계":document.getElementById('hardTotalDisp').innerText, "이슈사항":document.getElementById('workIssue').value };
+        softKeys.forEach((k,i)=>payload[k]=document.getElementById('s'+i).value);
+        hardCauses.forEach((c,i)=>{ hardActions.forEach((a,j)=>payload[`하드(${c}-${actionMap[a]})`]=document.getElementById(`h${i}_${j}`).value); });
+        fetch(GAS_URL,{method:'POST',body:JSON.stringify(payload)})
+            .then(() => {
+                clearSessData();
+                showModal("✅ 완료", "정상 기록되었습니다.", "alert", () => location.reload());
+                btn.disabled = false;
+            })
+            .catch(()=> btn.disabled=false);
     }
-
-    function showModal(t, txt, type, onC) {
-        const m = document.getElementById('customModal');
-        const ft = document.getElementById('modalFooter');
-        document.getElementById('modalTitle').innerText = t;
-        document.getElementById('modalText').innerText = txt;
-        ft.innerHTML = "";
-        
-        if (type === "confirm") {
-            const cBtn = document.createElement('button');
-            cBtn.className = "modal-btn"; cBtn.innerText = "취소";
-            cBtn.onclick = () => { m.style.display = 'none'; };
-            const oBtn = document.createElement('button');
-            oBtn.className = "modal-btn"; oBtn.style.color = "#1a73e8"; oBtn.innerText = "확인";
-            oBtn.onclick = () => { m.style.display = 'none'; if(onC) onC(); };
-            ft.appendChild(cBtn); ft.appendChild(oBtn);
-        } else {
-            const b = document.createElement('button');
-            b.className = "modal-btn"; b.innerText = "확인"; b.style.color = "#1a73e8";
-            b.onclick = () => { m.style.display = 'none'; if(onC) onC(); };
-            ft.appendChild(b);
-        }
-        m.style.display = 'flex';
+    function addChargeRecord() {
+        if(!selectedChargeCar) return showModal("알림", "차량 선택 필수", "alert");
+        const btn = document.getElementById('chargeSubmitBtn'); btn.disabled = true;
+        const payload = { "type": "charge", "날짜": document.getElementById('chargeDate').value, "차량": selectedChargeCar, "충전량": document.getElementById('chargeAmount').value, "충전시간": document.getElementById('chargeTime').value, "기타": document.getElementById('chargeMemo').value, "작성자": selectedUser || localStorage.getItem('userName') };
+        fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) }).then(() => { clearSessData(); location.reload(); }).catch(() => btn.disabled = false);
     }
-
-    /* 나머지 기존 보존 로직 (saveInput, loadSavedData, selectUser, selectCar 등 생략 없이 기존 코드 동일 사용) */
-    function saveInput(el) { sessionStorage.setItem('sess_' + el.id, el.value); updateFilledStyle(el); }
-    function updateFilledStyle(el) { if(['ssdVersion','autoDist','autoTime','totalOdo'].includes(el.id)) { el.classList.toggle('filled', el.value.trim() !== ''); } }
-    function loadSavedData() {
-        const inputs = ['ssdVersion', 'autoDist', 'autoTime', 'totalOdo', 'workIssue', 'chargeAmount', 'chargeTime', 'chargeMemo', 'reportDate', 'chargeDate'];
-        inputs.forEach(id => { const val = sessionStorage.getItem('sess_' + id); if (val && document.getElementById(id)) document.getElementById(id).value = val; });
-        updateTotals();
-    }
-    function selectUser(b, n, e) { document.querySelectorAll('#userBtnGroup .select-btn').forEach(x => x.classList.remove('selected')); b.classList.add('selected'); selectedUser = n; selectedEmail = e; sessionStorage.setItem('sess_selectedUser', n); }
-    function selectCar(b) { document.querySelectorAll('#carBtnGroup .select-btn').forEach(x => x.classList.remove('selected')); b.classList.add('selected'); selectedCar = b.innerText; }
-    function selectShift(b) { document.querySelectorAll('#shiftBtnGroup .select-btn').forEach(x => x.classList.remove('selected')); b.classList.add('selected'); selectedShift = b.innerText; }
-    function selectType(b) { document.querySelectorAll('#typeBtnGroup .select-btn').forEach(x => x.classList.remove('selected')); b.classList.add('selected'); selectedType = b.innerText; }
-    function stepSoft(i,v){ const e=document.getElementById('s'+i); e.value=Math.max(0,parseInt(e.value)+v); updateTotals(); }
-    function stepHard(id,v){ const e=document.getElementById('h'+id); e.value=Math.max(0,parseInt(e.value)+v); updateTotals(); }
-    function updateTotals(){
-        let st=0; for(let i=0;i<10;i++) { const e=document.getElementById('s'+i); if(e) st+=parseInt(e.value||0); }
-        const sd=document.getElementById('softTotalDisp'); if(sd) sd.innerText=st;
-        let ht=0; for(let i=0;i<5;i++){ for(let j=0;j<4;j++) { const e=document.getElementById(`h${i}_${j}`); if(e) ht+=parseInt(e.value||0); } }
-        const hd=document.getElementById('hardTotalDisp'); if(hd) hd.innerText=ht;
-    }
-    function toggleMenu() { const m = document.getElementById('sideMenu'); const o = document.getElementById('menuOverlay'); const a = m.classList.contains('active'); m.classList.toggle('active'); o.style.display = a ? 'none' : 'block'; }
-    function checkLogin(){ const e = document.getElementById('emailInput').value.trim().toLowerCase(); const u = userList.find(x => x.email.toLowerCase() === e); if(u){ localStorage.setItem('isLoggedIn', 'true'); localStorage.setItem('userName', u.name); localStorage.setItem('userEmail', u.email); showApp(); } else { showModal("알림", "등록된 이메일이 아닙니다.", "alert"); } }
-    function showApp(){ document.getElementById('loginOverlay').style.display='none'; document.getElementById('mainApp').style.display='block'; document.getElementById('displayUserName').innerText = localStorage.getItem('userName') + " 님"; document.getElementById('displayUserEmail').innerText = localStorage.getItem('userEmail'); switchPage('homePage', '🏠 HOME'); }
-    function logout() { localStorage.clear(); sessionStorage.clear(); location.reload(); }
 </script>
-
 </body>
 </html>
