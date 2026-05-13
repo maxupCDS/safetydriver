@@ -117,7 +117,7 @@
     <div class="menu-footer"><div class="logout-btn" onclick="logout()"><span>로그아웃</span><span style="font-size:12px; color:#999; font-weight:normal;">Sign Out</span></div></div>
 </div>
 
-<div id="customModal"><div class="modal-card"><div class="modal-body"><div id="modalTitle" style="font-weight:bold; color:#1a73e8; margin-bottom:8px; font-size:18px;">알림</div><div id="modalText" style="font-size:15px; color:#555;">내용</div></div><div class="modal-footer" id="modalFooter"></div></div></div>
+<div id="customModal"><div class="modal-card"><div class="modal-body"><div id="modalTitle" style="font-weight:bold; color:#1a73e8; margin-bottom:8px; font-size:18px;">알림</div><div id="modalText" style="font-size:15px; color:#555; white-space:pre-line;">내용</div></div><div class="modal-footer" id="modalFooter"></div></div></div>
 
 <div id="mainApp">
     <div class="header-area">
@@ -181,10 +181,18 @@
 
 <script>
     // [안드로이드 뒤로가기 버튼 종료 확인]
+    let backPressedOnce = false;
     history.pushState(null, null, location.href);
     window.addEventListener('popstate', function() {
+        if (backPressedOnce) {
+            // 두 번째 뒤로가기 -> 실제 종료
+            history.back();
+            return;
+        }
         history.pushState(null, null, location.href);
-        showModal("앱 종료", "앱이 종료됩니다.", "confirm", () => { history.back(); history.back(); });
+        backPressedOnce = true;
+        showModal("앱 종료", "앱을 종료하시겠습니까?\n뒤로가기를 한 번 더 누르시면 앱이 종료됩니다.", "cancel_only");
+        setTimeout(() => { backPressedOnce = false; }, 3000);
     });
 
     // [3번] 안드로이드 pull-to-refresh 방지
@@ -426,11 +434,11 @@
     function toggleMenu() { const m = document.getElementById('sideMenu'); const o = document.getElementById('menuOverlay'); const a = m.classList.contains('active'); m.classList.toggle('active'); o.style.display = a ? 'none' : 'block'; }
     function switchPage(pid, title) { document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active')); document.getElementById(pid).classList.add('active'); document.getElementById('mainHeaderTitle').innerText = title; document.getElementById('headerActions').style.display = (pid === 'reportPage') ? 'block' : 'none'; const m = document.getElementById('sideMenu'); if(m.classList.contains('active')) toggleMenu(); window.scrollTo(0,0); }
     function checkLogin(){ const e = document.getElementById('emailInput').value.trim().toLowerCase(); const u = userList.find(x => x.email.toLowerCase() === e); if(u){ localStorage.setItem('isLoggedIn', 'true'); localStorage.setItem('userName', u.name); localStorage.setItem('userEmail', u.email); showApp(); } else { showModal("알림", "등록된 이메일이 아닙니다.", "alert"); } }
-    function showApp(){ document.getElementById('loginOverlay').style.display='none'; document.getElementById('mainApp').style.display='block'; document.getElementById('displayUserName').innerText = localStorage.getItem('userName') + " 님"; document.getElementById('displayUserEmail').innerText = localStorage.getItem('userEmail'); switchPage('homePage', '🏠 HOME'); }
+    function showApp(){ document.getElementById('loginOverlay').style.display='none'; document.getElementById('mainApp').style.display='block'; document.getElementById('displayUserName').innerText = localStorage.getItem('userName') + " 님"; document.getElementById('displayUserEmail').innerText = localStorage.getItem('userEmail'); const rp = sessionStorage.getItem('restorePage'); const rt = sessionStorage.getItem('restoreTitle'); if(rp){ sessionStorage.removeItem('restorePage'); sessionStorage.removeItem('restoreTitle'); switchPage(rp, rt); } else { switchPage('homePage', '🏠 HOME'); } }
     function logout() { localStorage.clear(); sessionStorage.clear(); location.reload(); }
-    function showModal(t,txt,type,onC){ const m=document.getElementById('customModal'); document.getElementById('modalTitle').innerText=t; document.getElementById('modalText').innerText=txt; const f=document.getElementById('modalFooter'); m.style.display='flex'; if(type==='confirm'){ f.innerHTML=`<button class="modal-btn" style="color:#888; border-right:1px solid #eee;" onclick="closeModal()">취소</button><button class="modal-btn" style="color:#1a73e8;" id="mCBtn">확인</button>`; document.getElementById('mCBtn').onclick=()=>{closeModal(); if(onC) onC();}; }else{ f.innerHTML=`<button class="modal-btn" style="color:#1a73e8; width:100%;" onclick="closeModal()">확인</button>`; } }
+    function showModal(t,txt,type,onC){ const m=document.getElementById('customModal'); document.getElementById('modalTitle').innerText=t; document.getElementById('modalText').innerText=txt; const f=document.getElementById('modalFooter'); m.style.display='flex'; if(type==='confirm'){ f.innerHTML=`<button class="modal-btn" style="color:#888; border-right:1px solid #eee;" onclick="closeModal()">취소</button><button class="modal-btn" style="color:#1a73e8;" id="mCBtn">확인</button>`; document.getElementById('mCBtn').onclick=()=>{closeModal(); if(onC) onC();}; }else if(type==='cancel_only'){ f.innerHTML=`<button class="modal-btn" style="color:#1a73e8; width:100%;" onclick="closeModal()">취소</button>`; }else{ f.innerHTML=`<button class="modal-btn" style="color:#1a73e8; width:100%;" onclick="closeModal()">확인</button>`; } }
     function closeModal(){document.getElementById('customModal').style.display='none';}
-    function resetForm() { showModal("초기화", "전체 내용을 지우시겠습니까?", "confirm", () => { clearSessData(); location.reload(); }); }
+    function resetForm() { const rp = document.querySelector('.app-page.active')?.id || 'homePage'; const rt = document.getElementById('mainHeaderTitle').innerText; showModal("초기화", "전체 내용을 지우시겠습니까?", "confirm", () => { clearSessData(); sessionStorage.setItem('restorePage', rp); sessionStorage.setItem('restoreTitle', rt); location.reload(); }); }
 
     function addCheckRecord() {
         if(!selectedCheckCar) return showModal("알림", "차량 선택 필수", "alert");
