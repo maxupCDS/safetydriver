@@ -78,11 +78,10 @@
         .hard-table-wrapper { width: 100%; border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
         .hard-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         .hard-table th { font-size: 11px; background: #f8fafc; padding: 10px 2px; border: 1px solid #eee; }
-        .hard-table td { border: 1px solid #eee; text-align: center; padding: 6px 0; }
-        .hard-table .circle-btn { width: 22px; height: 22px; font-size: 15px; }
+        .hard-table td { border: 1px solid #eee; text-align: center; padding: 8px 0; }
         .hard-cause-label { font-size: 11.5px; font-weight: bold; color: #333; line-height: 1.2; word-break: keep-all; padding: 0 2px; }
-        .hard-cell-content { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 3px; }
-        .hard-val-input { width: 22px; text-align: center; border: none; font-weight: 800; font-size: 13px; color: #333; background: transparent; outline: none; }
+        .hard-cell-content { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .hard-val-input { width: 100%; text-align: center; border: none; font-weight: 800; font-size: 16px; color: #1a73e8; background: transparent; outline: none; }
 
         .btn-add { width: 100%; padding: 18px; border: none; border-radius: 14px; font-size: 18px; font-weight: bold; color: white; background: #28a745; margin-top: 15px; }
 
@@ -244,7 +243,7 @@
         if(sc) { sc.innerHTML = ""; softKeys.forEach((n,i)=>{ sc.innerHTML+=`<div class="category-item"><span class="category-name">${i+1}. ${n}</span><div class="counter-group"><button class="circle-btn" onclick="stepSoft(${i},-1)">-</button><input id="s${i}" class="counter-val" value="0" readonly><button class="circle-btn" onclick="stepSoft(${i},1)">+</button></div></div>`; }); }
         
         const hb=document.getElementById('hardBody');
-        if(hb) { hb.innerHTML = ""; hardCauses.forEach((c,i)=>{ let row=`<tr><td class="hard-cause-label">${c}</td>`; hardActions.forEach((a,j)=>{ row+=`<td><div class="hard-cell-content"><button class="circle-btn" onclick="stepHard('${i}_${j}',-1)">-</button><input id="h${i}_${j}" class="hard-val-input" value="0" readonly><button class="circle-btn" onclick="stepHard('${i}_${j}',1)">+</button></div></td>`; }); hb.innerHTML+=row+`</tr>`; }); }
+        if(hb) { hb.innerHTML = ""; hardCauses.forEach((c,i)=>{ let row=`<tr><td class="hard-cause-label">${c}</td>`; hardActions.forEach((a,j)=>{ row+=`<td><div class="hard-cell-content"><button class="circle-btn" onclick="stepHard('${i}_${j}', 1)">+</button><input id="h${i}_${j}" class="hard-val-input" value="0" readonly></div></td>`; }); hb.innerHTML+=row+`</tr>`; }); }
         
         const today = new Date().toISOString().substring(0, 10);
         ['reportDate', 'chargeDate', 'checkDate'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = today; });
