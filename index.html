@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -182,7 +183,10 @@
     <div id="viewSchedulePage" class="app-page">
         <div class="section">
             <label>날짜 선택</label>
-            <input type="date" id="viewDate" class="text-input" onchange="renderSchedule()">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <input type="date" id="viewDate" class="text-input" onchange="renderSchedule()" style="flex:1;">
+                <button onclick="fetchSchedule()" style="background:#1a73e8; border:none; border-radius:10px; width:48px; height:48px; font-size:20px; color:white; flex-shrink:0; cursor:pointer;">🔄</button>
+            </div>
         </div>
         <div id="scheduleListContainer" style="padding:5px;"></div>
     </div>
