@@ -55,7 +55,8 @@
         .grid-2 { grid-template-columns: repeat(2, 1fr); }
         .select-btn { padding: 14px 2px; border: 1px solid #e2e8f0; background: #fff; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #4a5568; text-align: center; }
         .select-btn.selected { background-color: #1a73e8 !important; color: white !important; border-color: #1a73e8 !important; }
-        .text-input { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; outline: none; }
+        .text-input { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; outline: none; transition: background-color 0.2s, border-color 0.2s; }
+        .text-input.filled { background-color: #e8f4fd; border-color: #90caf9; }
 
         /* [6. 차량 관리 체크 항목 스타일] */
         .check-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px dashed #eee; }
@@ -77,10 +78,11 @@
         .hard-table-wrapper { width: 100%; border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
         .hard-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         .hard-table th { font-size: 11px; background: #f8fafc; padding: 10px 2px; border: 1px solid #eee; }
-        .hard-table td { border: 1px solid #eee; text-align: center; padding: 8px 0; }
-        .hard-cause-label { font-size: 10.5px; font-weight: bold; color: #333; line-height: 1.2; word-break: keep-all; padding: 0 2px; }
-        .hard-cell-content { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .hard-val-input { width: 100%; text-align: center; border: none; font-weight: 800; font-size: 16px; color: #1a73e8; background: transparent; outline: none; }
+        .hard-table td { border: 1px solid #eee; text-align: center; padding: 6px 0; }
+        .hard-table .circle-btn { width: 22px; height: 22px; font-size: 15px; }
+        .hard-cause-label { font-size: 11.5px; font-weight: bold; color: #333; line-height: 1.2; word-break: keep-all; padding: 0 2px; }
+        .hard-cell-content { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 3px; }
+        .hard-val-input { width: 22px; text-align: center; border: none; font-weight: 800; font-size: 13px; color: #333; background: transparent; outline: none; }
 
         .btn-add { width: 100%; padding: 18px; border: none; border-radius: 14px; font-size: 18px; font-weight: bold; color: white; background: #28a745; margin-top: 15px; }
 
@@ -242,7 +244,7 @@
         if(sc) { sc.innerHTML = ""; softKeys.forEach((n,i)=>{ sc.innerHTML+=`<div class="category-item"><span class="category-name">${i+1}. ${n}</span><div class="counter-group"><button class="circle-btn" onclick="stepSoft(${i},-1)">-</button><input id="s${i}" class="counter-val" value="0" readonly><button class="circle-btn" onclick="stepSoft(${i},1)">+</button></div></div>`; }); }
         
         const hb=document.getElementById('hardBody');
-        if(hb) { hb.innerHTML = ""; hardCauses.forEach((c,i)=>{ let row=`<tr><td class="hard-cause-label">${c}</td>`; hardActions.forEach((a,j)=>{ row+=`<td><div class="hard-cell-content"><button class="circle-btn" onclick="stepHard('${i}_${j}', 1)">+</button><input id="h${i}_${j}" class="hard-val-input" value="0" readonly></div></td>`; }); hb.innerHTML+=row+`</tr>`; }); }
+        if(hb) { hb.innerHTML = ""; hardCauses.forEach((c,i)=>{ let row=`<tr><td class="hard-cause-label">${c}</td>`; hardActions.forEach((a,j)=>{ row+=`<td><div class="hard-cell-content"><button class="circle-btn" onclick="stepHard('${i}_${j}',-1)">-</button><input id="h${i}_${j}" class="hard-val-input" value="0" readonly><button class="circle-btn" onclick="stepHard('${i}_${j}',1)">+</button></div></td>`; }); hb.innerHTML+=row+`</tr>`; }); }
         
         const today = new Date().toISOString().substring(0, 10);
         ['reportDate', 'chargeDate', 'checkDate'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = today; });
@@ -250,7 +252,15 @@
     }
 
     // [세션 스토리지 저장 및 복구]
-    function saveInput(el) { sessionStorage.setItem('sess_' + el.id, el.value); }
+    function saveInput(el) {
+        sessionStorage.setItem('sess_' + el.id, el.value);
+        updateFilledStyle(el);
+    }
+    function updateFilledStyle(el) {
+        if(['ssdVersion','autoDist','autoTime','totalOdo'].includes(el.id)) {
+            el.classList.toggle('filled', el.value.trim() !== '');
+        }
+    }
 
     function loadSavedData() {
         const inputs = ['ssdVersion', 'autoDist', 'autoTime', 'totalOdo', 'workIssue', 'checkMemo', 'chargeAmount', 'chargeTime', 'chargeMemo', 'reportDate', 'checkDate', 'chargeDate'];
@@ -270,6 +280,12 @@
             }
         }
         updateTotals();
+
+        // 5~8번 항목 filled 스타일 복구
+        ['ssdVersion','autoDist','autoTime','totalOdo'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) updateFilledStyle(el);
+        });
 
         restoreSelectedBtn('sess_selectedUser', '#userBtnGroup .select-btn', (b) => {
             const user = userList.find(u => u.name === b.dataset.val);
@@ -436,7 +452,7 @@
     function checkLogin(){ const e = document.getElementById('emailInput').value.trim().toLowerCase(); const u = userList.find(x => x.email.toLowerCase() === e); if(u){ localStorage.setItem('isLoggedIn', 'true'); localStorage.setItem('userName', u.name); localStorage.setItem('userEmail', u.email); showApp(); } else { showModal("알림", "등록된 이메일이 아닙니다.", "alert"); } }
     function showApp(){ document.getElementById('loginOverlay').style.display='none'; document.getElementById('mainApp').style.display='block'; document.getElementById('displayUserName').innerText = localStorage.getItem('userName') + " 님"; document.getElementById('displayUserEmail').innerText = localStorage.getItem('userEmail'); const rp = sessionStorage.getItem('restorePage'); const rt = sessionStorage.getItem('restoreTitle'); if(rp){ sessionStorage.removeItem('restorePage'); sessionStorage.removeItem('restoreTitle'); switchPage(rp, rt); } else { switchPage('homePage', '🏠 HOME'); } }
     function logout() { localStorage.clear(); sessionStorage.clear(); location.reload(); }
-    function showModal(t,txt,type,onC){ const m=document.getElementById('customModal'); document.getElementById('modalTitle').innerText=t; document.getElementById('modalText').innerText=txt; const f=document.getElementById('modalFooter'); m.style.display='flex'; if(type==='confirm'){ f.innerHTML=`<button class="modal-btn" style="color:#888; border-right:1px solid #eee;" onclick="closeModal()">취소</button><button class="modal-btn" style="color:#1a73e8;" id="mCBtn">확인</button>`; document.getElementById('mCBtn').onclick=()=>{closeModal(); if(onC) onC();}; }else if(type==='cancel_only'){ f.innerHTML=`<button class="modal-btn" style="color:#1a73e8; width:100%;" onclick="closeModal()">취소</button>`; }else{ f.innerHTML=`<button class="modal-btn" style="color:#1a73e8; width:100%;" onclick="closeModal()">확인</button>`; } }
+    function showModal(t,txt,type,onC){ const m=document.getElementById('customModal'); document.getElementById('modalTitle').innerText=t; document.getElementById('modalText').innerText=txt; const f=document.getElementById('modalFooter'); m.style.display='flex'; if(type==='confirm'){ f.innerHTML=`<button class="modal-btn" style="color:#888; border-right:1px solid #eee;" onclick="closeModal()">취소</button><button class="modal-btn" style="color:#1a73e8;" id="mCBtn">확인</button>`; document.getElementById('mCBtn').onclick=()=>{closeModal(); if(onC) onC();}; }else if(type==='cancel_only'){ f.innerHTML=`<button class="modal-btn" style="color:#1a73e8; width:100%;" onclick="closeModal()">취소</button>`; }else{ f.innerHTML=`<button class="modal-btn" style="color:#1a73e8; width:100%;" id="mABtn">확인</button>`; document.getElementById('mABtn').onclick=()=>{closeModal(); if(onC) onC();}; } }
     function closeModal(){document.getElementById('customModal').style.display='none';}
     function resetForm() { const rp = document.querySelector('.app-page.active')?.id || 'homePage'; const rt = document.getElementById('mainHeaderTitle').innerText; showModal("초기화", "전체 내용을 지우시겠습니까?", "confirm", () => { clearSessData(); sessionStorage.setItem('restorePage', rp); sessionStorage.setItem('restoreTitle', rt); location.reload(); }); }
 
@@ -449,6 +465,27 @@
     }
     function addRecord(){
         if(!selectedUser) return showModal("알림","작성자 선택 필수","alert");
+
+        // 운행 선택 시 5~8번 필수 입력 검사
+        if(selectedType === "운행") {
+            const required = [
+                { id: 'ssdVersion',  label: '5. SSD 버전' },
+                { id: 'autoDist',    label: '6. 자율거리' },
+                { id: 'autoTime',    label: '7. 자율시간' },
+                { id: 'totalOdo',    label: '8. 누적 ODO' },
+            ];
+            for(const f of required) {
+                const el = document.getElementById(f.id);
+                if(!el.value || el.value.trim() === '') {
+                    showModal("입력 필요", f.label + " 항목을 입력해주세요.", "alert", () => {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        el.focus();
+                    });
+                    return;
+                }
+            }
+        }
+
         const btn=document.getElementById('submitBtn'); btn.disabled=true;
         const payload={"type":"report", "날짜": document.getElementById('reportDate').value, "작성자":selectedUser, "이메일":selectedEmail, "업무":selectedType, "차량":selectedCar, "근무":selectedShift, "SSD버전":document.getElementById('ssdVersion').value, "자율거리":document.getElementById('autoDist').value||"0", "자율시간":document.getElementById('autoTime').value||"0", "누적ODO":document.getElementById('totalOdo').value||"0", "소프트합계":document.getElementById('softTotalDisp').innerText, "하드합계":document.getElementById('hardTotalDisp').innerText, "이슈사항":document.getElementById('workIssue').value };
         softKeys.forEach((k,i)=>payload[k]=document.getElementById('s'+i).value);
