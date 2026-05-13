@@ -111,7 +111,6 @@
     <div class="menu-header"><span id="displayUserName" style="font-size:1.2rem; font-weight:bold; display:block;">사용자님</span><span id="displayUserEmail" style="font-size:0.85rem; opacity:0.85;">email@future-link.ai</span></div>
     <div class="menu-list">
         <div class="menu-item" onclick="switchPage('homePage', '🏠 HOME')">🏠 홈으로 가기</div>
-        <div class="menu-item" onclick="switchPage('checkPage', '🚘 차량 관리 체크')">🚘 차량 관리 체크</div>
         <div class="menu-item" onclick="switchPage('reportPage', '📋 자율주행 운행보고')">📋 자율주행 운행보고</div>
         <div class="menu-item" onclick="switchPage('chargePage', '⚡ 충전 관리')">⚡ 충전 관리</div>
     </div>
@@ -181,6 +180,13 @@
 </div>
 
 <script>
+    // [안드로이드 뒤로가기 버튼 종료 확인]
+    history.pushState(null, null, location.href);
+    window.addEventListener('popstate', function() {
+        history.pushState(null, null, location.href);
+        showModal("앱 종료", "앱이 종료됩니다.", "confirm", () => { history.back(); history.back(); });
+    });
+
     // [3번] 안드로이드 pull-to-refresh 방지
     let touchStartY = 0;
     document.addEventListener('touchstart', function(e) { touchStartY = e.touches[0].clientY; }, { passive: true });
