@@ -78,30 +78,12 @@
         .hard-table-wrapper { width: 100%; border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
         .hard-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         .hard-table th { font-size: 11px; background: #f8fafc; padding: 10px 2px; border: 1px solid #eee; }
-        .hard-table td { border: 1px solid #eee; text-align: center; padding: 6px 0; }
-        .hard-table .circle-btn { width: 22px; height: 22px; font-size: 15px; }
+        .hard-table td { border: 1px solid #eee; text-align: center; padding: 8px 0; }
         .hard-cause-label { font-size: 11.5px; font-weight: bold; color: #333; line-height: 1.2; word-break: keep-all; padding: 0 2px; }
-        .hard-cell-content { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 3px; }
-        .hard-val-input { width: 22px; text-align: center; border: none; font-weight: 800; font-size: 13px; color: #333; background: transparent; outline: none; }
+        .hard-cell-content { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .hard-val-input { width: 100%; text-align: center; border: none; font-weight: 800; font-size: 16px; color: #1a73e8; background: transparent; outline: none; }
 
         .btn-add { width: 100%; padding: 18px; border: none; border-radius: 14px; font-size: 18px; font-weight: bold; color: white; background: #28a745; margin-top: 15px; }
-
-        /* 운행일정 스타일 */
-        .schedule-date-group { margin-bottom: 18px; }
-        .schedule-date-label { font-size: 13px; font-weight: 700; color: #1a73e8; background: #e8f0fe; padding: 6px 12px; border-radius: 8px; margin-bottom: 8px; display: inline-block; }
-        .schedule-date-label.today { background: #1a73e8; color: white; }
-        .schedule-card { background: white; border: 1px solid #edf2f7; border-radius: 12px; padding: 14px 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
-        .schedule-card.today-card { border-left: 4px solid #1a73e8; }
-        .schedule-car-badge { background: #f1f5fe; color: #1a73e8; font-weight: 700; font-size: 12px; padding: 4px 8px; border-radius: 6px; white-space: nowrap; }
-        .schedule-info { flex: 1; }
-        .schedule-name { font-size: 14px; font-weight: 700; color: #333; }
-        .schedule-sub { font-size: 12px; color: #888; margin-top: 2px; }
-        .schedule-shift { font-size: 11px; font-weight: 700; padding: 3px 7px; border-radius: 5px; white-space: nowrap; }
-        .shift-day { background: #fff8e1; color: #f59f00; }
-        .shift-night { background: #e8eaf6; color: #5c6bc0; }
-        .schedule-loading { text-align: center; padding: 40px; color: #999; font-size: 14px; }
-        .schedule-empty { text-align: center; padding: 40px; color: #bbb; font-size: 14px; }
-        .schedule-refresh-btn { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; background: white; color: #1a73e8; font-size: 14px; font-weight: 600; margin-bottom: 15px; cursor: pointer; }
 
         /* 사이드 메뉴 */
         #sideMenu { position: fixed; top: 0; left: -280px; width: 260px; height: 100%; background: white; z-index: 25000; transition: 0.3s; box-shadow: 2px 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
@@ -130,7 +112,6 @@
     <div class="menu-header"><span id="displayUserName" style="font-size:1.2rem; font-weight:bold; display:block;">사용자님</span><span id="displayUserEmail" style="font-size:0.85rem; opacity:0.85;">email@future-link.ai</span></div>
     <div class="menu-list">
         <div class="menu-item" onclick="switchPage('homePage', '🏠 HOME')">🏠 홈으로 가기</div>
-        <div class="menu-item" onclick="switchPage('schedulePage', '📅 운행일정')">📅 운행일정</div>
         <div class="menu-item" onclick="switchPage('reportPage', '📋 자율주행 운행보고')">📋 자율주행 운행보고</div>
         <div class="menu-item" onclick="switchPage('chargePage', '⚡ 충전 관리')">⚡ 충전 관리</div>
     </div>
@@ -149,7 +130,6 @@
         <img src="https://raw.githubusercontent.com/maxupCDS/safetydriver/main/logo_app.png" class="home-logo" alt="Logo">
         <div class="home-welcome">안전운행팀 업무 시스템</div>
         <div class="home-menu-grid">
-            <div class="home-card" onclick="switchPage('schedulePage', '📅 운행일정')"><span class="home-card-icon">📅</span><span class="home-card-text">운행일정 확인</span></div>
             <div class="home-card" onclick="switchPage('reportPage', '📋 자율주행 운행보고')"><span class="home-card-icon">📋</span><span class="home-card-text">자율주행 운행보고</span></div>
             <div class="home-card" onclick="switchPage('chargePage', '⚡ 충전 관리')"><span class="home-card-icon">⚡</span><span class="home-card-text">충전 관리 기록</span></div>
         </div>
@@ -190,10 +170,6 @@
         <button class="btn-add" id="submitBtn" onclick="addRecord()">보고서 기록하기</button>
     </div>
 
-    <div id="schedulePage" class="app-page">
-        <div id="scheduleContent" style="padding:5px 0;"></div>
-    </div>
-
     <div id="chargePage" class="app-page">
         <div class="section"><label>1. 날짜</label><input type="date" id="chargeDate" class="text-input" onchange="saveInput(this)"></div>
         <div class="section"><label>2. 차량 선택</label><div class="btn-grid grid-2" id="chargeCarBtnGroup"><script>for(let i=801;i<=810;i++)document.write(`<button class="select-btn" data-val="gs${i}" onclick="selectChargeCar(this)">gs${i}</button>`);</script></div></div>
@@ -228,7 +204,7 @@
         if (scrollTop === 0 && e.touches[0].clientY > touchStartY) { e.preventDefault(); }
     }, { passive: false });
 
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbwoKB9CBqG9HvMlrjoBKpZMJbaCK8CWyb72aatQpb-Qm24H4LnWVkJ7sjZpD-bjH2a5/exec';
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbwDGt7slvfyvirjejYnOTdgxnLrp2-WqaY3Xr-a-h2QSrd9TaS62JKQ6TP4R5jMxX3T/exec';
     let selectedUser="", selectedEmail="", selectedType="", selectedCar="", selectedShift="", selectedChargeCar="", selectedCheckCar="";
     const userList=[{name:'황금철', email:'kchwang@future-link.ai'}, {name:'윤길홍', email:'khyoon@future-link.ai'}, {name:'예준우', email:'star7760@future-link.ai'}, {name:'길광림', email:'volfgangk@future-link.ai'}, {name:'전재훈', email:'level5@future-link.ai'}, {name:'오진혁', email:'dhwlstnwkd@future-link.ai'}, {name:'김준혁', email:'kirk@future-link.ai'}, {name:'박승규', email:'jeffstyle@future-link.ai'}, {name:'유승민', email:'max0825@future-link.ai'}, {name:'최대섭', email:'chleotjq1@future-link.ai'}, {name:'윤승현', email:'shyoon@future-link.ai'}, {name:'김선규', email:'skkim@future-link.ai'}, {name:'차두원', email:'dwcha@future-link.ai'}
                    , {name:'박지혜', email:'jpark@future-link.ai'}];
@@ -267,7 +243,7 @@
         if(sc) { sc.innerHTML = ""; softKeys.forEach((n,i)=>{ sc.innerHTML+=`<div class="category-item"><span class="category-name">${i+1}. ${n}</span><div class="counter-group"><button class="circle-btn" onclick="stepSoft(${i},-1)">-</button><input id="s${i}" class="counter-val" value="0" readonly><button class="circle-btn" onclick="stepSoft(${i},1)">+</button></div></div>`; }); }
         
         const hb=document.getElementById('hardBody');
-        if(hb) { hb.innerHTML = ""; hardCauses.forEach((c,i)=>{ let row=`<tr><td class="hard-cause-label">${c}</td>`; hardActions.forEach((a,j)=>{ row+=`<td><div class="hard-cell-content"><button class="circle-btn" onclick="stepHard('${i}_${j}',-1)">-</button><input id="h${i}_${j}" class="hard-val-input" value="0" readonly><button class="circle-btn" onclick="stepHard('${i}_${j}',1)">+</button></div></td>`; }); hb.innerHTML+=row+`</tr>`; }); }
+        if(hb) { hb.innerHTML = ""; hardCauses.forEach((c,i)=>{ let row=`<tr><td class="hard-cause-label">${c}</td>`; hardActions.forEach((a,j)=>{ row+=`<td><div class="hard-cell-content"><button class="circle-btn" onclick="stepHard('${i}_${j}', 1)">+</button><input id="h${i}_${j}" class="hard-val-input" value="0" readonly></div></td>`; }); hb.innerHTML+=row+`</tr>`; }); }
         
         const today = new Date().toISOString().substring(0, 10);
         ['reportDate', 'chargeDate', 'checkDate'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = today; });
@@ -471,68 +447,13 @@
     }
 
     function toggleMenu() { const m = document.getElementById('sideMenu'); const o = document.getElementById('menuOverlay'); const a = m.classList.contains('active'); m.classList.toggle('active'); o.style.display = a ? 'none' : 'block'; }
-    function switchPage(pid, title) { document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active')); document.getElementById(pid).classList.add('active'); document.getElementById('mainHeaderTitle').innerText = title; document.getElementById('headerActions').style.display = (pid === 'reportPage') ? 'block' : 'none'; const m = document.getElementById('sideMenu'); if(m.classList.contains('active')) toggleMenu(); window.scrollTo(0,0); if(pid === 'schedulePage') loadSchedule(); }
+    function switchPage(pid, title) { document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active')); document.getElementById(pid).classList.add('active'); document.getElementById('mainHeaderTitle').innerText = title; document.getElementById('headerActions').style.display = (pid === 'reportPage') ? 'block' : 'none'; const m = document.getElementById('sideMenu'); if(m.classList.contains('active')) toggleMenu(); window.scrollTo(0,0); }
     function checkLogin(){ const e = document.getElementById('emailInput').value.trim().toLowerCase(); const u = userList.find(x => x.email.toLowerCase() === e); if(u){ localStorage.setItem('isLoggedIn', 'true'); localStorage.setItem('userName', u.name); localStorage.setItem('userEmail', u.email); showApp(); } else { showModal("알림", "등록된 이메일이 아닙니다.", "alert"); } }
     function showApp(){ document.getElementById('loginOverlay').style.display='none'; document.getElementById('mainApp').style.display='block'; document.getElementById('displayUserName').innerText = localStorage.getItem('userName') + " 님"; document.getElementById('displayUserEmail').innerText = localStorage.getItem('userEmail'); const rp = sessionStorage.getItem('restorePage'); const rt = sessionStorage.getItem('restoreTitle'); if(rp){ sessionStorage.removeItem('restorePage'); sessionStorage.removeItem('restoreTitle'); switchPage(rp, rt); } else { switchPage('homePage', '🏠 HOME'); } }
     function logout() { localStorage.clear(); sessionStorage.clear(); location.reload(); }
     function showModal(t,txt,type,onC){ const m=document.getElementById('customModal'); document.getElementById('modalTitle').innerText=t; document.getElementById('modalText').innerText=txt; const f=document.getElementById('modalFooter'); m.style.display='flex'; if(type==='confirm'){ f.innerHTML=`<button class="modal-btn" style="color:#888; border-right:1px solid #eee;" onclick="closeModal()">취소</button><button class="modal-btn" style="color:#1a73e8;" id="mCBtn">확인</button>`; document.getElementById('mCBtn').onclick=()=>{closeModal(); if(onC) onC();}; }else if(type==='cancel_only'){ f.innerHTML=`<button class="modal-btn" style="color:#1a73e8; width:100%;" onclick="closeModal()">취소</button>`; }else{ f.innerHTML=`<button class="modal-btn" style="color:#1a73e8; width:100%;" id="mABtn">확인</button>`; document.getElementById('mABtn').onclick=()=>{closeModal(); if(onC) onC();}; } }
     function closeModal(){document.getElementById('customModal').style.display='none';}
     function resetForm() { const rp = document.querySelector('.app-page.active')?.id || 'homePage'; const rt = document.getElementById('mainHeaderTitle').innerText; showModal("초기화", "전체 내용을 지우시겠습니까?", "confirm", () => { clearSessData(); sessionStorage.setItem('restorePage', rp); sessionStorage.setItem('restoreTitle', rt); location.reload(); }); }
-
-    function loadSchedule() {
-        const container = document.getElementById('scheduleContent');
-        container.innerHTML = '<div class="schedule-loading">⏳ 일정을 불러오는 중...</div>';
-
-        fetch(GAS_URL + '?type=schedule')
-            .then(r => r.json())
-            .then(data => {
-                if (!data || data.length === 0) {
-                    container.innerHTML = '<div class="schedule-empty">등록된 일정이 없습니다.</div>'; return;
-                }
-
-                const todayStr = new Date().toISOString().substring(0, 10);
-                // 날짜 오름차순 정렬, 오늘 기준 과거 제외 옵션 없이 전체 표시
-                const sorted = data.sort((a, b) => a.날짜 > b.날짜 ? 1 : -1);
-
-                // 날짜별 그룹핑
-                const groups = {};
-                sorted.forEach(row => {
-                    const d = row.날짜 || '미정';
-                    if (!groups[d]) groups[d] = [];
-                    groups[d].push(row);
-                });
-
-                let html = '<button class="schedule-refresh-btn" onclick="loadSchedule()">🔄 새로고침</button>';
-
-                Object.keys(groups).forEach(date => {
-                    const isToday = date === todayStr;
-                    const labelClass = isToday ? 'schedule-date-label today' : 'schedule-date-label';
-                    const dateDisplay = isToday ? '📍 오늘 ' + date : date;
-                    html += `<div class="schedule-date-group">`;
-                    html += `<div class="${labelClass}">${dateDisplay}</div>`;
-
-                    groups[date].forEach(row => {
-                        const shiftClass = row.근무 === '야간' ? 'shift-night' : 'shift-day';
-                        const shiftText = row.근무 || '';
-                        const cardClass = isToday ? 'schedule-card today-card' : 'schedule-card';
-                        html += `<div class="${cardClass}">
-                            <div class="schedule-car-badge">${row.차량 || '-'}</div>
-                            <div class="schedule-info">
-                                <div class="schedule-name">${row.담당자 || '-'}</div>
-                                <div class="schedule-sub">${row.구간목적 || ''} ${row.비고 ? '· ' + row.비고 : ''}</div>
-                            </div>
-                            ${shiftText ? `<span class="schedule-shift ${shiftClass}">${shiftText}</span>` : ''}
-                        </div>`;
-                    });
-                    html += `</div>`;
-                });
-
-                container.innerHTML = html;
-            })
-            .catch(() => {
-                container.innerHTML = '<div class="schedule-empty">⚠️ 일정을 불러오지 못했습니다.<br><button class="schedule-refresh-btn" style="margin-top:12px" onclick="loadSchedule()">다시 시도</button></div>';
-            });
-    }
 
     function addCheckRecord() {
         if(!selectedCheckCar) return showModal("알림", "차량 선택 필수", "alert");
