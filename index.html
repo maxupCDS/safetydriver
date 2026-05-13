@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -129,7 +130,6 @@
         <img src="https://raw.githubusercontent.com/maxupCDS/safetydriver/main/logo_app.png" class="home-logo" alt="Logo">
         <div class="home-welcome">안전운행팀 업무 시스템</div>
         <div class="home-menu-grid">
-            <div class="home-card" onclick="switchPage('checkPage', '🚘 차량 관리 체크')"><span class="home-card-icon">🚘</span><span class="home-card-text">차량 관리 체크</span></div>
             <div class="home-card" onclick="switchPage('reportPage', '📋 자율주행 운행보고')"><span class="home-card-icon">📋</span><span class="home-card-text">자율주행 운행보고</span></div>
             <div class="home-card" onclick="switchPage('chargePage', '⚡ 충전 관리')"><span class="home-card-icon">⚡</span><span class="home-card-text">충전 관리 기록</span></div>
         </div>
@@ -181,6 +181,14 @@
 </div>
 
 <script>
+    // [3번] 안드로이드 pull-to-refresh 방지
+    let touchStartY = 0;
+    document.addEventListener('touchstart', function(e) { touchStartY = e.touches[0].clientY; }, { passive: true });
+    document.addEventListener('touchmove', function(e) {
+        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        if (scrollTop === 0 && e.touches[0].clientY > touchStartY) { e.preventDefault(); }
+    }, { passive: false });
+
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbwDGt7slvfyvirjejYnOTdgxnLrp2-WqaY3Xr-a-h2QSrd9TaS62JKQ6TP4R5jMxX3T/exec';
     let selectedUser="", selectedEmail="", selectedType="", selectedCar="", selectedShift="", selectedChargeCar="", selectedCheckCar="";
     const userList=[{name:'황금철', email:'kchwang@future-link.ai'}, {name:'윤길홍', email:'khyoon@future-link.ai'}, {name:'예준우', email:'star7760@future-link.ai'}, {name:'길광림', email:'volfgangk@future-link.ai'}, {name:'전재훈', email:'level5@future-link.ai'}, {name:'오진혁', email:'dhwlstnwkd@future-link.ai'}, {name:'김준혁', email:'kirk@future-link.ai'}, {name:'박승규', email:'jeffstyle@future-link.ai'}, {name:'유승민', email:'max0825@future-link.ai'}, {name:'최대섭', email:'chleotjq1@future-link.ai'}, {name:'윤승현', email:'shyoon@future-link.ai'}, {name:'김선규', email:'skkim@future-link.ai'}, {name:'차두원', email:'dwcha@future-link.ai'}
@@ -431,7 +439,13 @@
         const payload={"type":"report", "날짜": document.getElementById('reportDate').value, "작성자":selectedUser, "이메일":selectedEmail, "업무":selectedType, "차량":selectedCar, "근무":selectedShift, "SSD버전":document.getElementById('ssdVersion').value, "자율거리":document.getElementById('autoDist').value||"0", "자율시간":document.getElementById('autoTime').value||"0", "누적ODO":document.getElementById('totalOdo').value||"0", "소프트합계":document.getElementById('softTotalDisp').innerText, "하드합계":document.getElementById('hardTotalDisp').innerText, "이슈사항":document.getElementById('workIssue').value };
         softKeys.forEach((k,i)=>payload[k]=document.getElementById('s'+i).value);
         hardCauses.forEach((c,i)=>{ hardActions.forEach((a,j)=>payload[`하드(${c}-${actionMap[a]})`]=document.getElementById(`h${i}_${j}`).value); });
-        fetch(GAS_URL,{method:'POST',body:JSON.stringify(payload)}).then(() => { clearSessData(); location.reload(); }).catch(()=> btn.disabled=false);
+        fetch(GAS_URL,{method:'POST',body:JSON.stringify(payload)})
+            .then(() => {
+                clearSessData();
+                showModal("✅ 완료", "정상 기록되었습니다.", "alert", () => location.reload());
+                btn.disabled = false;
+            })
+            .catch(()=> btn.disabled=false);
     }
     function addChargeRecord() {
         if(!selectedChargeCar) return showModal("알림", "차량 선택 필수", "alert");
