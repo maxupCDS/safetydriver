@@ -524,7 +524,13 @@
         const btn = document.getElementById('checkSubmitBtn'); btn.disabled = true;
         const payload = { "type": "car_check", "날짜": document.getElementById('checkDate').value, "차량": selectedCheckCar, "메모": document.getElementById('checkMemo').value, "작성자": selectedUser || localStorage.getItem('userName') };
         checkItems.forEach(item => payload[item] = checkResults[item] || "미선택");
-        fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) }).then(() => { clearSessData(); location.reload(); }).catch(() => btn.disabled = false);
+        fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) })
+            .then(() => {
+                clearSessData();
+                showModal("✅ 완료", "정상 기록되었습니다.", "alert", () => location.reload());
+                btn.disabled = false;
+            })
+            .catch(() => btn.disabled = false);
     }
     function addRecord(){
         if(!selectedUser) return showModal("알림","작성자 선택 필수","alert");
@@ -565,7 +571,13 @@
         if(!selectedChargeCar) return showModal("알림", "차량 선택 필수", "alert");
         const btn = document.getElementById('chargeSubmitBtn'); btn.disabled = true;
         const payload = { "type": "charge", "날짜": document.getElementById('chargeDate').value, "차량": selectedChargeCar, "충전량": document.getElementById('chargeAmount').value, "충전시간": document.getElementById('chargeTime').value, "기타": document.getElementById('chargeMemo').value, "작성자": selectedUser || localStorage.getItem('userName') };
-        fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) }).then(() => { clearSessData(); location.reload(); }).catch(() => btn.disabled = false);
+        fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) })
+            .then(() => {
+                clearSessData();
+                showModal("✅ 완료", "정상 기록되었습니다.", "alert", () => location.reload());
+                btn.disabled = false;
+            })
+            .catch(() => btn.disabled = false);
     }
 </script>
 </body>
