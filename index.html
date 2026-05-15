@@ -85,12 +85,14 @@
 
         .btn-add { width: 100%; padding: 18px; border: none; border-radius: 14px; font-size: 18px; font-weight: bold; color: white; background: #28a745; margin-top: 15px; }
 
-        /* 운행일정 스타일 */
-        .sched-header { display: flex; padding: 12px 5px; background: #f1f3f5; border-radius: 8px; margin-bottom: 10px; font-size: 13px; font-weight: bold; color: #495057; text-align: center; }
-        .sched-row { display: flex; align-items: center; padding: 15px 5px; margin-bottom: 5px; border-bottom: 1px solid #eee; background: #fff; text-align: center; }
-        .sched-col { flex: 1; overflow: hidden; text-overflow: ellipsis; }
-        .sched-divider { border-left: 1px solid #dee2e6; border-right: 1px solid #dee2e6; }
-        .schedule-empty { text-align: center; padding: 50px; color: #bbb; border: 1px dashed #ddd; border-radius: 12px; margin-top: 10px; }
+        /* 운행일정 카드 스타일 */
+        .sched-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .sched-card { background: white; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .sched-card-num { font-size: 11px; font-weight: 700; color: #999; margin-bottom: 6px; }
+        .sched-car { display: inline-block; background: #e8f0fe; color: #1a73e8; font-size: 13px; font-weight: 800; padding: 4px 10px; border-radius: 20px; margin-bottom: 8px; }
+        .sched-driver { font-size: 15px; font-weight: 700; color: #222; margin-bottom: 4px; }
+        .sched-mission { font-size: 12px; color: #666; line-height: 1.4; word-break: keep-all; }
+        .schedule-empty { text-align: center; padding: 50px; color: #bbb; border: 1px dashed #ddd; border-radius: 12px; margin-top: 10px; font-size: 14px; }
 
         /* 사이드 메뉴 */
         #sideMenu { position: fixed; top: 0; left: -280px; width: 260px; height: 100%; background: white; z-index: 25000; transition: 0.3s; box-shadow: 2px 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
@@ -273,7 +275,7 @@
 
     // [세션 스토리지 저장 및 복구]
     function saveInput(el) {
-        sessionStorage.setItem('sess_' + el.id, el.value);
+        localStorage.setItem('sess_' + el.id, el.value);
         updateFilledStyle(el);
     }
     function updateFilledStyle(el) {
@@ -285,17 +287,17 @@
     function loadSavedData() {
         const inputs = ['ssdVersion', 'autoDist', 'autoTime', 'totalOdo', 'workIssue', 'checkMemo', 'chargeAmount', 'chargeTime', 'chargeMemo', 'reportDate', 'checkDate', 'chargeDate'];
         inputs.forEach(id => {
-            const val = sessionStorage.getItem('sess_' + id);
+            const val = localStorage.getItem('sess_' + id);
             if (val && document.getElementById(id)) document.getElementById(id).value = val;
         });
 
         for(let i=0; i<softKeys.length; i++) {
-            const val = sessionStorage.getItem('sess_s'+i);
+            const val = localStorage.getItem('sess_s'+i);
             if(val) document.getElementById('s'+i).value = val;
         }
         for(let i=0; i<hardCauses.length; i++) {
             for(let j=0; j<hardActions.length; j++) {
-                const val = sessionStorage.getItem(`sess_h${i}_${j}`);
+                const val = localStorage.getItem(`sess_h${i}_${j}`);
                 if(val) document.getElementById(`h${i}_${j}`).value = val;
             }
         }
@@ -318,7 +320,7 @@
         restoreSelectedBtn('sess_selectedChargeCar', '#chargeCarBtnGroup .select-btn', (b) => selectChargeCar(b));
 
         checkItems.forEach(item => {
-            const val = sessionStorage.getItem('sess_check_' + item);
+            const val = localStorage.getItem('sess_check_' + item);
             if(val) {
                 const btn = document.querySelector(`.opt-btn[data-item="${item}"][onclick*="${val}"]`);
                 if(btn) toggleCheck(item, val, btn);
@@ -327,7 +329,7 @@
     }
 
     function restoreSelectedBtn(storageKey, selector, callback) {
-        const val = sessionStorage.getItem(storageKey);
+        const val = localStorage.getItem(storageKey);
         if(val) {
             const btn = Array.from(document.querySelectorAll(selector)).find(b => b.dataset.val === val || b.innerText === val);
             if(btn) callback(btn);
@@ -338,11 +340,11 @@
         const parent = btn.parentElement;
         if (checkResults[item] === status) { 
             checkResults[item] = ""; btn.classList.remove('selected'); 
-            sessionStorage.removeItem('sess_check_' + item);
+            localStorage.removeItem('sess_check_' + item);
         } else { 
             parent.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected')); 
             btn.classList.add('selected'); checkResults[item] = status; 
-            sessionStorage.setItem('sess_check_' + item, status);
+            localStorage.setItem('sess_check_' + item, status);
         }
     }
 
@@ -350,10 +352,10 @@
         const isSelected = b.classList.contains('selected');
         document.querySelectorAll('#userBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
         if (isSelected) { 
-            selectedUser = ""; selectedEmail = ""; sessionStorage.removeItem('sess_selectedUser');
+            selectedUser = ""; selectedEmail = ""; localStorage.removeItem('sess_selectedUser');
         } else { 
             b.classList.add('selected'); selectedUser = n; selectedEmail = e; 
-            sessionStorage.setItem('sess_selectedUser', n);
+            localStorage.setItem('sess_selectedUser', n);
         }
     }
 
@@ -361,10 +363,10 @@
         const isSelected = b.classList.contains('selected');
         document.querySelectorAll('#carBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
         if (isSelected) { 
-            selectedCar = ""; sessionStorage.removeItem('sess_selectedCar');
+            selectedCar = ""; localStorage.removeItem('sess_selectedCar');
         } else { 
             b.classList.add('selected'); selectedCar = b.innerText;
-            sessionStorage.setItem('sess_selectedCar', b.innerText);
+            localStorage.setItem('sess_selectedCar', b.innerText);
         }
     }
 
@@ -372,10 +374,10 @@
         const isSelected = b.classList.contains('selected');
         document.querySelectorAll('#checkCarBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
         if (isSelected) { 
-            selectedCheckCar = ""; sessionStorage.removeItem('sess_selectedCheckCar');
+            selectedCheckCar = ""; localStorage.removeItem('sess_selectedCheckCar');
         } else { 
             b.classList.add('selected'); selectedCheckCar = b.innerText;
-            sessionStorage.setItem('sess_selectedCheckCar', b.innerText);
+            localStorage.setItem('sess_selectedCheckCar', b.innerText);
         }
     }
 
@@ -383,17 +385,17 @@
         const isSelected = b.classList.contains('selected');
         document.querySelectorAll('#chargeCarBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
         if (isSelected) { 
-            selectedChargeCar = ""; sessionStorage.removeItem('sess_selectedChargeCar');
+            selectedChargeCar = ""; localStorage.removeItem('sess_selectedChargeCar');
         } else { 
             b.classList.add('selected'); selectedChargeCar = b.innerText;
-            sessionStorage.setItem('sess_selectedChargeCar', b.innerText);
+            localStorage.setItem('sess_selectedChargeCar', b.innerText);
         }
     }
 
     function selectShift(b) {
         document.querySelectorAll('#shiftBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
         b.classList.add('selected'); selectedShift = b.innerText;
-        sessionStorage.setItem('sess_selectedShift', b.innerText);
+        localStorage.setItem('sess_selectedShift', b.innerText);
     }
 
     function selectType(b, isRestoring = false) {
@@ -404,7 +406,7 @@
         const applySelection = () => {
             document.querySelectorAll('#typeBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
             b.classList.add('selected'); selectedType = typeName;
-            sessionStorage.setItem('sess_selectedType', typeName);
+            localStorage.setItem('sess_selectedType', typeName);
             
             if (typeName === "동승" || typeName === "내근") {
                 carArea.style.opacity = "0.3"; carArea.style.pointerEvents = "none";
@@ -419,7 +421,7 @@
 
         if (b.classList.contains('selected')) {
             b.classList.remove('selected'); selectedType = "";
-            sessionStorage.removeItem('sess_selectedType');
+            localStorage.removeItem('sess_selectedType');
             carArea.style.opacity = "1"; carArea.style.pointerEvents = "auto";
             autoSec.style.opacity = "1"; autoSec.style.pointerEvents = "auto";
             return;
@@ -430,7 +432,7 @@
                 applySelection();
                 resetAutoDriveData();
                 selectedCar = "";
-                sessionStorage.removeItem('sess_selectedCar');
+                localStorage.removeItem('sess_selectedCar');
                 document.querySelectorAll('#carBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
             });
         } else {
@@ -440,10 +442,10 @@
 
     function resetAutoDriveData() {
         ['ssdVersion', 'autoDist', 'autoTime', 'totalOdo', 'workIssue'].forEach(id => {
-            const el = document.getElementById(id); if(el) el.value = ""; sessionStorage.removeItem('sess_' + id);
+            const el = document.getElementById(id); if(el) el.value = ""; localStorage.removeItem('sess_' + id);
         });
-        for(let i=0; i<softKeys.length; i++) { const e = document.getElementById('s'+i); if(e) e.value = 0; sessionStorage.removeItem('sess_s'+i); }
-        for(let i=0; i<hardCauses.length; i++){ for(let j=0; j<hardActions.length; j++){ const e = document.getElementById(`h${i}_${j}`); if(e) e.value = 0; sessionStorage.removeItem(`sess_h${i}_${j}`); } }
+        for(let i=0; i<softKeys.length; i++) { const e = document.getElementById('s'+i); if(e) e.value = 0; localStorage.removeItem('sess_s'+i); }
+        for(let i=0; i<hardCauses.length; i++){ for(let j=0; j<hardActions.length; j++){ const e = document.getElementById(`h${i}_${j}`); if(e) e.value = 0; localStorage.removeItem(`sess_h${i}_${j}`); } }
         updateTotals();
     }
 
@@ -456,15 +458,15 @@
 
     function stepSoft(i,v){
         const e=document.getElementById('s'+i); e.value=Math.max(0,parseInt(e.value)+v);
-        sessionStorage.setItem('sess_s'+i, e.value); updateTotals();
+        localStorage.setItem('sess_s'+i, e.value); updateTotals();
     }
     function stepHard(id,v){
         const e=document.getElementById('h'+id); e.value=Math.max(0,parseInt(e.value)+v);
-        sessionStorage.setItem('sess_h'+id, e.value); updateTotals();
+        localStorage.setItem('sess_h'+id, e.value); updateTotals();
     }
 
     function clearSessData() {
-        Object.keys(sessionStorage).forEach(key => { if(key.startsWith('sess_')) sessionStorage.removeItem(key); });
+        Object.keys(localStorage).forEach(key => { if(key.startsWith('sess_')) localStorage.removeItem(key); });
     }
 
     function toggleMenu() { const m = document.getElementById('sideMenu'); const o = document.getElementById('menuOverlay'); const a = m.classList.contains('active'); m.classList.toggle('active'); o.style.display = a ? 'none' : 'block'; }
@@ -499,23 +501,23 @@
         });
 
         if (filtered.length === 0) {
-            container.innerHTML = `<div class="schedule-empty">배정된 일정이 없습니다.</div>`;
+            container.innerHTML = `<div class="schedule-empty">📭 배정된 일정이 없습니다.</div>`;
             return;
         }
 
-        let html = `<div class="sched-header">
-            <div class="sched-col">차량번호</div>
-            <div class="sched-col sched-divider">드라이버</div>
-            <div class="sched-col">미션내용</div>
-        </div>`;
-
-        filtered.forEach(item => {
-            html += `<div class="sched-row">
-                <div class="sched-col" style="font-weight:700; color:#1a73e8; font-size:14px;">${item["차량번호"] || item["차량"] || '-'}</div>
-                <div class="sched-col sched-divider" style="font-weight:600; color:#333; font-size:14px;">${item["드라이버"] || item["담당자"] || '-'}</div>
-                <div class="sched-col" style="font-size:13px; color:#666; word-break:keep-all; padding:0 5px;">${item["미션"] || item["구간목적"] || '-'}</div>
+        let html = `<div class="sched-grid">`;
+        filtered.forEach((item, idx) => {
+            const car = item["차량번호"] || item["차량"] || '-';
+            const driver = item["드라이버"] || item["담당자"] || '-';
+            const mission = item["미션"] || item["구간목적"] || '-';
+            html += `<div class="sched-card">
+                <div class="sched-card-num"># ${idx + 1}</div>
+                <div class="sched-car">${car}</div>
+                <div class="sched-driver">👤 ${driver}</div>
+                <div class="sched-mission">📍 ${mission}</div>
             </div>`;
         });
+        html += `</div>`;
         container.innerHTML = html;
     }
 
