@@ -261,6 +261,60 @@
         fetchSchedule();
     }
 
+    // ─────────────────────────────────────────────────────────────
+    // [백그라운드 전환 시 강제 전체 저장]
+    // 안드로이드 PWA는 백그라운드에서 프로세스가 강제 종료될 수 있어서
+    // 화면이 숨겨지는 순간(홈버튼, 다른 앱 전환 등) 모든 상태를 저장함
+    // ─────────────────────────────────────────────────────────────
+    function saveAllState() {
+        // 운행보고 텍스트 필드
+        ['ssdVersion','autoDist','autoTime','totalOdo','workIssue','reportDate'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) localStorage.setItem('report_' + id, el.value);
+        });
+        // 소프트 카운터
+        for(let i=0; i<softKeys.length; i++) {
+            const e = document.getElementById('s'+i);
+            if(e) localStorage.setItem('report_s'+i, e.value);
+        }
+        // 하드 카운터
+        for(let i=0; i<hardCauses.length; i++) {
+            for(let j=0; j<hardActions.length; j++) {
+                const e = document.getElementById(`h${i}_${j}`);
+                if(e) localStorage.setItem(`report_h${i}_${j}`, e.value);
+            }
+        }
+        // 선택 버튼 상태 (변수값 기준으로 저장)
+        if(selectedUser)       localStorage.setItem('report_selectedUser', selectedUser);
+        if(selectedType)       localStorage.setItem('report_selectedType', selectedType);
+        if(selectedCar)        localStorage.setItem('report_selectedCar', selectedCar);
+        if(selectedShift)      localStorage.setItem('report_selectedShift', selectedShift);
+        if(selectedChargeCar)  localStorage.setItem('charge_selectedChargeCar', selectedChargeCar);
+        if(selectedCheckCar)   localStorage.setItem('check_selectedCheckCar', selectedCheckCar);
+
+        // 충전기록 텍스트 필드
+        ['chargeAmount','chargeTime','chargeMemo','chargeDate'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) localStorage.setItem('charge_' + id, el.value);
+        });
+        // 차량점검 텍스트 필드
+        ['checkMemo','checkDate'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) localStorage.setItem('check_' + id, el.value);
+        });
+        // 점검 항목 선택 결과
+        checkItems.forEach(item => {
+            if(checkResults[item]) localStorage.setItem('check_check_' + item, checkResults[item]);
+        });
+    }
+
+    // 백그라운드로 내려갈 때 (홈버튼, 다른 앱 전환)
+    document.addEventListener('visibilitychange', function() {
+        if(document.visibilityState === 'hidden') saveAllState();
+    });
+    // pagehide: visibilitychange가 안 잡힐 경우 추가 보험
+    window.addEventListener('pagehide', saveAllState);
+
     function initUI() {
         const ug = document.getElementById('userBtnGroup');
         if(ug) { 
