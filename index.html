@@ -223,14 +223,8 @@
         if (scrollTop === 0 && e.touches[0].clientY > touchStartY) { e.preventDefault(); }
     }, { passive: false });
 
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbxJ6UlIwzsmleZd-K5jKEQHXshvlitTwAkbziHDZLXW0gRe6v0CZ_0p7GRqgR-I09B7/exec';
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbyxptgOaMBhHT-O8FDw-FTBGC0DuIkAceU02yPD534s233m9aVROfFENt8oF3PQ4LnS/exec';
 
-    // ─────────────────────────────────────────────────────────────
-    // [폼별 prefix 정의]
-    // report: 운행보고, charge: 충전기록, check: 차량점검
-    // 각 폼은 자신의 prefix 키만 저장/삭제하므로
-    // 한 폼을 제출해도 다른 폼 데이터는 절대 건드리지 않습니다.
-    // ─────────────────────────────────────────────────────────────
     const FORM_KEYS = {
         report: ['ssdVersion','autoDist','autoTime','totalOdo','workIssue','reportDate',
                  'selectedUser','selectedType','selectedCar','selectedShift',
@@ -261,11 +255,6 @@
         fetchSchedule();
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // [백그라운드 전환 시 강제 전체 저장]
-    // 안드로이드 PWA는 백그라운드에서 프로세스가 강제 종료될 수 있어서
-    // 화면이 숨겨지는 순간(홈버튼, 다른 앱 전환 등) 모든 상태를 저장함
-    // ─────────────────────────────────────────────────────────────
     function saveAllState() {
         // 운행보고 텍스트 필드
         ['ssdVersion','autoDist','autoTime','totalOdo','workIssue','reportDate'].forEach(id => {
@@ -308,11 +297,11 @@
         });
     }
 
-    // 백그라운드로 내려갈 때 (홈버튼, 다른 앱 전환)
+    // 백그라운드로 내려갈 때
     document.addEventListener('visibilitychange', function() {
         if(document.visibilityState === 'hidden') saveAllState();
     });
-    // pagehide: visibilitychange가 안 잡힐 경우 추가 보험
+    // pagehide 추가 보험
     window.addEventListener('pagehide', saveAllState);
 
     function initUI() {
@@ -342,9 +331,6 @@
         if(localStorage.getItem('isLoggedIn') === 'true') showApp();
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // [저장 함수 - formType 파라미터로 prefix 구분]
-    // ─────────────────────────────────────────────────────────────
     function saveInput(el, formType) {
         localStorage.setItem(formType + '_' + el.id, el.value);
         updateFilledStyle(el);
@@ -356,9 +342,6 @@
         }
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // [복구 함수 - 폼별 prefix로 읽기]
-    // ─────────────────────────────────────────────────────────────
     function loadSavedData() {
         // 운행보고 복구
         ['ssdVersion','autoDist','autoTime','totalOdo','workIssue','reportDate'].forEach(id => {
@@ -422,16 +405,12 @@
         }
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // [폼별 개별 삭제 함수 - 제출 시 해당 폼만 초기화]
-    // ─────────────────────────────────────────────────────────────
     function clearFormData(formType) {
         Object.keys(localStorage).forEach(key => {
             if(key.startsWith(formType + '_')) localStorage.removeItem(key);
         });
     }
 
-    // 전체 삭제 (로그아웃 및 수동 초기화 시 사용)
     function clearAllSessData() {
         Object.keys(localStorage).forEach(key => {
             if(key.startsWith('report_') || key.startsWith('charge_') || key.startsWith('check_')) {
@@ -440,9 +419,6 @@
         });
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // [운행보고 폼 UI만 리셋 (다른 폼 건드리지 않음)]
-    // ─────────────────────────────────────────────────────────────
     function resetReportForm() {
         selectedUser = ""; selectedEmail = ""; selectedType = ""; selectedCar = ""; selectedShift = "";
         document.querySelectorAll('#userBtnGroup .select-btn, #typeBtnGroup .select-btn, #carBtnGroup .select-btn, #shiftBtnGroup .select-btn').forEach(b => b.classList.remove('selected'));
@@ -461,9 +437,6 @@
         autoSec.style.opacity="1"; autoSec.style.pointerEvents="auto";
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // [충전기록 폼 UI만 리셋]
-    // ─────────────────────────────────────────────────────────────
     function resetChargeForm() {
         selectedChargeCar = "";
         document.querySelectorAll('#chargeCarBtnGroup .select-btn').forEach(b => b.classList.remove('selected'));
@@ -579,10 +552,15 @@
         }
     }
 
+    // ✅ [수정 1] workIssue를 resetAutoDriveData에서 제거
+    // 동승/내근 선택 시 이슈사항(11번) 입력 내용이 지워지는 버그 수정
     function resetAutoDriveData() {
-        ['ssdVersion', 'autoDist', 'autoTime', 'totalOdo', 'workIssue'].forEach(id => {
-            const el = document.getElementById(id); if(el) el.value = ""; localStorage.removeItem('report_' + id);
+        ['ssdVersion', 'autoDist', 'autoTime', 'totalOdo'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) { el.value = ""; el.classList.remove('filled'); }
+            localStorage.removeItem('report_' + id);
         });
+        // workIssue(이슈사항)는 여기서 초기화하지 않음 - 유지
         for(let i=0; i<softKeys.length; i++) { const e = document.getElementById('s'+i); if(e) e.value = 0; localStorage.removeItem('report_s'+i); }
         for(let i=0; i<hardCauses.length; i++){ for(let j=0; j<hardActions.length; j++){ const e = document.getElementById(`h${i}_${j}`); if(e) e.value = 0; localStorage.removeItem(`report_h${i}_${j}`); } }
         updateTotals();
@@ -605,14 +583,27 @@
     }
 
     function toggleMenu() { const m = document.getElementById('sideMenu'); const o = document.getElementById('menuOverlay'); const a = m.classList.contains('active'); m.classList.toggle('active'); o.style.display = a ? 'none' : 'block'; }
-    function switchPage(pid, title) { document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active')); document.getElementById(pid).classList.add('active'); document.getElementById('mainHeaderTitle').innerText = title; document.getElementById('headerActions').style.display = (pid === 'reportPage') ? 'block' : 'none'; const m = document.getElementById('sideMenu'); if(m.classList.contains('active')) toggleMenu(); window.scrollTo(0,0); if(pid === 'viewSchedulePage') renderSchedule(); }
+
+    // ✅ [수정 2] switchPage에서 saveAllState() 먼저 호출
+    // 페이지 전환 시 즉시 저장하여 홈으로 나갔다 돌아와도 내용이 유지되도록 수정
+    function switchPage(pid, title) {
+        saveAllState();
+        document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active'));
+        document.getElementById(pid).classList.add('active');
+        document.getElementById('mainHeaderTitle').innerText = title;
+        document.getElementById('headerActions').style.display = (pid === 'reportPage') ? 'block' : 'none';
+        const m = document.getElementById('sideMenu');
+        if(m.classList.contains('active')) toggleMenu();
+        window.scrollTo(0,0);
+        if(pid === 'viewSchedulePage') renderSchedule();
+    }
+
     function checkLogin(){ const e = document.getElementById('emailInput').value.trim().toLowerCase(); const u = userList.find(x => x.email.toLowerCase() === e); if(u){ localStorage.setItem('isLoggedIn', 'true'); localStorage.setItem('userName', u.name); localStorage.setItem('userEmail', u.email); showApp(); } else { showModal("알림", "등록된 이메일이 아닙니다.", "alert"); } }
     function showApp(){ document.getElementById('loginOverlay').style.display='none'; document.getElementById('mainApp').style.display='block'; document.getElementById('displayUserName').innerText = localStorage.getItem('userName') + " 님"; document.getElementById('displayUserEmail').innerText = localStorage.getItem('userEmail'); switchPage('homePage', '🏠 HOME'); }
     function logout() { localStorage.clear(); sessionStorage.clear(); location.reload(); }
     function showModal(t,txt,type,onC){ const m=document.getElementById('customModal'); document.getElementById('modalTitle').innerText=t; document.getElementById('modalText').innerText=txt; const f=document.getElementById('modalFooter'); m.style.display='flex'; if(type==='confirm'){ f.innerHTML=`<button class="modal-btn" style="color:#888; border-right:1px solid #eee;" onclick="closeModal()">취소</button><button class="modal-btn" style="color:#1a73e8;" id="mCBtn">확인</button>`; document.getElementById('mCBtn').onclick=()=>{closeModal(); if(onC) onC();}; }else if(type==='cancel_only'){ f.innerHTML=`<button class="modal-btn" style="color:#1a73e8; width:100%;" onclick="closeModal()">취소</button>`; }else{ f.innerHTML=`<button class="modal-btn" style="color:#1a73e8; width:100%;" id="mABtn">확인</button>`; document.getElementById('mABtn').onclick=()=>{closeModal(); if(onC) onC();}; } }
     function closeModal(){document.getElementById('customModal').style.display='none';}
 
-    // 🔄 헤더 초기화 버튼 - 현재 페이지 폼만 초기화
     function resetForm() {
         const activePage = document.querySelector('.app-page.active')?.id || 'homePage';
         showModal("초기화", "현재 폼의 내용을 지우시겠습니까?", "confirm", () => {
@@ -659,7 +650,6 @@
         checkItems.forEach(item => payload[item] = checkResults[item] || "미선택");
         fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) })
             .then(() => {
-                // check 폼 데이터만 삭제, report/charge는 그대로 유지
                 clearFormData('check');
                 showModal("✅ 완료", "정상 기록되었습니다.", "alert", () => location.reload());
                 btn.disabled = false;
@@ -668,7 +658,13 @@
     }
 
     function addRecord() {
-        if(!selectedUser) return showModal("알림","작성자 선택 필수","alert");
+        if(!selectedUser) return showModal("알림","작성자를 선택해 주세요.","alert");
+        if(!selectedType) {
+            showModal("입력 필요", "3. 업무 항목을 선택해주세요.", "alert", () => {
+                document.getElementById('typeBtnGroup').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+            return;
+        }
         if(selectedType === "운행") {
             const required = [
                 { id: 'ssdVersion',  label: '5. SSD 버전' },
@@ -693,7 +689,6 @@
         hardCauses.forEach((c,i)=>{ hardActions.forEach((a,j)=>payload[`하드(${c}-${actionMap[a]})`]=document.getElementById(`h${i}_${j}`).value); });
         fetch(GAS_URL,{method:'POST',body:JSON.stringify(payload)})
             .then(() => {
-                // report 폼 데이터만 삭제, charge는 그대로 유지
                 clearFormData('report');
                 showModal("✅ 완료", "정상 기록되었습니다.", "alert", () => {
                     resetReportForm();
@@ -709,7 +704,6 @@
         const payload = { "type": "charge", "날짜": document.getElementById('chargeDate').value, "차량": selectedChargeCar, "충전량": document.getElementById('chargeAmount').value, "충전시간": document.getElementById('chargeTime').value, "기타": document.getElementById('chargeMemo').value, "작성자": selectedUser || localStorage.getItem('userName') };
         fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) })
             .then(() => {
-                // charge 폼 데이터만 삭제, report는 그대로 유지
                 clearFormData('charge');
                 showModal("✅ 완료", "정상 기록되었습니다.", "alert", () => {
                     resetChargeForm();
