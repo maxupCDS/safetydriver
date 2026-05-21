@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -122,6 +123,7 @@
         <div class="menu-item" onclick="switchPage('viewSchedulePage', '📅 운행 일정 확인')">📅 운행 일정 확인</div>
         <div class="menu-item" onclick="switchPage('reportPage', '📋 자율주행 운행보고')">📋 자율주행 운행보고</div>
         <div class="menu-item" onclick="switchPage('chargePage', '⚡ 충전 관리')">⚡ 충전 관리</div>
+        <div class="menu-item" onclick="switchPage('calculatorPage', '🧮 자율주행 계산기')">🧮 자율주행 계산기</div>
     </div>
     <div class="menu-footer"><div class="logout-btn" onclick="logout()"><span>로그아웃</span><span style="font-size:12px; color:#999; font-weight:normal;">Sign Out</span></div></div>
 </div>
@@ -141,6 +143,7 @@
             <div class="home-card" onclick="switchPage('viewSchedulePage', '📅 운행 일정 확인')"><span class="home-card-icon">📅</span><span class="home-card-text">운행 일정 확인</span></div>
             <div class="home-card" onclick="switchPage('reportPage', '📋 자율주행 운행보고')"><span class="home-card-icon">📋</span><span class="home-card-text">자율주행 운행보고</span></div>
             <div class="home-card" onclick="switchPage('chargePage', '⚡ 충전 관리')"><span class="home-card-icon">⚡</span><span class="home-card-text">충전 관리 기록</span></div>
+            <div class="home-card" onclick="switchPage('calculatorPage', '🧮 자율주행 계산기')"><span class="home-card-icon">🧮</span><span class="home-card-text">자율주행 계산기</span></div>
         </div>
     </div>
 
@@ -198,7 +201,66 @@
         <div class="section"><label>기타 내용 작성</label><textarea id="chargeMemo" class="text-input" style="height:100px; resize:none;" oninput="saveInput(this, 'charge')"></textarea></div>
         <button class="btn-add" id="chargeSubmitBtn" style="background:#1a73e8;" onclick="addChargeRecord()">충전량 기록하기</button>
     </div>
-</div>
+
+    <div id="calculatorPage" class="app-page">
+        <!-- 탭 버튼 -->
+        <div style="display:flex; gap:8px; margin-bottom:15px;">
+            <button id="calcTabTime" onclick="switchCalcTab('time')" style="flex:1; padding:13px; border-radius:10px; border:2px solid #1a73e8; background:#1a73e8; color:white; font-size:15px; font-weight:bold; cursor:pointer;">⏱ 시간 계산기</button>
+            <button id="calcTabDist" onclick="switchCalcTab('dist')" style="flex:1; padding:13px; border-radius:10px; border:2px solid #1a73e8; background:white; color:#1a73e8; font-size:15px; font-weight:bold; cursor:pointer;">📏 거리 계산기</button>
+        </div>
+
+        <!-- 시간 계산기 -->
+        <div id="calcTimePanel">
+            <div class="section">
+                <label for="calcTime1">1번 자율주행 시간 (6자리 HHMMSS)</label>
+                <input type="number" id="calcTime1" class="text-input" placeholder="예: 010101 (1시간 1분 1초)" oninput="calculateTotalTime()">
+            </div>
+            <div class="section">
+                <label for="calcTime2">2번 자율주행 시간 (6자리 HHMMSS)</label>
+                <input type="number" id="calcTime2" class="text-input" placeholder="예: 020202 (2시간 2분 2초)" oninput="calculateTotalTime()">
+            </div>
+            <div class="section" style="background-color:#f8faff; border-color:#1a73e8;">
+                <label style="color:#1a73e8; font-weight:900; font-size:16px; margin-bottom:15px;">📊 시간 합산 결과</label>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:8px; border-bottom:1px solid #e2e8f0;">
+                        <span style="font-size:14px; color:#555; font-weight:bold;">합산 자율주행 시간:</span>
+                        <span id="calcSimpleTotal" style="font-size:22px; font-weight:900; color:#1a73e8; letter-spacing:1px;">000000</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
+                        <span style="font-size:13px; color:#666;">변환 참고 포맷:</span>
+                        <span id="calcFormattedTotal" style="font-size:15px; font-weight:bold; color:#28a745;">0시간 0분 0초</span>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-add" style="background:#6c757d;" onclick="resetCalculatorForm('time')">입력값 초기화</button>
+        </div>
+
+        <!-- 거리 계산기 -->
+        <div id="calcDistPanel" style="display:none;">
+            <div class="section">
+                <label for="calcDist1">1번 자율주행 거리 (km)</label>
+                <input type="number" id="calcDist1" class="text-input" placeholder="예: 23.8" step="any" oninput="calculateTotalDist()">
+            </div>
+            <div class="section">
+                <label for="calcDist2">2번 자율주행 거리 (km)</label>
+                <input type="number" id="calcDist2" class="text-input" placeholder="예: 13.2" step="any" oninput="calculateTotalDist()">
+            </div>
+            <div class="section" style="background-color:#f8faff; border-color:#1a73e8;">
+                <label style="color:#1a73e8; font-weight:900; font-size:16px; margin-bottom:15px;">📊 거리 합산 결과</label>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:8px; border-bottom:1px solid #e2e8f0;">
+                        <span style="font-size:14px; color:#555; font-weight:bold;">합산 자율주행 거리:</span>
+                        <span id="calcDistTotal" style="font-size:22px; font-weight:900; color:#1a73e8; letter-spacing:1px;">0.0</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
+                        <span style="font-size:13px; color:#666;">변환 참고 포맷:</span>
+                        <span id="calcDistFormatted" style="font-size:15px; font-weight:bold; color:#28a745;">0.0 km</span>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-add" style="background:#6c757d;" onclick="resetCalculatorForm('dist')">입력값 초기화</button>
+        </div>
+    </div>
 
 <script>
     // [안드로이드 뒤로가기 버튼 종료 확인]
@@ -223,7 +285,7 @@
         if (scrollTop === 0 && e.touches[0].clientY > touchStartY) { e.preventDefault(); }
     }, { passive: false });
 
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbyxptgOaMBhHT-O8FDw-FTBGC0DuIkAceU02yPD534s233m9aVROfFENt8oF3PQ4LnS/exec';
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRmJvizs7_giEgsiJJMDH8gB53YDI62tIiPfjK4Z2hQBmHmw9DoE5m3l0XoH2kRS0/exec';
 
     const FORM_KEYS = {
         report: ['ssdVersion','autoDist','autoTime','totalOdo','workIssue','reportDate',
@@ -386,6 +448,22 @@
         restoreSelectedBtn('report_selectedShift', '#shiftBtnGroup .select-btn', (b) => selectShift(b));
         restoreSelectedBtn('check_selectedCheckCar', '#checkCarBtnGroup .select-btn', (b) => selectCheckCar(b));
         restoreSelectedBtn('charge_selectedChargeCar', '#chargeCarBtnGroup .select-btn', (b) => selectChargeCar(b));
+
+        // 계산기 복구
+        const calcT1 = localStorage.getItem('calculator_calcTime1');
+        const calcT2 = localStorage.getItem('calculator_calcTime2');
+        if(calcT1 && document.getElementById('calcTime1')) document.getElementById('calcTime1').value = calcT1;
+        if(calcT2 && document.getElementById('calcTime2')) document.getElementById('calcTime2').value = calcT2;
+        if(calcT1 || calcT2) calculateTotalTime();
+
+        const calcD1 = localStorage.getItem('calculator_calcDist1');
+        const calcD2 = localStorage.getItem('calculator_calcDist2');
+        if(calcD1 && document.getElementById('calcDist1')) document.getElementById('calcDist1').value = calcD1;
+        if(calcD2 && document.getElementById('calcDist2')) document.getElementById('calcDist2').value = calcD2;
+        if(calcD1 || calcD2) calculateTotalDist();
+
+        const savedTab = localStorage.getItem('calculator_activeTab');
+        if(savedTab) switchCalcTab(savedTab);
 
         // 점검 항목 복구
         checkItems.forEach(item => {
@@ -684,18 +762,120 @@
             }
         }
         const btn=document.getElementById('submitBtn'); btn.disabled=true;
-        const payload={"type":"report", "날짜": document.getElementById('reportDate').value, "작성자":selectedUser, "이메일":selectedEmail, "업무":selectedType, "차량":selectedCar, "근무":selectedShift, "SSD버전":document.getElementById('ssdVersion').value, "자율거리":document.getElementById('autoDist').value||"0", "자율시간":document.getElementById('autoTime').value||"0", "누적ODO":document.getElementById('totalOdo').value||"0", "소프트합계":document.getElementById('softTotalDisp').innerText, "하드합계":document.getElementById('hardTotalDisp').innerText, "이슈사항":document.getElementById('workIssue').value };
-        softKeys.forEach((k,i)=>payload[k]=document.getElementById('s'+i).value);
-        hardCauses.forEach((c,i)=>{ hardActions.forEach((a,j)=>payload[`하드(${c}-${actionMap[a]})`]=document.getElementById(`h${i}_${j}`).value); });
-        fetch(GAS_URL,{method:'POST',body:JSON.stringify(payload)})
-            .then(() => {
-                clearFormData('report');
-                showModal("✅ 완료", "정상 기록되었습니다.", "alert", () => {
-                    resetReportForm();
+
+        // ODO 검증 (운행 타입 + 차량 선택된 경우만)
+        const doSubmit = () => {
+            const payload={"type":"report", "날짜": document.getElementById('reportDate').value, "작성자":selectedUser, "이메일":selectedEmail, "업무":selectedType, "차량":selectedCar, "근무":selectedShift, "SSD버전":document.getElementById('ssdVersion').value, "자율거리":document.getElementById('autoDist').value||"0", "자율시간":document.getElementById('autoTime').value||"0", "누적ODO":document.getElementById('totalOdo').value||"0", "소프트합계":document.getElementById('softTotalDisp').innerText, "하드합계":document.getElementById('hardTotalDisp').innerText, "이슈사항":document.getElementById('workIssue').value };
+            softKeys.forEach((k,i)=>payload[k]=document.getElementById('s'+i).value);
+            hardCauses.forEach((c,i)=>{ hardActions.forEach((a,j)=>payload[`하드(${c}-${actionMap[a]})`]=document.getElementById(`h${i}_${j}`).value); });
+            fetch(GAS_URL,{method:'POST',body:JSON.stringify(payload)})
+                .then(() => {
+                    clearFormData('report');
+                    showModal("✅ 완료", "정상 기록되었습니다.", "alert", () => { resetReportForm(); });
+                    btn.disabled = false;
+                })
+                .catch(()=> btn.disabled=false);
+        };
+
+        if(selectedType === "운행" && selectedCar) {
+            const inputOdo = parseFloat(document.getElementById('totalOdo').value);
+            fetch(GAS_URL + `?type=lastOdo&car=${encodeURIComponent(selectedCar)}`)
+                .then(res => res.json())
+                .then(data => {
+                    const lastOdo = parseFloat(data.lastOdo);
+                    if(!isNaN(lastOdo) && inputOdo < lastOdo) {
+                        btn.disabled = false;
+                        const odoEl = document.getElementById('totalOdo');
+                        showModal("⚠️ ODO 오류", `잘못된 ODO입니다. 다시 확인해주세요.\n\n${selectedCar} 마지막 ODO: ${lastOdo.toLocaleString()} km\n입력값: ${inputOdo.toLocaleString()} km`, "alert", () => {
+                            odoEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            odoEl.focus();
+                            odoEl.select();
+                        });
+                    } else {
+                        doSubmit();
+                    }
+                })
+                .catch(() => {
+                    // GAS 조회 실패 시 그냥 제출 (네트워크 문제 등)
+                    doSubmit();
                 });
-                btn.disabled = false;
-            })
-            .catch(()=> btn.disabled=false);
+        } else {
+            doSubmit();
+        }
+    }
+
+    function switchCalcTab(tab) {
+        const isTime = tab === 'time';
+        document.getElementById('calcTimePanel').style.display = isTime ? 'block' : 'none';
+        document.getElementById('calcDistPanel').style.display = isTime ? 'none' : 'block';
+        document.getElementById('calcTabTime').style.background = isTime ? '#1a73e8' : 'white';
+        document.getElementById('calcTabTime').style.color = isTime ? 'white' : '#1a73e8';
+        document.getElementById('calcTabDist').style.background = isTime ? 'white' : '#1a73e8';
+        document.getElementById('calcTabDist').style.color = isTime ? '#1a73e8' : 'white';
+        localStorage.setItem('calculator_activeTab', tab);
+    }
+
+    function calculateTotalTime() {
+        const time1El = document.getElementById('calcTime1');
+        const time2El = document.getElementById('calcTime2');
+        let str1 = time1El.value.trim();
+        let str2 = time2El.value.trim();
+        time1El.classList.toggle('filled', str1 !== '');
+        time2El.classList.toggle('filled', str2 !== '');
+        function hhmmssToSeconds(str) {
+            if (!str) return 0;
+            const padded = str.padStart(6, '0');
+            const h = parseInt(padded.substring(0, 2)) || 0;
+            const m = parseInt(padded.substring(2, 4)) || 0;
+            const s = parseInt(padded.substring(4, 6)) || 0;
+            return (h * 3600) + (m * 60) + s;
+        }
+        const totalSeconds = hhmmssToSeconds(str1) + hhmmssToSeconds(str2);
+        const h = Math.floor(totalSeconds / 3600);
+        const m = Math.floor((totalSeconds % 3600) / 60);
+        const s = totalSeconds % 60;
+        const hhmmssResult = `${String(h).padStart(2,'0')}${String(m).padStart(2,'0')}${String(s).padStart(2,'0')}`;
+        if(document.getElementById('calcSimpleTotal')) document.getElementById('calcSimpleTotal').innerText = hhmmssResult;
+        if(document.getElementById('calcFormattedTotal')) document.getElementById('calcFormattedTotal').innerText = `${h}시간 ${m}분 ${s}초`;
+        localStorage.setItem('calculator_calcTime1', time1El.value);
+        localStorage.setItem('calculator_calcTime2', time2El.value);
+    }
+
+    function calculateTotalDist() {
+        const dist1El = document.getElementById('calcDist1');
+        const dist2El = document.getElementById('calcDist2');
+        let v1 = parseFloat(dist1El.value) || 0;
+        let v2 = parseFloat(dist2El.value) || 0;
+        dist1El.classList.toggle('filled', dist1El.value.trim() !== '');
+        dist2El.classList.toggle('filled', dist2El.value.trim() !== '');
+        const total = Math.round((v1 + v2) * 10) / 10;
+        if(document.getElementById('calcDistTotal')) document.getElementById('calcDistTotal').innerText = total.toFixed(1);
+        if(document.getElementById('calcDistFormatted')) document.getElementById('calcDistFormatted').innerText = `${total.toFixed(1)} km`;
+        localStorage.setItem('calculator_calcDist1', dist1El.value);
+        localStorage.setItem('calculator_calcDist2', dist2El.value);
+    }
+
+    function resetCalculatorForm(type) {
+        if(!type || type === 'time') {
+            document.getElementById('calcTime1').value = "";
+            document.getElementById('calcTime2').value = "";
+            document.getElementById('calcTime1').classList.remove('filled');
+            document.getElementById('calcTime2').classList.remove('filled');
+            if(document.getElementById('calcSimpleTotal')) document.getElementById('calcSimpleTotal').innerText = "000000";
+            if(document.getElementById('calcFormattedTotal')) document.getElementById('calcFormattedTotal').innerText = "0시간 0분 0초";
+            localStorage.removeItem('calculator_calcTime1');
+            localStorage.removeItem('calculator_calcTime2');
+        }
+        if(!type || type === 'dist') {
+            document.getElementById('calcDist1').value = "";
+            document.getElementById('calcDist2').value = "";
+            document.getElementById('calcDist1').classList.remove('filled');
+            document.getElementById('calcDist2').classList.remove('filled');
+            if(document.getElementById('calcDistTotal')) document.getElementById('calcDistTotal').innerText = "0.0";
+            if(document.getElementById('calcDistFormatted')) document.getElementById('calcDistFormatted').innerText = "0.0 km";
+            localStorage.removeItem('calculator_calcDist1');
+            localStorage.removeItem('calculator_calcDist2');
+        }
     }
 
     function addChargeRecord() {
