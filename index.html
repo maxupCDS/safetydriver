@@ -1,5 +1,9 @@
 
 
+
+
+
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -20,7 +24,7 @@
     <style>
         /* [1. 전역 스타일] */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f5f7fa; color: #333; overflow-x: hidden; width: 100%; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f5f7fa; color: #333; overflow-x: hidden; width: 100%; transition: background-color 0.2s, color 0.2s; }
         
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
@@ -35,7 +39,7 @@
 
         /* [3. 메인 앱 레이아웃] */
         #mainApp { display: none; width: 100%; max-width: 600px; margin: 0 auto; background: white; min-height: 100vh; padding: 15px; position: relative; }
-        .header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #f1f3f5; padding-bottom: 10px; }
+        .header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #f1f3f5; padding-bottom: 10px; position: relative; }
         .header-title { color: #1a73e8; font-size: 1.1rem; font-weight: bold; }
         .section { margin-bottom: 15px; padding: 15px; border: 1px solid #edf2f7; border-radius: 12px; background-color: #fdfdfe; width: 100%; }
         label { display: block; margin-bottom: 12px; font-weight: bold; font-size: 16px; color: #333; }
@@ -79,10 +83,11 @@
         .hard-table-wrapper { width: 100%; border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
         .hard-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         .hard-table th { font-size: 11px; background: #f8fafc; padding: 10px 2px; border: 1px solid #eee; }
-        .hard-table td { border: 1px solid #eee; text-align: center; padding: 8px 0; }
+        .hard-table td { border: 1px solid #eee; text-align: center; padding: 6px 0; }
         .hard-cause-label { font-size: 11.5px; font-weight: bold; color: #333; line-height: 1.2; word-break: keep-all; padding: 0 2px; }
-        .hard-cell-content { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .hard-val-input { width: 100%; text-align: center; border: none; font-weight: 800; font-size: 16px; color: #333; background: transparent; outline: none; }
+        /* [수정3] 하드 테이크오버: 숫자 위 + 버튼 아래 세로 배치 */
+        .hard-cell-content { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 4px 0; }
+        .hard-val-input { width: 28px; text-align: center; border: none; font-weight: 800; font-size: 14px; color: #333; background: transparent; outline: none; }
 
         .btn-add { width: 100%; padding: 18px; border: none; border-radius: 14px; font-size: 18px; font-weight: bold; color: white; background: #28a745; margin-top: 15px; }
 
@@ -105,12 +110,116 @@
         .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 24000; display: none; }
         .app-page { display: none; }
         .app-page.active { display: block; }
+        
+        /* 모달 범용 스타일 */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 30000; padding: 20px; }
+        .modal-content { background: white; border-radius: 20px; width: 100%; max-width: 320px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
         #customModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 30000; padding: 20px; }
         .modal-card { background: white; border-radius: 20px; width: 100%; max-width: 320px; overflow: hidden; }
         .modal-body { padding: 25px 20px; text-align: center; border-bottom: 1px solid #eee; }
         .modal-footer { display: flex; }
         .modal-btn { flex: 1; padding: 15px; border: none; background: transparent; font-size: 16px; font-weight: bold; }
-    </style>
+
+        /* [8. 다크모드 전체 개선] */
+        body.dark-mode { background-color: #121212 !important; color: #e0e0e0 !important; }
+
+        /* 메인 앱 / 카드 / 모달 배경 */
+        body.dark-mode #mainApp,
+        body.dark-mode .modal-content,
+        body.dark-mode .modal-card { background: #1e1e1e !important; color: #e0e0e0 !important; border-color: #333 !important; }
+
+        /* 로그인 카드 */
+        body.dark-mode .login-card { background: #1e1e1e !important; color: #e0e0e0 !important; border-color: #333 !important; }
+        body.dark-mode .login-input { background: #2d2d2d !important; color: #ffffff !important; border-color: #555 !important; }
+        body.dark-mode .team-title { color: #5b9cf6 !important; }
+        body.dark-mode .btn-login { background: #1a73e8 !important; color: #fff !important; }
+
+        /* 헤더 */
+        body.dark-mode .header-area { border-bottom-color: #333 !important; }
+        body.dark-mode .header-title { color: #5b9cf6 !important; }
+        body.dark-mode #themeToggleBtn { color: #ffffff !important; }
+
+        /* 사이드 메뉴 */
+        body.dark-mode #sideMenu { background: #1e1e1e !important; }
+        body.dark-mode .menu-item { color: #dddddd !important; border-bottom-color: #2a2a2a !important; }
+        body.dark-mode .menu-item:hover { background: #2a2a2a !important; }
+        body.dark-mode .menu-footer { background: #181818 !important; border-top-color: #333 !important; }
+        body.dark-mode .logout-btn { color: #ff6b6b !important; }
+        body.dark-mode .logout-btn span:last-child { color: #888 !important; }
+
+        /* 섹션 */
+        body.dark-mode .section { background-color: #252525 !important; border-color: #333 !important; }
+
+        /* 라벨 */
+        body.dark-mode label,
+        body.dark-mode .hard-cause-label,
+        body.dark-mode .check-label,
+        body.dark-mode .category-name { color: #eeeeee !important; }
+
+        /* 텍스트 입력 */
+        body.dark-mode .text-input { background-color: #2d2d2d !important; color: #ffffff !important; border-color: #444 !important; }
+        body.dark-mode .text-input::placeholder { color: #888 !important; }
+        body.dark-mode .text-input.filled { background-color: #1a2a40 !important; border-color: #1a73e8 !important; }
+
+        /* 선택 버튼 (미선택 상태) */
+        body.dark-mode .select-btn { background: #2d2d2d !important; color: #cccccc !important; border-color: #444 !important; }
+        body.dark-mode .select-btn.selected { background: #1a73e8 !important; color: #ffffff !important; border-color: #1a73e8 !important; }
+
+        /* 홈 카드 */
+        body.dark-mode .home-card { background: #252525 !important; border-color: #333 !important; }
+        body.dark-mode .home-card:active { background: #2d2d2d !important; }
+        body.dark-mode .home-welcome { color: #ffffff !important; }
+        body.dark-mode .home-card-text { color: #eeeeee !important; }
+
+/* 운행일정 */
+body.dark-mode .sched-header { background: #2d2d2d !important; color: #cccccc !important; }
+body.dark-mode .sched-row { background: #1e1e1e !important; border-bottom-color: #333 !important; color: #ffffff !important; }
+body.dark-mode .sched-row, 
+body.dark-mode .sched-row .sched-col,
+body.dark-mode .sched-row span,
+body.dark-mode .sched-row div { color: #ffffff !important; } /* 드라이버 이름, 미션내용 등 텍스트를 흰색으로 강제 수정 */
+body.dark-mode .schedule-empty { color: #666 !important; border-color: #333 !important; }
+
+        /* 체크 항목 */
+        body.dark-mode .check-item { border-bottom-color: #333 !important; }
+        body.dark-mode .opt-btn { background: #2d2d2d !important; color: #aaa !important; border-color: #444 !important; }
+        body.dark-mode .opt-btn.good.selected { background: #28a745 !important; color: white !important; border-color: #28a745 !important; }
+        body.dark-mode .opt-btn.bad.selected { background: #dc3545 !important; color: white !important; border-color: #dc3545 !important; }
+
+        /* 카운터/소프트/하드 */
+        body.dark-mode .category-item { border-bottom-color: #2a2a2a !important; }
+        body.dark-mode .counter-val,
+        body.dark-mode .hard-val-input { color: #ffffff !important; }
+        body.dark-mode .circle-btn { background: #1a73e8 !important; color: #fff !important; }
+
+        /* 하드 테이크오버 테이블 */
+        body.dark-mode .hard-table-wrapper { border-color: #333 !important; }
+        body.dark-mode .hard-table th { background: #2a2a2a !important; color: #cccccc !important; border-color: #333 !important; }
+        body.dark-mode .hard-table td { border-color: #333 !important; }
+
+        /* 모달 */
+        body.dark-mode .modal-body { color: #ffffff !important; border-bottom-color: #333 !important; }
+        body.dark-mode #modalTitle { color: #5b9cf6 !important; }
+        body.dark-mode #modalText { color: #cccccc !important; }
+        body.dark-mode .modal-btn { color: #5b9cf6 !important; border-right-color: #333 !important; }
+        body.dark-mode .modal-btn:first-child { color: #888 !important; }
+
+        /* 계산기 탭 버튼 */
+        body.dark-mode #calcTabTime,
+        body.dark-mode #calcTabDist { border-color: #1a73e8 !important; }
+
+        /* btn-add */
+        body.dark-mode .btn-add { opacity: 0.95; }
+
+        /* 동적으로 생성된 모달 (자율시간/거리 계산기) */
+        body.dark-mode #autoTimeCalcModal .modal-content,
+        body.dark-mode #autoDistCalcModal .modal-content { background: #1e1e1e !important; color: #e0e0e0 !important; }
+        body.dark-mode #autoTimeCalcModal .text-input,
+        body.dark-mode #autoDistCalcModal .text-input { background: #2d2d2d !important; color: #fff !important; border-color: #444 !important; }
+        body.dark-mode #timePoolList,
+        body.dark-mode #distPoolList { background: rgba(255,255,255,0.05) !important; color: #ccc !important; }
+    .hard-clickable{cursor:pointer}.hard-cell-content{cursor:pointer}
+</style>
 </head>
 <body>
 
@@ -123,7 +232,6 @@
         <div class="menu-item" onclick="switchPage('viewSchedulePage', '📅 운행 일정 확인')">📅 운행 일정 확인</div>
         <div class="menu-item" onclick="switchPage('reportPage', '📋 자율주행 운행보고')">📋 자율주행 운행보고</div>
         <div class="menu-item" onclick="switchPage('chargePage', '⚡ 충전 관리')">⚡ 충전 관리</div>
-        <div class="menu-item" onclick="switchPage('calculatorPage', '🧮 자율주행 계산기')">🧮 자율주행 계산기</div>
     </div>
     <div class="menu-footer"><div class="logout-btn" onclick="logout()"><span>로그아웃</span><span style="font-size:12px; color:#999; font-weight:normal;">Sign Out</span></div></div>
 </div>
@@ -133,7 +241,10 @@
 <div id="mainApp">
     <div class="header-area">
         <div style="display:flex; align-items:center;"><button onclick="toggleMenu()" style="font-size:26px; background:none; border:none; color:#1a73e8; cursor:pointer; padding-right:10px;">☰</button><div class="header-title" id="mainHeaderTitle">HOME</div></div>
-        <div id="headerActions" style="display: none;"><button onclick="resetForm()" style="background:none; border:none; font-size:22px; cursor:pointer;">🔄</button></div>
+        <div style="display:flex; align-items:center; gap:12px;">
+            <button id="themeToggleBtn" onclick="toggleDarkMode()" style="background:none; border:none; font-size:20px; cursor:pointer; padding:4px;">🌓</button>
+            <div id="headerActions" style="display: none;"><button onclick="resetForm()" style="background:none; border:none; font-size:22px; cursor:pointer;">🔄</button></div>
+        </div>
     </div>
 
     <div id="homePage" class="app-page active">
@@ -143,7 +254,7 @@
             <div class="home-card" onclick="switchPage('viewSchedulePage', '📅 운행 일정 확인')"><span class="home-card-icon">📅</span><span class="home-card-text">운행 일정 확인</span></div>
             <div class="home-card" onclick="switchPage('reportPage', '📋 자율주행 운행보고')"><span class="home-card-icon">📋</span><span class="home-card-text">자율주행 운행보고</span></div>
             <div class="home-card" onclick="switchPage('chargePage', '⚡ 충전 관리')"><span class="home-card-icon">⚡</span><span class="home-card-text">충전 관리 기록</span></div>
-            <div class="home-card" onclick="switchPage('calculatorPage', '🧮 자율주행 계산기')"><span class="home-card-icon">🧮</span><span class="home-card-text">자율주행 계산기</span></div>
+
         </div>
     </div>
 
@@ -171,8 +282,21 @@
         
         <div id="autoDriveSections">
             <div class="section"><label>5. SSD 버전</label><input type="text" id="ssdVersion" class="text-input" oninput="saveInput(this, 'report')"></div>
-            <div class="section"><label>6. 자율거리(km)</label><input type="number" id="autoDist" class="text-input" step="any" oninput="saveInput(this, 'report')"></div>
-            <div class="section"><label>7. 자율시간(6자리)</label><input type="number" id="autoTime" class="text-input" oninput="saveInput(this, 'report')"></div>
+            <div class="section">
+                <label>6. 자율거리(km)</label>
+                <div style="display: flex; gap: 6px;">
+                    <input type="number" id="autoDist" class="text-input" step="any" oninput="saveInput(this, 'report')">
+                    <button type="button" class="select-btn" onclick="openAutoDistCalculator()" style="width: auto; padding: 0 10px; font-size: 13px; white-space: nowrap; margin-top:0; height: 46px;">📏 거리 합산</button>
+                </div>
+            </div>
+            <div class="section">
+                <!-- [수정2] placeholder 제거 -->
+                <label>7. 자율시간(6자리)</label>
+                <div style="display: flex; gap: 6px;">
+                    <input type="number" id="autoTime" class="text-input" oninput="saveInput(this, 'report'); validateAutoTimeFormat(this);">
+                    <button type="button" class="select-btn" onclick="openAutoTimeCalculator()" style="width: auto; padding: 0 10px; font-size: 13px; white-space: nowrap; margin-top:0; height: 46px;">⏱️ 시간 합산</button>
+                </div>
+            </div>
             <div class="section"><label>8. 누적 ODO(km)</label><input type="number" id="totalOdo" class="text-input" oninput="saveInput(this, 'report')"></div>
             <div class="section"><label>9. 소프트 테이크오버</label><div id="softContainer"></div><div style="text-align:right; font-weight:bold; color:#1a73e8; margin-top:8px; font-size:15px;">소프트 합계: <span id="softTotalDisp">0</span></div></div>
             <div class="section"><label>10. 하드 테이크오버</label><div class="hard-table-wrapper"><table class="hard-table"><thead><tr><th style="width:24%">구분</th><th>브레이크</th><th>핸들</th><th>엑셀</th><th>시스템</th></tr></thead><tbody id="hardBody"></tbody></table></div><div style="text-align:right; font-weight:bold; color:#1a73e8; margin-top:10px; font-size:15px;">하드 합계: <span id="hardTotalDisp">0</span></div></div>
@@ -203,13 +327,11 @@
     </div>
 
     <div id="calculatorPage" class="app-page">
-        <!-- 탭 버튼 -->
         <div style="display:flex; gap:8px; margin-bottom:15px;">
             <button id="calcTabTime" onclick="switchCalcTab('time')" style="flex:1; padding:13px; border-radius:10px; border:2px solid #1a73e8; background:#1a73e8; color:white; font-size:15px; font-weight:bold; cursor:pointer;">⏱ 시간 계산기</button>
             <button id="calcTabDist" onclick="switchCalcTab('dist')" style="flex:1; padding:13px; border-radius:10px; border:2px solid #1a73e8; background:white; color:#1a73e8; font-size:15px; font-weight:bold; cursor:pointer;">📏 거리 계산기</button>
         </div>
 
-        <!-- 시간 계산기 -->
         <div id="calcTimePanel">
             <div class="section">
                 <label for="calcTime1">1번 자율주행 시간 (6자리 HHMMSS)</label>
@@ -235,7 +357,6 @@
             <button class="btn-add" style="background:#6c757d;" onclick="resetCalculatorForm('time')">입력값 초기화</button>
         </div>
 
-        <!-- 거리 계산기 -->
         <div id="calcDistPanel" style="display:none;">
             <div class="section">
                 <label for="calcDist1">1번 자율주행 거리 (km)</label>
@@ -263,21 +384,16 @@
     </div>
 
 <script>
-    // [안드로이드 뒤로가기 버튼 종료 확인]
     let backPressedOnce = false;
     history.pushState(null, null, location.href);
     window.addEventListener('popstate', function() {
-        if (backPressedOnce) {
-            history.back();
-            return;
-        }
+        if (backPressedOnce) { history.back(); return; }
         history.pushState(null, null, location.href);
         backPressedOnce = true;
         showModal("앱 종료", "앱을 종료하시겠습니까?\n뒤로가기를 한 번 더 누르시면 앱이 종료됩니다.", "cancel_only");
         setTimeout(() => { backPressedOnce = false; }, 3000);
     });
 
-    // [pull-to-refresh 방지]
     let touchStartY = 0;
     document.addEventListener('touchstart', function(e) { touchStartY = e.touches[0].clientY; }, { passive: true });
     document.addEventListener('touchmove', function(e) {
@@ -315,27 +431,24 @@
         initUI();
         loadSavedData();
         fetchSchedule();
+        initTheme();
     }
 
     function saveAllState() {
-        // 운행보고 텍스트 필드
         ['ssdVersion','autoDist','autoTime','totalOdo','workIssue','reportDate'].forEach(id => {
             const el = document.getElementById(id);
             if(el) localStorage.setItem('report_' + id, el.value);
         });
-        // 소프트 카운터
         for(let i=0; i<softKeys.length; i++) {
             const e = document.getElementById('s'+i);
             if(e) localStorage.setItem('report_s'+i, e.value);
         }
-        // 하드 카운터
         for(let i=0; i<hardCauses.length; i++) {
             for(let j=0; j<hardActions.length; j++) {
                 const e = document.getElementById(`h${i}_${j}`);
                 if(e) localStorage.setItem(`report_h${i}_${j}`, e.value);
             }
         }
-        // 선택 버튼 상태 (변수값 기준으로 저장)
         if(selectedUser)       localStorage.setItem('report_selectedUser', selectedUser);
         if(selectedType)       localStorage.setItem('report_selectedType', selectedType);
         if(selectedCar)        localStorage.setItem('report_selectedCar', selectedCar);
@@ -343,27 +456,22 @@
         if(selectedChargeCar)  localStorage.setItem('charge_selectedChargeCar', selectedChargeCar);
         if(selectedCheckCar)   localStorage.setItem('check_selectedCheckCar', selectedCheckCar);
 
-        // 충전기록 텍스트 필드
         ['chargeAmount','chargeTime','chargeMemo','chargeDate'].forEach(id => {
             const el = document.getElementById(id);
             if(el) localStorage.setItem('charge_' + id, el.value);
         });
-        // 차량점검 텍스트 필드
         ['checkMemo','checkDate'].forEach(id => {
             const el = document.getElementById(id);
             if(el) localStorage.setItem('check_' + id, el.value);
         });
-        // 점검 항목 선택 결과
         checkItems.forEach(item => {
             if(checkResults[item]) localStorage.setItem('check_check_' + item, checkResults[item]);
         });
     }
 
-    // 백그라운드로 내려갈 때
     document.addEventListener('visibilitychange', function() {
         if(document.visibilityState === 'hidden') saveAllState();
     });
-    // pagehide 추가 보험
     window.addEventListener('pagehide', saveAllState);
 
     function initUI() {
@@ -385,8 +493,18 @@
         const sc=document.getElementById('softContainer');
         if(sc) { sc.innerHTML = ""; softKeys.forEach((n,i)=>{ sc.innerHTML+=`<div class="category-item"><span class="category-name">${i+1}. ${n}</span><div class="counter-group"><button class="circle-btn" onclick="stepSoft(${i},-1)">-</button><input id="s${i}" class="counter-val" value="0" readonly><button class="circle-btn" onclick="stepSoft(${i},1)">+</button></div></div>`; }); }
         
+        // [수정3] 하드 테이크오버: 숫자 위, (+) 버튼 아래
         const hb=document.getElementById('hardBody');
-        if(hb) { hb.innerHTML = ""; hardCauses.forEach((c,i)=>{ let row=`<tr><td class="hard-cause-label">${c}</td>`; hardActions.forEach((a,j)=>{ row+=`<td><div class="hard-cell-content"><button class="circle-btn" onclick="stepHard('${i}_${j}',1)">+</button><input id="h${i}_${j}" class="hard-val-input" value="0" readonly></div></td>`; }); hb.innerHTML+=row+`</tr>`; }); }
+        if(hb) { 
+            hb.innerHTML = ""; 
+            hardCauses.forEach((c,i)=>{ 
+                let row=`<tr><td class="hard-cause-label">${c}</td>`; 
+                hardActions.forEach((a,j)=>{ 
+                    row+=`<td class="hard-clickable" onclick="openHardModal('${i}_${j}','${c}','${a}')"><div class="hard-cell-content"><input id="h${i}_${j}" class="hard-val-input" value="0" readonly></div></td>`; 
+                }); 
+                hb.innerHTML+=row+`</tr>`; 
+            }); 
+        }
         
         const today = new Date().toISOString().substring(0, 10);
         ['reportDate', 'chargeDate', 'checkDate', 'viewDate'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = today; });
@@ -405,7 +523,6 @@
     }
 
     function loadSavedData() {
-        // 운행보고 복구
         ['ssdVersion','autoDist','autoTime','totalOdo','workIssue','reportDate'].forEach(id => {
             const val = localStorage.getItem('report_' + id);
             if (val && document.getElementById(id)) document.getElementById(id).value = val;
@@ -426,19 +543,16 @@
             if(el) updateFilledStyle(el);
         });
 
-        // 충전기록 복구
         ['chargeAmount','chargeTime','chargeMemo','chargeDate'].forEach(id => {
             const val = localStorage.getItem('charge_' + id);
             if (val && document.getElementById(id)) document.getElementById(id).value = val;
         });
 
-        // 차량점검 복구
         ['checkMemo','checkDate'].forEach(id => {
             const val = localStorage.getItem('check_' + id);
             if (val && document.getElementById(id)) document.getElementById(id).value = val;
         });
 
-        // 선택 버튼 복구
         restoreSelectedBtn('report_selectedUser', '#userBtnGroup .select-btn', (b) => {
             const user = userList.find(u => u.name === b.dataset.val);
             if(user) selectUser(b, user.name, user.email);
@@ -449,7 +563,6 @@
         restoreSelectedBtn('check_selectedCheckCar', '#checkCarBtnGroup .select-btn', (b) => selectCheckCar(b));
         restoreSelectedBtn('charge_selectedChargeCar', '#chargeCarBtnGroup .select-btn', (b) => selectChargeCar(b));
 
-        // 계산기 복구
         const calcT1 = localStorage.getItem('calculator_calcTime1');
         const calcT2 = localStorage.getItem('calculator_calcTime2');
         if(calcT1 && document.getElementById('calcTime1')) document.getElementById('calcTime1').value = calcT1;
@@ -465,7 +578,6 @@
         const savedTab = localStorage.getItem('calculator_activeTab');
         if(savedTab) switchCalcTab(savedTab);
 
-        // 점검 항목 복구
         checkItems.forEach(item => {
             const val = localStorage.getItem('check_check_' + item);
             if(val) {
@@ -502,10 +614,16 @@
         document.querySelectorAll('#userBtnGroup .select-btn, #typeBtnGroup .select-btn, #carBtnGroup .select-btn, #shiftBtnGroup .select-btn').forEach(b => b.classList.remove('selected'));
         const today = new Date().toISOString().substring(0, 10);
         document.getElementById('reportDate').value = today;
-        ['ssdVersion','autoDist','autoTime','totalOdo','workIssue'].forEach(id => {
-            const el = document.getElementById(id);
-            if(el) { el.value = ""; el.classList.remove('filled'); }
-        });
+['ssdVersion','autoDist','autoTime','totalOdo','workIssue']
+.forEach(id => {
+    const el = document.getElementById(id);
+    if(el) {
+        el.value = "";
+        el.classList.remove('filled');
+    }
+});
+
+localStorage.removeItem('report_totalOdo');
         for(let i=0; i<softKeys.length; i++) { const e=document.getElementById('s'+i); if(e) e.value=0; }
         for(let i=0; i<hardCauses.length; i++) { for(let j=0; j<hardActions.length; j++) { const e=document.getElementById(`h${i}_${j}`); if(e) e.value=0; } }
         updateTotals();
@@ -630,15 +748,12 @@
         }
     }
 
-    // ✅ [수정 1] workIssue를 resetAutoDriveData에서 제거
-    // 동승/내근 선택 시 이슈사항(11번) 입력 내용이 지워지는 버그 수정
     function resetAutoDriveData() {
         ['ssdVersion', 'autoDist', 'autoTime', 'totalOdo'].forEach(id => {
             const el = document.getElementById(id);
             if(el) { el.value = ""; el.classList.remove('filled'); }
             localStorage.removeItem('report_' + id);
         });
-        // workIssue(이슈사항)는 여기서 초기화하지 않음 - 유지
         for(let i=0; i<softKeys.length; i++) { const e = document.getElementById('s'+i); if(e) e.value = 0; localStorage.removeItem('report_s'+i); }
         for(let i=0; i<hardCauses.length; i++){ for(let j=0; j<hardActions.length; j++){ const e = document.getElementById(`h${i}_${j}`); if(e) e.value = 0; localStorage.removeItem(`report_h${i}_${j}`); } }
         updateTotals();
@@ -655,15 +770,20 @@
         const e=document.getElementById('s'+i); e.value=Math.max(0,parseInt(e.value)+v);
         localStorage.setItem('report_s'+i, e.value); updateTotals();
     }
+    
     function stepHard(id,v){
         const e=document.getElementById('h'+id); e.value=Math.max(0,parseInt(e.value)+v);
         localStorage.setItem('report_h'+id, e.value); updateTotals();
     }
 
-    function toggleMenu() { const m = document.getElementById('sideMenu'); const o = document.getElementById('menuOverlay'); const a = m.classList.contains('active'); m.classList.toggle('active'); o.style.display = a ? 'none' : 'block'; }
+    
+let currentHardId='';let currentHardValue=0;
+function openHardModal(id,cause,action){currentHardId=id;const input=document.getElementById('h'+id);currentHardValue=parseInt(input.value||0);document.getElementById('hardModalTitle').innerText=`${cause} - ${action}`;document.getElementById('hardModalValue').innerText=currentHardValue;document.getElementById('hardTakeoverModal').style.display='flex';}
+function changeHardModal(step){currentHardValue=Math.max(0,currentHardValue+step);document.getElementById('hardModalValue').innerText=currentHardValue;}
+function closeHardModal(){const input=document.getElementById('h'+currentHardId);input.value=currentHardValue;localStorage.setItem('report_h'+currentHardId,currentHardValue);updateTotals();document.getElementById('hardTakeoverModal').style.display='none';}
 
-    // ✅ [수정 2] switchPage에서 saveAllState() 먼저 호출
-    // 페이지 전환 시 즉시 저장하여 홈으로 나갔다 돌아와도 내용이 유지되도록 수정
+function toggleMenu() { const m = document.getElementById('sideMenu'); const o = document.getElementById('menuOverlay'); const a = m.classList.contains('active'); m.classList.toggle('active'); o.style.display = a ? 'none' : 'block'; }
+
     function switchPage(pid, title) {
         saveAllState();
         document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active'));
@@ -736,10 +856,21 @@
     }
 
     function addRecord() {
-        if(!selectedUser) return showModal("알림","작성자를 선택해 주세요.","alert");
+        if(!selectedUser) {
+            showModal("입력 필요", "2. 작성자를 선택해 주세요.", "alert", () => {
+                document.getElementById('userBtnGroup').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+            return;
+        }
         if(!selectedType) {
             showModal("입력 필요", "3. 업무 항목을 선택해주세요.", "alert", () => {
                 document.getElementById('typeBtnGroup').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+            return;
+        }
+        if(selectedType === "운행" && !selectedCar) {
+            showModal("입력 필요", "3. 차량번호를 선택해주세요.", "alert", () => {
+                document.getElementById('carBtnGroup').scrollIntoView({ behavior: 'smooth', block: 'center' });
             });
             return;
         }
@@ -763,7 +894,6 @@
         }
         const btn=document.getElementById('submitBtn'); btn.disabled=true;
 
-        // ODO 검증 (운행 타입 + 차량 선택된 경우만)
         const doSubmit = () => {
             const payload={"type":"report", "날짜": document.getElementById('reportDate').value, "작성자":selectedUser, "이메일":selectedEmail, "업무":selectedType, "차량":selectedCar, "근무":selectedShift, "SSD버전":document.getElementById('ssdVersion').value, "자율거리":document.getElementById('autoDist').value||"0", "자율시간":document.getElementById('autoTime').value||"0", "누적ODO":document.getElementById('totalOdo').value||"0", "소프트합계":document.getElementById('softTotalDisp').innerText, "하드합계":document.getElementById('hardTotalDisp').innerText, "이슈사항":document.getElementById('workIssue').value };
             softKeys.forEach((k,i)=>payload[k]=document.getElementById('s'+i).value);
@@ -796,7 +926,6 @@
                     }
                 })
                 .catch(() => {
-                    // GAS 조회 실패 시 그냥 제출 (네트워크 문제 등)
                     doSubmit();
                 });
         } else {
@@ -892,6 +1021,222 @@
             })
             .catch(() => btn.disabled = false);
     }
+
+    /* ==========================================
+       🆕 [기능 개선 및 확장 스크립트]
+       ========================================== */
+
+    // [다크모드 토글]
+    function toggleDarkMode() {
+        const isDark = document.body.classList.toggle('dark-mode');
+        localStorage.setItem('app_theme', isDark ? 'dark' : 'light');
+    }
+
+    // [페이지 시작 시 테마 로딩]
+    function initTheme() {
+        const savedTheme = localStorage.getItem('app_theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+    }
+
+    // [자율시간 입력 검증]
+    function validateAutoTimeFormat(input) {
+        let val = input.value;
+        if (val.length > 6) {
+            input.value = val.slice(0, 6);
+            val = input.value;
+        }
+        if (val.length === 6) {
+            let mm = parseInt(val.substring(2, 4));
+            let ss = parseInt(val.substring(4, 6));
+            if (mm >= 60 || ss >= 60) {
+                input.style.borderColor = "#dc3545";
+                showModal("⚠️ 시간 포맷 경고", "분(MM)과 초(SS)는 60 미만 숫자로 표기되어야 합니다.", "alert");
+            } else {
+                input.style.borderColor = "";
+            }
+        }
+    }
+
+    // [자율시간 계산기]
+    function openAutoTimeCalculator() {
+        let calcModal = document.getElementById('autoTimeCalcModal');
+        if (!calcModal) {
+            calcModal = document.createElement('div');
+            calcModal.id = 'autoTimeCalcModal';
+            calcModal.className = 'modal';
+            calcModal.style.display = 'flex';
+            calcModal.innerHTML = `
+                <div class="modal-content" style="padding:18px;">
+                    <div style="font-weight:bold; color:#1a73e8; margin-bottom:12px; font-size:16px;">⏱️ 구간별 자율시간 합산기</div>
+                    <div style="font-size:13px; margin-bottom:12px;">현장 운행 도중 발생한 구간 기록을 누적 합산합니다.</div>
+                    <div style="display:flex; gap:5px; margin-bottom:10px;">
+                        <input type="number" id="calcHour" placeholder="시" style="width:33%; text-align:center;" class="text-input" min="0">
+                        <input type="number" id="calcMin" placeholder="분" style="width:33%; text-align:center;" class="text-input" min="0" max="59">
+                        <input type="number" id="calcSec" placeholder="초" style="width:33%; text-align:center;" class="text-input" min="0" max="59">
+                    </div>
+                    <button type="button" class="select-btn" onclick="addTimeToPool()" style="background:#28a745; color:#fff; width:100%; height:38px; margin-bottom:12px; font-size:13px; font-weight:bold;">+ 리스트 추가</button>
+                    <div id="timePoolList" style="background:rgba(0,0,0,0.04); border-radius:8px; padding:10px; max-height:90px; overflow-y:auto; font-size:12px; text-align:left; color:#555; margin-bottom:12px;">추가된 운행 구간 정보가 없습니다.</div>
+                    <div id="timePoolTotal" style="font-weight:bold; text-align:right; font-size:14px; color:#1a73e8; margin-bottom:15px;">총 시간합: 00시간 00분 00초</div>
+                    <div style="display:flex; gap:6px;">
+                        <button type="button" class="select-btn" onclick="applyCalculatedTime()" style="background:#1a73e8; color:#fff; flex:1; margin:0; font-size:14px; font-weight:bold; height:42px;">7번 항목에 적용</button>
+                        <button type="button" class="select-btn" onclick="closeAutoTimeCalculator()" style="background:#6c757d; color:#fff; flex:1; margin:0; font-size:14px; font-weight:bold; height:42px;">닫기</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(calcModal);
+        } else {
+            calcModal.style.display = 'flex';
+        }
+        document.getElementById('calcHour').value = "";
+        document.getElementById('calcMin').value = "";
+        document.getElementById('calcSec').value = "";
+        window.autoTimeSecondsPool = 0;
+        window.autoTimeRecords = [];
+        updateTimePoolUI();
+    }
+
+    function closeAutoTimeCalculator() {
+        const calcModal = document.getElementById('autoTimeCalcModal');
+        if (calcModal) calcModal.style.display = 'none';
+    }
+
+    function addTimeToPool() {
+        const h = parseInt(document.getElementById('calcHour').value) || 0;
+        const m = parseInt(document.getElementById('calcMin').value) || 0;
+        const s = parseInt(document.getElementById('calcSec').value) || 0;
+        
+        if(m >= 60 || s >= 60) { alert("분과 초 단위는 60 미만이어야 합니다."); return; }
+        if(h === 0 && m === 0 && s === 0) return;
+
+        window.autoTimeRecords.push({h, m, s});
+        window.autoTimeSecondsPool += (h * 3600) + (m * 60) + s;
+
+        document.getElementById('calcHour').value = "";
+        document.getElementById('calcMin').value = "";
+        document.getElementById('calcSec').value = "";
+        
+        updateTimePoolUI();
+    }
+
+    function updateTimePoolUI() {
+        const listDiv = document.getElementById('timePoolList');
+        const totalDiv = document.getElementById('timePoolTotal');
+        if(!window.autoTimeRecords || window.autoTimeRecords.length === 0) {
+            listDiv.innerHTML = `<span style="color:#999;">추가된 운행 구간 정보가 없습니다.</span>`;
+            totalDiv.innerText = "총 시간합: 00시간 00분 00초";
+            return;
+        }
+        
+        listDiv.innerHTML = window.autoTimeRecords.map((r, idx) => `<div>구간 ${idx+1}: ${r.h}시간 ${r.m}분 ${r.s}초</div>`).join('');
+        
+        let totalSec = window.autoTimeSecondsPool;
+        let totH = Math.floor(totalSec / 3600);
+        let totM = Math.floor((totalSec % 3600) / 60);
+        let totS = totalSec % 60;
+        
+        totalDiv.innerText = `총 시간합: ${String(totH).padStart(2,'0')}시간 ${String(totM).padStart(2,'0')}분 ${String(totS).padStart(2,'0')}초`;
+    }
+
+    function applyCalculatedTime() {
+        let totalSec = window.autoTimeSecondsPool || 0;
+        if(totalSec === 0) { closeAutoTimeCalculator(); return; }
+        let totH = Math.floor(totalSec / 3600);
+        let totM = Math.floor((totalSec % 3600) / 60);
+        let totS = totalSec % 60;
+        
+        let formatted6Digit = String(totH).padStart(2, '0') + String(totM).padStart(2, '0') + String(totS).padStart(2, '0');
+        
+        const autoTimeInput = document.getElementById('autoTime');
+        if(autoTimeInput) {
+            autoTimeInput.value = formatted6Digit;
+            autoTimeInput.classList.add('filled');
+            localStorage.setItem('report_autoTime', formatted6Digit);
+        }
+        closeAutoTimeCalculator();
+    }
+
+    // [자율거리 계산기]
+    function openAutoDistCalculator() {
+        let calcModal = document.getElementById('autoDistCalcModal');
+        if (!calcModal) {
+            calcModal = document.createElement('div');
+            calcModal.id = 'autoDistCalcModal';
+            calcModal.className = 'modal';
+            calcModal.style.display = 'flex';
+            calcModal.innerHTML = `
+                <div class="modal-content" style="padding:18px;">
+                    <div style="font-weight:bold; color:#1a73e8; margin-bottom:12px; font-size:16px;">📏 구간별 자율거리 합산기</div>
+                    <div style="font-size:13px; margin-bottom:12px;">현장 운행 도중 발생한 구간 거리를 누적 합산합니다.</div>
+                    <div style="display:flex; gap:5px; margin-bottom:10px;">
+                        <input type="number" id="calcDistInput" placeholder="거리 입력 (km)" style="width:100%; text-align:center;" class="text-input" step="any" min="0">
+                    </div>
+                    <button type="button" class="select-btn" onclick="addDistanceToPool()" style="background:#28a745; color:#fff; width:100%; height:38px; margin-bottom:12px; font-size:13px; font-weight:bold;">+ 리스트 추가</button>
+                    <div id="distPoolList" style="background:rgba(0,0,0,0.04); border-radius:8px; padding:10px; max-height:90px; overflow-y:auto; font-size:12px; text-align:left; color:#555; margin-bottom:12px;">추가된 운행 거리 정보가 없습니다.</div>
+                    <div id="distPoolTotal" style="font-weight:bold; text-align:right; font-size:14px; color:#1a73e8; margin-bottom:15px;">총 거리합: 0.0 km</div>
+                    <div style="display:flex; gap:6px;">
+                        <button type="button" class="select-btn" onclick="applyCalculatedDist()" style="background:#1a73e8; color:#fff; flex:1; margin:0; font-size:14px; font-weight:bold; height:42px;">6번 항목에 적용</button>
+                        <button type="button" class="select-btn" onclick="closeAutoDistCalculator()" style="background:#6c757d; color:#fff; flex:1; margin:0; font-size:14px; font-weight:bold; height:42px;">닫기</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(calcModal);
+        } else {
+            calcModal.style.display = 'flex';
+        }
+        document.getElementById('calcDistInput').value = "";
+        window.autoDistPool = 0;
+        window.autoDistRecords = [];
+        updateDistPoolUI();
+    }
+
+    function closeAutoDistCalculator() {
+        const calcModal = document.getElementById('autoDistCalcModal');
+        if (calcModal) calcModal.style.display = 'none';
+    }
+
+    function addDistanceToPool() {
+        const d = parseFloat(document.getElementById('calcDistInput').value) || 0;
+        if(d <= 0) return;
+
+        window.autoDistRecords.push(d);
+        window.autoDistPool += d;
+
+        document.getElementById('calcDistInput').value = "";
+        updateDistPoolUI();
+    }
+
+    function updateDistPoolUI() {
+        const listDiv = document.getElementById('distPoolList');
+        const totalDiv = document.getElementById('distPoolTotal');
+        if(!window.autoDistRecords || window.autoDistRecords.length === 0) {
+            listDiv.innerHTML = `<span style="color:#999;">추가된 운행 거리 정보가 없습니다.</span>`;
+            totalDiv.innerText = "총 거리합: 0.0 km";
+            return;
+        }
+        
+        listDiv.innerHTML = window.autoDistRecords.map((r, idx) => `<div>구간 ${idx+1}: ${r.toFixed(1)} km</div>`).join('');
+        const totalSum = Math.round(window.autoDistPool * 10) / 10;
+        totalDiv.innerText = `총 거리합: ${totalSum.toFixed(1)} km`;
+    }
+
+    function applyCalculatedDist() {
+        let totalSum = window.autoDistPool || 0;
+        if(totalSum === 0) { closeAutoDistCalculator(); return; }
+        totalSum = Math.round(totalSum * 10) / 10;
+        
+        const autoDistInput = document.getElementById('autoDist');
+        if(autoDistInput) {
+            autoDistInput.value = totalSum.toFixed(1);
+            autoDistInput.classList.add('filled');
+            localStorage.setItem('report_autoDist', totalSum.toFixed(1));
+        }
+        closeAutoDistCalculator();
+    }
 </script>
+
+<div id="hardTakeoverModal" class="modal" style="display:none;">
+<div class="modal-content"><div class="modal-body"><h3 id="hardModalTitle" style="text-align:center"></h3><div style="display:flex;justify-content:center;align-items:center;gap:24px"><button class="circle-btn" onclick="changeHardModal(-1)">-</button><div id="hardModalValue" style="font-size:36px;font-weight:bold">0</div><button class="circle-btn" onclick="changeHardModal(1)">+</button></div></div><div class="modal-footer"><button class="modal-btn" onclick="closeHardModal()">확인</button></div></div></div>
 </body>
 </html>
