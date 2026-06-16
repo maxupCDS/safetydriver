@@ -1,9 +1,4 @@
 
-
-
-
-
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -85,7 +80,6 @@
         .hard-table th { font-size: 11px; background: #f8fafc; padding: 10px 2px; border: 1px solid #eee; }
         .hard-table td { border: 1px solid #eee; text-align: center; padding: 6px 0; }
         .hard-cause-label { font-size: 11.5px; font-weight: bold; color: #333; line-height: 1.2; word-break: keep-all; padding: 0 2px; }
-        /* [수정3] 하드 테이크오버: 숫자 위 + 버튼 아래 세로 배치 */
         .hard-cell-content { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 4px 0; }
         .hard-val-input { width: 28px; text-align: center; border: none; font-weight: 800; font-size: 14px; color: #333; background: transparent; outline: none; }
 
@@ -119,6 +113,10 @@
         .modal-body { padding: 25px 20px; text-align: center; border-bottom: 1px solid #eee; }
         .modal-footer { display: flex; }
         .modal-btn { flex: 1; padding: 15px; border: none; background: transparent; font-size: 16px; font-weight: bold; }
+
+        /* 출차/복귀 시간 서브 라벨 */
+        .time-sub-label { font-size: 12px; color: #888; margin-bottom: 5px; font-weight: 600; }
+        .time-preview { font-size: 13px; color: #1a73e8; font-weight: bold; text-align: center; margin-top: 5px; letter-spacing: 1px; }
 
         /* [8. 다크모드 전체 개선] */
         body.dark-mode { background-color: #121212 !important; color: #e0e0e0 !important; }
@@ -171,14 +169,14 @@
         body.dark-mode .home-welcome { color: #ffffff !important; }
         body.dark-mode .home-card-text { color: #eeeeee !important; }
 
-/* 운행일정 */
-body.dark-mode .sched-header { background: #2d2d2d !important; color: #cccccc !important; }
-body.dark-mode .sched-row { background: #1e1e1e !important; border-bottom-color: #333 !important; color: #ffffff !important; }
-body.dark-mode .sched-row, 
-body.dark-mode .sched-row .sched-col,
-body.dark-mode .sched-row span,
-body.dark-mode .sched-row div { color: #ffffff !important; } /* 드라이버 이름, 미션내용 등 텍스트를 흰색으로 강제 수정 */
-body.dark-mode .schedule-empty { color: #666 !important; border-color: #333 !important; }
+        /* 운행일정 */
+        body.dark-mode .sched-header { background: #2d2d2d !important; color: #cccccc !important; }
+        body.dark-mode .sched-row { background: #1e1e1e !important; border-bottom-color: #333 !important; color: #ffffff !important; }
+        body.dark-mode .sched-row, 
+        body.dark-mode .sched-row .sched-col,
+        body.dark-mode .sched-row span,
+        body.dark-mode .sched-row div { color: #ffffff !important; }
+        body.dark-mode .schedule-empty { color: #666 !important; border-color: #333 !important; }
 
         /* 체크 항목 */
         body.dark-mode .check-item { border-bottom-color: #333 !important; }
@@ -204,6 +202,10 @@ body.dark-mode .schedule-empty { color: #666 !important; border-color: #333 !imp
         body.dark-mode .modal-btn { color: #5b9cf6 !important; border-right-color: #333 !important; }
         body.dark-mode .modal-btn:first-child { color: #888 !important; }
 
+        /* 출차/복귀 다크모드 */
+        body.dark-mode .time-sub-label { color: #888 !important; }
+        body.dark-mode .time-preview { color: #5b9cf6 !important; }
+
         /* 계산기 탭 버튼 */
         body.dark-mode #calcTabTime,
         body.dark-mode #calcTabDist { border-color: #1a73e8 !important; }
@@ -218,8 +220,8 @@ body.dark-mode .schedule-empty { color: #666 !important; border-color: #333 !imp
         body.dark-mode #autoDistCalcModal .text-input { background: #2d2d2d !important; color: #fff !important; border-color: #444 !important; }
         body.dark-mode #timePoolList,
         body.dark-mode #distPoolList { background: rgba(255,255,255,0.05) !important; color: #ccc !important; }
-    .hard-clickable{cursor:pointer}.hard-cell-content{cursor:pointer}
-</style>
+        .hard-clickable{cursor:pointer}.hard-cell-content{cursor:pointer}
+    </style>
 </head>
 <body>
 
@@ -254,7 +256,6 @@ body.dark-mode .schedule-empty { color: #666 !important; border-color: #333 !imp
             <div class="home-card" onclick="switchPage('viewSchedulePage', '📅 운행 일정 확인')"><span class="home-card-icon">📅</span><span class="home-card-text">운행 일정 확인</span></div>
             <div class="home-card" onclick="switchPage('reportPage', '📋 자율주행 운행보고')"><span class="home-card-icon">📋</span><span class="home-card-text">자율주행 운행보고</span></div>
             <div class="home-card" onclick="switchPage('chargePage', '⚡ 충전 관리')"><span class="home-card-icon">⚡</span><span class="home-card-text">충전 관리 기록</span></div>
-
         </div>
     </div>
 
@@ -279,30 +280,50 @@ body.dark-mode .schedule-empty { color: #666 !important; border-color: #333 !imp
             <div class="btn-grid grid-2" id="carBtnGroup"><script>for(let i=801;i<=810;i++)document.write(`<button class="select-btn" data-val="gs${i}" onclick="selectCar(this)">gs${i}</button>`);</script></div>
         </div>
         <div class="section"><label>4. 근무방식</label><div class="btn-grid grid-2" id="shiftBtnGroup"><button class="select-btn" data-val="주간" onclick="selectShift(this)">주간</button><button class="select-btn" data-val="야간" onclick="selectShift(this)">야간</button></div></div>
+
+        <!-- ✅ 신규 항목: 출차/복귀 시간 (4번과 5번 사이) -->
+        <div class="section">
+            <label>5. 출차 / 복귀 시간</label>
+            <div style="display:flex; gap:10px; align-items:flex-start;">
+                <div style="flex:1;">
+                    <div class="time-sub-label">출차시간</div>
+                    <input type="number" id="deptTime" class="text-input" placeholder="예: 0930"
+                           oninput="limitDeptReturn(this, 'deptTimePreview'); saveInput(this, 'report');">
+                    <div class="time-preview" id="deptTimePreview"></div>
+                </div>
+                <div style="flex:1;">
+                    <div class="time-sub-label">복귀시간</div>
+                    <input type="number" id="returnTime" class="text-input" placeholder="예: 1830"
+                           oninput="limitDeptReturn(this, 'returnTimePreview'); saveInput(this, 'report');">
+                    <div class="time-preview" id="returnTimePreview"></div>
+                </div>
+            </div>
+            <div id="deptReturnError" style="color:#dc3545; font-size:12px; margin-top:8px; display:none;"></div>
+        </div>
+        <!-- ✅ 신규 항목 끝 -->
         
         <div id="autoDriveSections">
-            <div class="section"><label>5. SSD 버전</label><input type="text" id="ssdVersion" class="text-input" oninput="saveInput(this, 'report')"></div>
+            <div class="section"><label>6. SSD 버전</label><input type="text" id="ssdVersion" class="text-input" oninput="saveInput(this, 'report')"></div>
             <div class="section">
-                <label>6. 자율거리(km)</label>
+                <label>7. 자율거리(km)</label>
                 <div style="display: flex; gap: 6px;">
                     <input type="number" id="autoDist" class="text-input" step="any" oninput="saveInput(this, 'report')">
                     <button type="button" class="select-btn" onclick="openAutoDistCalculator()" style="width: auto; padding: 0 10px; font-size: 13px; white-space: nowrap; margin-top:0; height: 46px;">📏 거리 합산</button>
                 </div>
             </div>
             <div class="section">
-                <!-- [수정2] placeholder 제거 -->
-                <label>7. 자율시간(6자리)</label>
+                <label>8. 자율시간(6자리)</label>
                 <div style="display: flex; gap: 6px;">
                     <input type="number" id="autoTime" class="text-input" oninput="saveInput(this, 'report'); validateAutoTimeFormat(this);">
                     <button type="button" class="select-btn" onclick="openAutoTimeCalculator()" style="width: auto; padding: 0 10px; font-size: 13px; white-space: nowrap; margin-top:0; height: 46px;">⏱️ 시간 합산</button>
                 </div>
             </div>
-            <div class="section"><label>8. 누적 ODO(km)</label><input type="number" id="totalOdo" class="text-input" oninput="saveInput(this, 'report')"></div>
-            <div class="section"><label>9. 소프트 테이크오버</label><div id="softContainer"></div><div style="text-align:right; font-weight:bold; color:#1a73e8; margin-top:8px; font-size:15px;">소프트 합계: <span id="softTotalDisp">0</span></div></div>
-            <div class="section"><label>10. 하드 테이크오버</label><div class="hard-table-wrapper"><table class="hard-table"><thead><tr><th style="width:24%">구분</th><th>브레이크</th><th>핸들</th><th>엑셀</th><th>시스템</th></tr></thead><tbody id="hardBody"></tbody></table></div><div style="text-align:right; font-weight:bold; color:#1a73e8; margin-top:10px; font-size:15px;">하드 합계: <span id="hardTotalDisp">0</span></div></div>
+            <div class="section"><label>9. 누적 ODO(km)</label><input type="number" id="totalOdo" class="text-input" oninput="saveInput(this, 'report')"></div>
+            <div class="section"><label>10. 소프트 테이크오버</label><div id="softContainer"></div><div style="text-align:right; font-weight:bold; color:#1a73e8; margin-top:8px; font-size:15px;">소프트 합계: <span id="softTotalDisp">0</span></div></div>
+            <div class="section"><label>11. 하드 테이크오버</label><div class="hard-table-wrapper"><table class="hard-table"><thead><tr><th style="width:24%">구분</th><th>브레이크</th><th>핸들</th><th>엑셀</th><th>시스템</th></tr></thead><tbody id="hardBody"></tbody></table></div><div style="text-align:right; font-weight:bold; color:#1a73e8; margin-top:10px; font-size:15px;">하드 합계: <span id="hardTotalDisp">0</span></div></div>
         </div>
         
-        <div class="section"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><label style="margin:0;">11. 이슈 사항</label></div><textarea id="workIssue" class="text-input" style="height:100px; resize:none;" oninput="saveInput(this, 'report')"></textarea></div>
+        <div class="section"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><label style="margin:0;">12. 이슈 사항</label></div><textarea id="workIssue" class="text-input" style="height:100px; resize:none;" oninput="saveInput(this, 'report')"></textarea></div>
         <button class="btn-add" id="submitBtn" onclick="addRecord()">보고서 기록하기</button>
     </div>
 
@@ -405,6 +426,7 @@ body.dark-mode .schedule-empty { color: #666 !important; border-color: #333 !imp
 
     const FORM_KEYS = {
         report: ['ssdVersion','autoDist','autoTime','totalOdo','workIssue','reportDate',
+                 'deptTime','returnTime',   // ✅ 신규 추가
                  'selectedUser','selectedType','selectedCar','selectedShift',
                  ...Array.from({length:10},(_,i)=>'s'+i),
                  ...Array.from({length:5},(_,i)=>Array.from({length:4},(_,j)=>`h${i}_${j}`)).flat()],
@@ -435,7 +457,8 @@ body.dark-mode .schedule-empty { color: #666 !important; border-color: #333 !imp
     }
 
     function saveAllState() {
-        ['ssdVersion','autoDist','autoTime','totalOdo','workIssue','reportDate'].forEach(id => {
+        ['ssdVersion','autoDist','autoTime','totalOdo','workIssue','reportDate',
+         'deptTime','returnTime'].forEach(id => {   // ✅ 신규 추가
             const el = document.getElementById(id);
             if(el) localStorage.setItem('report_' + id, el.value);
         });
@@ -493,7 +516,6 @@ body.dark-mode .schedule-empty { color: #666 !important; border-color: #333 !imp
         const sc=document.getElementById('softContainer');
         if(sc) { sc.innerHTML = ""; softKeys.forEach((n,i)=>{ sc.innerHTML+=`<div class="category-item"><span class="category-name">${i+1}. ${n}</span><div class="counter-group"><button class="circle-btn" onclick="stepSoft(${i},-1)">-</button><input id="s${i}" class="counter-val" value="0" readonly><button class="circle-btn" onclick="stepSoft(${i},1)">+</button></div></div>`; }); }
         
-        // [수정3] 하드 테이크오버: 숫자 위, (+) 버튼 아래
         const hb=document.getElementById('hardBody');
         if(hb) { 
             hb.innerHTML = ""; 
@@ -523,9 +545,15 @@ body.dark-mode .schedule-empty { color: #666 !important; border-color: #333 !imp
     }
 
     function loadSavedData() {
-        ['ssdVersion','autoDist','autoTime','totalOdo','workIssue','reportDate'].forEach(id => {
+        ['ssdVersion','autoDist','autoTime','totalOdo','workIssue','reportDate',
+         'deptTime','returnTime'].forEach(id => {   // ✅ 신규 추가
             const val = localStorage.getItem('report_' + id);
-            if (val && document.getElementById(id)) document.getElementById(id).value = val;
+            if (val && document.getElementById(id)) {
+                document.getElementById(id).value = val;
+                // 복원 시 미리보기도 갱신
+                if (id === 'deptTime') refreshTimePreview(document.getElementById(id), 'deptTimePreview');
+                if (id === 'returnTime') refreshTimePreview(document.getElementById(id), 'returnTimePreview');
+            }
         });
         for(let i=0; i<softKeys.length; i++) {
             const val = localStorage.getItem('report_s'+i);
@@ -614,16 +642,23 @@ body.dark-mode .schedule-empty { color: #666 !important; border-color: #333 !imp
         document.querySelectorAll('#userBtnGroup .select-btn, #typeBtnGroup .select-btn, #carBtnGroup .select-btn, #shiftBtnGroup .select-btn').forEach(b => b.classList.remove('selected'));
         const today = new Date().toISOString().substring(0, 10);
         document.getElementById('reportDate').value = today;
-['ssdVersion','autoDist','autoTime','totalOdo','workIssue']
-.forEach(id => {
-    const el = document.getElementById(id);
-    if(el) {
-        el.value = "";
-        el.classList.remove('filled');
-    }
-});
+        ['ssdVersion','autoDist','autoTime','totalOdo','workIssue'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) { el.value = ""; el.classList.remove('filled'); }
+        });
+        // ✅ 출차/복귀 시간 초기화
+        ['deptTime','returnTime'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) { el.value = ""; el.style.borderColor = ""; }
+        });
+        document.getElementById('deptTimePreview').innerText = "";
+        document.getElementById('returnTimePreview').innerText = "";
+        document.getElementById('deptReturnError').style.display = 'none';
 
-localStorage.removeItem('report_totalOdo');
+        localStorage.removeItem('report_totalOdo');
+        localStorage.removeItem('report_deptTime');
+        localStorage.removeItem('report_returnTime');
+
         for(let i=0; i<softKeys.length; i++) { const e=document.getElementById('s'+i); if(e) e.value=0; }
         for(let i=0; i<hardCauses.length; i++) { for(let j=0; j<hardActions.length; j++) { const e=document.getElementById(`h${i}_${j}`); if(e) e.value=0; } }
         updateTotals();
@@ -776,13 +811,12 @@ localStorage.removeItem('report_totalOdo');
         localStorage.setItem('report_h'+id, e.value); updateTotals();
     }
 
-    
-let currentHardId='';let currentHardValue=0;
-function openHardModal(id,cause,action){currentHardId=id;const input=document.getElementById('h'+id);currentHardValue=parseInt(input.value||0);document.getElementById('hardModalTitle').innerText=`${cause} - ${action}`;document.getElementById('hardModalValue').innerText=currentHardValue;document.getElementById('hardTakeoverModal').style.display='flex';}
-function changeHardModal(step){currentHardValue=Math.max(0,currentHardValue+step);document.getElementById('hardModalValue').innerText=currentHardValue;}
-function closeHardModal(){const input=document.getElementById('h'+currentHardId);input.value=currentHardValue;localStorage.setItem('report_h'+currentHardId,currentHardValue);updateTotals();document.getElementById('hardTakeoverModal').style.display='none';}
+    let currentHardId=''; let currentHardValue=0;
+    function openHardModal(id,cause,action){currentHardId=id;const input=document.getElementById('h'+id);currentHardValue=parseInt(input.value||0);document.getElementById('hardModalTitle').innerText=`${cause} - ${action}`;document.getElementById('hardModalValue').innerText=currentHardValue;document.getElementById('hardTakeoverModal').style.display='flex';}
+    function changeHardModal(step){currentHardValue=Math.max(0,currentHardValue+step);document.getElementById('hardModalValue').innerText=currentHardValue;}
+    function closeHardModal(){const input=document.getElementById('h'+currentHardId);input.value=currentHardValue;localStorage.setItem('report_h'+currentHardId,currentHardValue);updateTotals();document.getElementById('hardTakeoverModal').style.display='none';}
 
-function toggleMenu() { const m = document.getElementById('sideMenu'); const o = document.getElementById('menuOverlay'); const a = m.classList.contains('active'); m.classList.toggle('active'); o.style.display = a ? 'none' : 'block'; }
+    function toggleMenu() { const m = document.getElementById('sideMenu'); const o = document.getElementById('menuOverlay'); const a = m.classList.contains('active'); m.classList.toggle('active'); o.style.display = a ? 'none' : 'block'; }
 
     function switchPage(pid, title) {
         saveAllState();
@@ -895,7 +929,26 @@ function toggleMenu() { const m = document.getElementById('sideMenu'); const o =
         const btn=document.getElementById('submitBtn'); btn.disabled=true;
 
         const doSubmit = () => {
-            const payload={"type":"report", "날짜": document.getElementById('reportDate').value, "작성자":selectedUser, "이메일":selectedEmail, "업무":selectedType, "차량":selectedCar, "근무":selectedShift, "SSD버전":document.getElementById('ssdVersion').value, "자율거리":document.getElementById('autoDist').value||"0", "자율시간":document.getElementById('autoTime').value||"0", "누적ODO":document.getElementById('totalOdo').value||"0", "소프트합계":document.getElementById('softTotalDisp').innerText, "하드합계":document.getElementById('hardTotalDisp').innerText, "이슈사항":document.getElementById('workIssue').value };
+            // ✅ payload에 출차/복귀 시간 추가
+            const deptVal = document.getElementById('deptTime').value;
+            const retVal  = document.getElementById('returnTime').value;
+            const formatTime4 = (v) => v.length === 4 ? v.substring(0,2) + ':' + v.substring(2,4) : (v || '-');
+
+            const payload={
+                "type":"report",
+                "날짜": document.getElementById('reportDate').value,
+                "작성자":selectedUser, "이메일":selectedEmail,
+                "업무":selectedType, "차량":selectedCar, "근무":selectedShift,
+                "출차시간": deptVal ? formatTime4(deptVal) : '-',
+                "복귀시간": retVal  ? formatTime4(retVal)  : '-',
+                "SSD버전":document.getElementById('ssdVersion').value,
+                "자율거리":document.getElementById('autoDist').value||"0",
+                "자율시간":document.getElementById('autoTime').value||"0",
+                "누적ODO":document.getElementById('totalOdo').value||"0",
+                "소프트합계":document.getElementById('softTotalDisp').innerText,
+                "하드합계":document.getElementById('hardTotalDisp').innerText,
+                "이슈사항":document.getElementById('workIssue').value
+            };
             softKeys.forEach((k,i)=>payload[k]=document.getElementById('s'+i).value);
             hardCauses.forEach((c,i)=>{ hardActions.forEach((a,j)=>payload[`하드(${c}-${actionMap[a]})`]=document.getElementById(`h${i}_${j}`).value); });
             fetch(GAS_URL,{method:'POST',body:JSON.stringify(payload)})
@@ -1023,7 +1076,7 @@ function toggleMenu() { const m = document.getElementById('sideMenu'); const o =
     }
 
     /* ==========================================
-       🆕 [기능 개선 및 확장 스크립트]
+       기능 개선 및 확장 스크립트
        ========================================== */
 
     // [다크모드 토글]
@@ -1056,6 +1109,48 @@ function toggleMenu() { const m = document.getElementById('sideMenu'); const o =
             } else {
                 input.style.borderColor = "";
             }
+        }
+    }
+
+    // ✅ [출차/복귀 시간 검증 및 미리보기]
+    function limitDeptReturn(input, previewId) {
+        // 숫자만 허용, 최대 4자리
+        let val = input.value.replace(/[^0-9]/g, '');
+        if (val.length > 4) val = val.slice(0, 4);
+        input.value = val;
+
+        const errDiv = document.getElementById('deptReturnError');
+        const previewEl = document.getElementById(previewId);
+
+        if (val.length === 4) {
+            const hh = parseInt(val.substring(0, 2));
+            const mm = parseInt(val.substring(2, 4));
+            if (hh > 23 || mm > 59) {
+                input.style.borderColor = '#dc3545';
+                errDiv.style.display = 'block';
+                errDiv.innerText = '올바른 시간이 아닙니다. (시: 00~23, 분: 00~59)';
+                if (previewEl) previewEl.innerText = '';
+            } else {
+                input.style.borderColor = '';
+                errDiv.style.display = 'none';
+                if (previewEl) previewEl.innerText = `→ ${hh.toString().padStart(2,'0')}:${mm.toString().padStart(2,'0')}`;
+            }
+        } else {
+            input.style.borderColor = '';
+            errDiv.style.display = 'none';
+            if (previewEl) previewEl.innerText = val.length > 0 ? '4자리를 입력해주세요' : '';
+        }
+    }
+
+    // 복원 시 미리보기 갱신용
+    function refreshTimePreview(input, previewId) {
+        const val = input.value;
+        const previewEl = document.getElementById(previewId);
+        if (!previewEl || val.length !== 4) return;
+        const hh = parseInt(val.substring(0, 2));
+        const mm = parseInt(val.substring(2, 4));
+        if (hh <= 23 && mm <= 59) {
+            previewEl.innerText = `→ ${hh.toString().padStart(2,'0')}:${mm.toString().padStart(2,'0')}`;
         }
     }
 
