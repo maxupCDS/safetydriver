@@ -281,8 +281,8 @@
         </div>
         <div class="section"><label>4. 근무방식</label><div class="btn-grid grid-2" id="shiftBtnGroup"><button class="select-btn" data-val="주간" onclick="selectShift(this)">주간</button><button class="select-btn" data-val="야간" onclick="selectShift(this)">야간</button></div></div>
 
-        <!-- ✅ 신규 항목: 출차/복귀 시간 (4번과 5번 사이) -->
-        <div class="section">
+        <!-- ✅ 신규 항목: 출차/복귀 시간 -->
+        <div class="section" id="deptReturnSection">
             <label>5. 출차 / 복귀 시간</label>
             <div style="display:flex; gap:10px; align-items:flex-start;">
                 <div style="flex:1;">
@@ -664,8 +664,10 @@
         updateTotals();
         const carArea = document.getElementById('carBtnGroup');
         const autoSec = document.getElementById('autoDriveSections');
+        const deptSec = document.getElementById('deptReturnSection');
         carArea.style.opacity="1"; carArea.style.pointerEvents="auto";
         autoSec.style.opacity="1"; autoSec.style.pointerEvents="auto";
+        deptSec.style.opacity="1"; deptSec.style.pointerEvents="auto";
     }
 
     function resetChargeForm() {
@@ -745,6 +747,7 @@
         const typeName = b.innerText;
         const carArea = document.getElementById('carBtnGroup');
         const autoSec = document.getElementById('autoDriveSections');
+        const deptSec = document.getElementById('deptReturnSection');
         
         const applySelection = () => {
             document.querySelectorAll('#typeBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
@@ -754,9 +757,11 @@
             if (typeName === "동승" || typeName === "내근") {
                 carArea.style.opacity = "0.3"; carArea.style.pointerEvents = "none";
                 autoSec.style.opacity = "0.3"; autoSec.style.pointerEvents = "none";
+                deptSec.style.opacity = "0.3"; deptSec.style.pointerEvents = "none";
             } else {
                 carArea.style.opacity = "1"; carArea.style.pointerEvents = "auto";
                 autoSec.style.opacity = "1"; autoSec.style.pointerEvents = "auto";
+                deptSec.style.opacity = "1"; deptSec.style.pointerEvents = "auto";
             }
         };
 
@@ -767,13 +772,15 @@
             localStorage.removeItem('report_selectedType');
             carArea.style.opacity = "1"; carArea.style.pointerEvents = "auto";
             autoSec.style.opacity = "1"; autoSec.style.pointerEvents = "auto";
+            deptSec.style.opacity = "1"; deptSec.style.pointerEvents = "auto";
             return;
         }
 
         if (typeName === "동승" || typeName === "내근") {
-            showModal("주의", "동승 또는 내근을 선택하면 5~10번 데이터가 초기화되고 잠깁니다.", "confirm", function() {
+            showModal("주의", "동승 또는 내근을 선택하면 5~11번 데이터가 초기화되고 잠깁니다.", "confirm", function() {
                 applySelection();
                 resetAutoDriveData();
+                resetDeptReturnData();
                 selectedCar = "";
                 localStorage.removeItem('report_selectedCar');
                 document.querySelectorAll('#carBtnGroup .select-btn').forEach(x => x.classList.remove('selected'));
@@ -792,6 +799,20 @@
         for(let i=0; i<softKeys.length; i++) { const e = document.getElementById('s'+i); if(e) e.value = 0; localStorage.removeItem('report_s'+i); }
         for(let i=0; i<hardCauses.length; i++){ for(let j=0; j<hardActions.length; j++){ const e = document.getElementById(`h${i}_${j}`); if(e) e.value = 0; localStorage.removeItem(`report_h${i}_${j}`); } }
         updateTotals();
+    }
+
+    function resetDeptReturnData() {
+        ['deptTime', 'returnTime'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) { el.value = ""; el.style.borderColor = ""; }
+            localStorage.removeItem('report_' + id);
+        });
+        const dp = document.getElementById('deptTimePreview');
+        const rp = document.getElementById('returnTimePreview');
+        const err = document.getElementById('deptReturnError');
+        if(dp) dp.innerText = "";
+        if(rp) rp.innerText = "";
+        if(err) err.style.display = 'none';
     }
 
     function updateTotals(){
@@ -909,11 +930,28 @@
             return;
         }
         if(selectedType === "운행") {
+            // 5. 출차/복귀 시간 필수 검증
+            const deptEl = document.getElementById('deptTime');
+            const retEl  = document.getElementById('returnTime');
+            if(!deptEl.value || deptEl.value.trim() === '') {
+                showModal("입력 필요", "5. 출차시간을 입력해주세요.", "alert", () => {
+                    document.getElementById('deptReturnSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    deptEl.focus();
+                });
+                return;
+            }
+            if(!retEl.value || retEl.value.trim() === '') {
+                showModal("입력 필요", "5. 복귀시간을 입력해주세요.", "alert", () => {
+                    document.getElementById('deptReturnSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    retEl.focus();
+                });
+                return;
+            }
             const required = [
-                { id: 'ssdVersion',  label: '5. SSD 버전' },
-                { id: 'autoDist',    label: '6. 자율거리' },
-                { id: 'autoTime',    label: '7. 자율시간' },
-                { id: 'totalOdo',    label: '8. 누적 ODO' },
+                { id: 'ssdVersion',  label: '6. SSD 버전' },
+                { id: 'autoDist',    label: '7. 자율거리' },
+                { id: 'autoTime',    label: '8. 자율시간' },
+                { id: 'totalOdo',    label: '9. 누적 ODO' },
             ];
             for(const f of required) {
                 const el = document.getElementById(f.id);
