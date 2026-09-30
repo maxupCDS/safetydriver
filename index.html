@@ -74,13 +74,26 @@
         .counter-group { display: flex; align-items: center; gap: 10px; }
         .counter-val { width: 35px; text-align: center; border: none; font-weight: bold; font-size: 16px; background: transparent; outline: none; }
 
-        .hard-table-wrapper { width: 100%; border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
-        .hard-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        .hard-table th { font-size: 11px; background: #f8fafc; padding: 10px 2px; border: 1px solid #eee; }
-        .hard-table td { border: 1px solid #eee; text-align: center; padding: 6px 0; }
-        .hard-cause-label { font-size: 11.5px; font-weight: bold; color: #333; line-height: 1.2; word-break: keep-all; padding: 0 2px; }
-        .hard-cell-content { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 4px 0; }
-        .hard-val-input { width: 28px; text-align: center; border: none; font-weight: 800; font-size: 14px; color: #333; background: transparent; outline: none; }
+        .soft-cat-block { border: 1px solid #e1e5ea; border-radius: 12px; margin-bottom: 8px; overflow: hidden; background: #fff; }
+        .soft-cat-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: #f7f9fc; cursor: pointer; }
+        .soft-cat-name { font-weight: 700; font-size: 14px; cursor: pointer; }
+        .soft-cat-checkbox { width: 20px; height: 20px; accent-color: #1a73e8; }
+        .soft-sub-list { display: none; }
+        .soft-sub-list.expanded { display: block; }
+        .soft-sub-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; border-top: 1px solid #edf0f3; }
+        .soft-sub-name { flex: 1; font-size: 13px; }
+        .hard-cat-block { border: 1px solid #f0d5d5; border-radius: 12px; margin-bottom: 8px; overflow: hidden; background: #fff; }
+        .hard-cat-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: #fff7f7; cursor: pointer; }
+        .hard-cat-name { font-weight: 700; font-size: 14px; color: #c62828; cursor: pointer; }
+        .hard-cat-checkbox { width: 20px; height: 20px; accent-color: #d93025; }
+        .hard-sub-list { display: none; }
+        .hard-sub-list.expanded { display: block; }
+        .hard-sub-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; border-top: 1px solid #f3e5e5; }
+        .hard-sub-name { flex: 1; font-size: 13px; }
+        .hard-counter-group { display: flex; align-items: center; gap: 6px; }
+        .hard-counter-btn { width: 32px; height: 32px; border: none; border-radius: 50%; background: #d93025; color: #fff; font-size: 18px; font-weight: 700; cursor: pointer; }
+        .hard-counter-btn:active { transform: scale(0.94); }
+        .hard-counter-val { width: 42px; text-align: center; border: none; background: transparent; color: #d93025; font-weight: 700; font-size: 15px; }
 
         .btn-add { width: 100%; padding: 18px; border: none; border-radius: 14px; font-size: 18px; font-weight: bold; color: white; background: #28a745; margin-top: 15px; }
 
@@ -319,7 +332,7 @@
             </div>
             <div class="section"><label>9. 누적 ODO(km)</label><input type="number" id="totalOdo" class="text-input" oninput="saveInput(this, 'report')"></div>
             <div class="section"><label>10. 소프트 테이크오버</label><div id="softContainer"></div><div style="text-align:right; font-weight:bold; color:#1a73e8; margin-top:8px; font-size:15px;">소프트 합계: <span id="softTotalDisp">0</span></div></div>
-            <div class="section"><label>11. 하드 테이크오버</label><div class="hard-table-wrapper"><table class="hard-table"><thead><tr><th style="width:24%">구분</th><th>브레이크</th><th>핸들</th><th>엑셀</th><th>시스템</th></tr></thead><tbody id="hardBody"></tbody></table></div><div style="text-align:right; font-weight:bold; color:#1a73e8; margin-top:10px; font-size:15px;">하드 합계: <span id="hardTotalDisp">0</span></div></div>
+            <div class="section"><label>11. 하드 테이크오버</label><div id="hardContainer"></div><div style="text-align:right; font-weight:bold; color:#d93025; margin-top:10px; font-size:15px;">하드 합계: <span id="hardTotalDisp">0</span></div></div>
         </div>
         
         <div class="section"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><label style="margin:0;">12. 이슈 사항</label></div><textarea id="workIssue" class="text-input" style="height:100px; resize:none;" oninput="saveInput(this, 'report')"></textarea></div>
@@ -443,10 +456,17 @@
     const checkItems = ["내외관 파손/청결", "타이어 상태/압력", "등화장치 작동", "브레이크 성능", "엔진/소모품류", "내부 장비 상태"];
     let checkResults = {};
 
-    const softKeys=["운전자판단","시스템이상","교통약자보호","신호위반","신호등지시","교차로딜레마","도로상황","차선변경","급정지/서행","보호의무"];
-    const hardCauses=["시스템이상","신호위반","교차로딜레마","도로상황","운전자실수"];
-    const hardActions=["브레이크","핸들","엑셀","시스템"];
-    const actionMap={"브레이크":"B","핸들":"H","엑셀":"A","시스템":"S"};
+    const softCategories=[
+        {name:"시스템이상", subs:["시스템 동작이상","시스템 에러"]},
+        {name:"신호/지시", subs:["신호위반","신호등 미인식","황색신호 통과"]},
+        {name:"도로상황", subs:["중앙선 실선 침범","급정지/급감속","꼬리물기","차선변경/끼어들기"]}
+    ];
+    const hardCategories=[
+        {name:"시스템이상", subs:["시스템 동작이상","시스템 에러"]},
+        {name:"신호/지시", subs:["신호위반","황색신호 통과"]},
+        {name:"도로상황", subs:["중앙선 실선 침범","급정지/급감속","충돌/추돌 위험"]},
+        {name:"제어 에러", subs:["운전자 실수"]}
+    ];
 
     window.onload = function(){
         initUI();
@@ -456,39 +476,35 @@
     }
 
     function saveAllState() {
-        ['ssdVersion','autoDist','autoTime','totalOdo','workIssue','reportDate',
-         'deptTime','returnTime'].forEach(id => {   // ✅ 신규 추가
+        ['ssdVersion','autoDist','autoTime','totalOdo','workIssue','reportDate','deptTime','returnTime'].forEach(id => {
             const el = document.getElementById(id);
             if(el) localStorage.setItem('report_' + id, el.value);
         });
-        for(let i=0; i<softKeys.length; i++) {
-            const e = document.getElementById('s'+i);
-            if(e) localStorage.setItem('report_s'+i, e.value);
-        }
-        for(let i=0; i<hardCauses.length; i++) {
-            for(let j=0; j<hardActions.length; j++) {
-                const e = document.getElementById(`h${i}_${j}`);
-                if(e) localStorage.setItem(`report_h${i}_${j}`, e.value);
-            }
-        }
-        if(selectedUser)       localStorage.setItem('report_selectedUser', selectedUser);
-        if(selectedType)       localStorage.setItem('report_selectedType', selectedType);
-        if(selectedCar)        localStorage.setItem('report_selectedCar', selectedCar);
-        if(selectedShift)      localStorage.setItem('report_selectedShift', selectedShift);
-        if(selectedChargeCar)  localStorage.setItem('charge_selectedChargeCar', selectedChargeCar);
-        if(selectedCheckCar)   localStorage.setItem('check_selectedCheckCar', selectedCheckCar);
-
-        ['chargeAmount','chargeTime','chargeMemo','chargeDate'].forEach(id => {
-            const el = document.getElementById(id);
-            if(el) localStorage.setItem('charge_' + id, el.value);
+        softCategories.forEach((cat,i)=>{
+            const checkEl=document.getElementById('softCheck'+i);
+            if(checkEl) localStorage.setItem('report_softCheck'+i,checkEl.checked?'1':'0');
+            cat.subs.forEach((sub,j)=>{
+                const e=document.getElementById('sc'+i+'_'+j);
+                if(e) localStorage.setItem('report_sc'+i+'_'+j,e.value);
+            });
         });
-        ['checkMemo','checkDate'].forEach(id => {
-            const el = document.getElementById(id);
-            if(el) localStorage.setItem('check_' + id, el.value);
+        hardCategories.forEach((cat,i)=>{
+            const checkEl=document.getElementById('hardCheck'+i);
+            if(checkEl) localStorage.setItem('report_hardCheck'+i,checkEl.checked?'1':'0');
+            cat.subs.forEach((sub,j)=>{
+                const e=document.getElementById('hc'+i+'_'+j);
+                if(e) localStorage.setItem('report_hc'+i+'_'+j,e.value);
+            });
         });
-        checkItems.forEach(item => {
-            if(checkResults[item]) localStorage.setItem('check_check_' + item, checkResults[item]);
-        });
+        if(selectedUser) localStorage.setItem('report_selectedUser',selectedUser);
+        if(selectedType) localStorage.setItem('report_selectedType',selectedType);
+        if(selectedCar) localStorage.setItem('report_selectedCar',selectedCar);
+        if(selectedShift) localStorage.setItem('report_selectedShift',selectedShift);
+        if(selectedChargeCar) localStorage.setItem('charge_selectedChargeCar',selectedChargeCar);
+        if(selectedCheckCar) localStorage.setItem('check_selectedCheckCar',selectedCheckCar);
+        ['chargeAmount','chargeTime','chargeMemo','chargeDate'].forEach(id=>{const el=document.getElementById(id);if(el)localStorage.setItem('charge_'+id,el.value);});
+        ['checkMemo','checkDate'].forEach(id=>{const el=document.getElementById(id);if(el)localStorage.setItem('check_'+id,el.value);});
+        checkItems.forEach(item=>{if(checkResults[item])localStorage.setItem('check_check_'+item,checkResults[item]);});
     }
 
     document.addEventListener('visibilitychange', function() {
@@ -524,18 +540,26 @@
         }
 
         const sc=document.getElementById('softContainer');
-        if(sc) { sc.innerHTML = ""; softKeys.forEach((n,i)=>{ sc.innerHTML+=`<div class="category-item"><span class="category-name">${i+1}. ${n}</span><div class="counter-group"><button class="circle-btn" onclick="stepSoft(${i},-1)">-</button><input id="s${i}" class="counter-val" value="0" readonly><button class="circle-btn" onclick="stepSoft(${i},1)">+</button></div></div>`; }); }
-        
-        const hb=document.getElementById('hardBody');
-        if(hb) { 
-            hb.innerHTML = ""; 
-            hardCauses.forEach((c,i)=>{ 
-                let row=`<tr><td class="hard-cause-label">${c}</td>`; 
-                hardActions.forEach((a,j)=>{ 
-                    row+=`<td class="hard-clickable" onclick="openHardModal('${i}_${j}','${c}','${a}')"><div class="hard-cell-content"><input id="h${i}_${j}" class="hard-val-input" value="0" readonly></div></td>`; 
-                }); 
-                hb.innerHTML+=row+`</tr>`; 
-            }); 
+        if(sc){
+            sc.innerHTML="";
+            softCategories.forEach((cat,i)=>{
+                let subHtml="";
+                cat.subs.forEach((sub,j)=>{
+                    subHtml+=`<div class="soft-sub-item"><span class="soft-sub-name">${sub}</span><div class="counter-group"><button class="circle-btn" onclick="stepSoft(${i},${j},-1)">−</button><input id="sc${i}_${j}" class="counter-val" value="0" readonly><button class="circle-btn" onclick="stepSoft(${i},${j},1)">+</button></div></div>`;
+                });
+                sc.innerHTML+=`<div class="soft-cat-block"><div class="soft-cat-header"><span class="soft-cat-name" onclick="toggleSoftCheckbox(${i})">${i+1}. ${cat.name}</span><input type="checkbox" id="softCheck${i}" class="soft-cat-checkbox" onchange="toggleSoftCategory(${i}, this.checked)"></div><div class="soft-sub-list" id="softSubList${i}">${subHtml}</div></div>`;
+            });
+        }
+        const hc=document.getElementById('hardContainer');
+        if(hc){
+            hc.innerHTML="";
+            hardCategories.forEach((cat,i)=>{
+                let subHtml="";
+                cat.subs.forEach((sub,j)=>{
+                    subHtml+=`<div class="hard-sub-item"><span class="hard-sub-name">${sub}</span><div class="hard-counter-group"><button class="hard-counter-btn" onclick="stepHard(${i},${j},-1)">−</button><input id="hc${i}_${j}" class="hard-counter-val" value="0" readonly><button class="hard-counter-btn" onclick="stepHard(${i},${j},1)">+</button></div></div>`;
+                });
+                hc.innerHTML+=`<div class="hard-cat-block"><div class="hard-cat-header"><span class="hard-cat-name" onclick="toggleHardCheckbox(${i})">${i+1}. ${cat.name}</span><input type="checkbox" id="hardCheck${i}" class="hard-cat-checkbox" onchange="toggleHardCategory(${i}, this.checked)"></div><div class="hard-sub-list" id="hardSubList${i}">${subHtml}</div></div>`;
+            });
         }
         
         const today = new Date().toISOString().substring(0, 10);
@@ -565,16 +589,18 @@
                 if (id === 'returnTime') refreshTimePreview(document.getElementById(id), 'returnTimePreview');
             }
         });
-        for(let i=0; i<softKeys.length; i++) {
-            const val = localStorage.getItem('report_s'+i);
-            if(val) document.getElementById('s'+i).value = val;
-        }
-        for(let i=0; i<hardCauses.length; i++) {
-            for(let j=0; j<hardActions.length; j++) {
-                const val = localStorage.getItem(`report_h${i}_${j}`);
-                if(val) document.getElementById(`h${i}_${j}`).value = val;
-            }
-        }
+        softCategories.forEach((cat,i)=>{
+            const check=localStorage.getItem('report_softCheck'+i);
+            const cb=document.getElementById('softCheck'+i);
+            if(cb && check==='1'){cb.checked=true;toggleSoftCategory(i,true);}
+            cat.subs.forEach((sub,j)=>{const val=localStorage.getItem('report_sc'+i+'_'+j);const e=document.getElementById('sc'+i+'_'+j);if(e&&val!==null)e.value=val;});
+        });
+        hardCategories.forEach((cat,i)=>{
+            const check=localStorage.getItem('report_hardCheck'+i);
+            const cb=document.getElementById('hardCheck'+i);
+            if(cb && check==='1'){cb.checked=true;toggleHardCategory(i,true);}
+            cat.subs.forEach((sub,j)=>{const val=localStorage.getItem('report_hc'+i+'_'+j);const e=document.getElementById('hc'+i+'_'+j);if(e&&val!==null)e.value=val;});
+        });
         updateTotals();
         ['ssdVersion','autoDist','autoTime','totalOdo'].forEach(id => {
             const el = document.getElementById(id);
@@ -669,8 +695,8 @@
         localStorage.removeItem('report_deptTime');
         localStorage.removeItem('report_returnTime');
 
-        for(let i=0; i<softKeys.length; i++) { const e=document.getElementById('s'+i); if(e) e.value=0; }
-        for(let i=0; i<hardCauses.length; i++) { for(let j=0; j<hardActions.length; j++) { const e=document.getElementById(`h${i}_${j}`); if(e) e.value=0; } }
+        softCategories.forEach((cat,i)=>{const cb=document.getElementById('softCheck'+i);if(cb){cb.checked=false;toggleSoftCategory(i,false);}cat.subs.forEach((sub,j)=>{const e=document.getElementById('sc'+i+'_'+j);if(e)e.value=0;localStorage.removeItem('report_sc'+i+'_'+j);});localStorage.removeItem('report_softCheck'+i);});
+        hardCategories.forEach((cat,i)=>{const cb=document.getElementById('hardCheck'+i);if(cb){cb.checked=false;toggleHardCategory(i,false);}cat.subs.forEach((sub,j)=>{const e=document.getElementById('hc'+i+'_'+j);if(e)e.value=0;localStorage.removeItem('report_hc'+i+'_'+j);});localStorage.removeItem('report_hardCheck'+i);});
         updateTotals();
         const carArea = document.getElementById('carBtnGroup');
         const autoSec = document.getElementById('autoDriveSections');
@@ -806,8 +832,8 @@
             if(el) { el.value = ""; el.classList.remove('filled'); }
             localStorage.removeItem('report_' + id);
         });
-        for(let i=0; i<softKeys.length; i++) { const e = document.getElementById('s'+i); if(e) e.value = 0; localStorage.removeItem('report_s'+i); }
-        for(let i=0; i<hardCauses.length; i++){ for(let j=0; j<hardActions.length; j++){ const e = document.getElementById(`h${i}_${j}`); if(e) e.value = 0; localStorage.removeItem(`report_h${i}_${j}`); } }
+        softCategories.forEach((cat,i)=>{const cb=document.getElementById('softCheck'+i);if(cb){cb.checked=false;toggleSoftCategory(i,false);}cat.subs.forEach((sub,j)=>{const e=document.getElementById('sc'+i+'_'+j);if(e)e.value=0;localStorage.removeItem('report_sc'+i+'_'+j);});localStorage.removeItem('report_softCheck'+i);});
+        hardCategories.forEach((cat,i)=>{const cb=document.getElementById('hardCheck'+i);if(cb){cb.checked=false;toggleHardCategory(i,false);}cat.subs.forEach((sub,j)=>{const e=document.getElementById('hc'+i+'_'+j);if(e)e.value=0;localStorage.removeItem('report_hc'+i+'_'+j);});localStorage.removeItem('report_hardCheck'+i);});
         updateTotals();
     }
 
@@ -826,26 +852,17 @@
     }
 
     function updateTotals(){
-        let st=0; for(let i=0;i<softKeys.length;i++) st+=parseInt(document.getElementById('s'+i).value||0);
+        let st=0;softCategories.forEach((cat,i)=>cat.subs.forEach((sub,j)=>{const e=document.getElementById('sc'+i+'_'+j);if(e)st+=parseInt(e.value||0);}));
         document.getElementById('softTotalDisp').innerText=st;
-        let ht=0; for(let i=0;i<hardCauses.length;i++){ for(let j=0;j<hardActions.length;j++) ht+=parseInt(document.getElementById(`h${i}_${j}`).value||0); }
+        let ht=0;hardCategories.forEach((cat,i)=>cat.subs.forEach((sub,j)=>{const e=document.getElementById('hc'+i+'_'+j);if(e)ht+=parseInt(e.value||0);}));
         document.getElementById('hardTotalDisp').innerText=ht;
     }
-
-    function stepSoft(i,v){
-        const e=document.getElementById('s'+i); e.value=Math.max(0,parseInt(e.value)+v);
-        localStorage.setItem('report_s'+i, e.value); updateTotals();
-    }
-    
-    function stepHard(id,v){
-        const e=document.getElementById('h'+id); e.value=Math.max(0,parseInt(e.value)+v);
-        localStorage.setItem('report_h'+id, e.value); updateTotals();
-    }
-
-    let currentHardId=''; let currentHardValue=0;
-    function openHardModal(id,cause,action){currentHardId=id;const input=document.getElementById('h'+id);currentHardValue=parseInt(input.value||0);document.getElementById('hardModalTitle').innerText=`${cause} - ${action}`;document.getElementById('hardModalValue').innerText=currentHardValue;document.getElementById('hardTakeoverModal').style.display='flex';}
-    function changeHardModal(step){currentHardValue=Math.max(0,currentHardValue+step);document.getElementById('hardModalValue').innerText=currentHardValue;}
-    function closeHardModal(){const input=document.getElementById('h'+currentHardId);input.value=currentHardValue;localStorage.setItem('report_h'+currentHardId,currentHardValue);updateTotals();document.getElementById('hardTakeoverModal').style.display='none';}
+    function stepSoft(i,j,v){const e=document.getElementById('sc'+i+'_'+j);if(!e)return;e.value=Math.max(0,parseInt(e.value||0)+v);localStorage.setItem('report_sc'+i+'_'+j,e.value);updateTotals();}
+    function toggleSoftCategory(i,checked){const list=document.getElementById('softSubList'+i);if(list)list.classList.toggle('expanded',checked);localStorage.setItem('report_softCheck'+i,checked?'1':'0');}
+    function toggleSoftCheckbox(i){const cb=document.getElementById('softCheck'+i);if(!cb)return;cb.checked=!cb.checked;toggleSoftCategory(i,cb.checked);}
+    function stepHard(i,j,v){const e=document.getElementById('hc'+i+'_'+j);if(!e)return;e.value=Math.max(0,parseInt(e.value||0)+v);localStorage.setItem('report_hc'+i+'_'+j,e.value);updateTotals();}
+    function toggleHardCategory(i,checked){const list=document.getElementById('hardSubList'+i);if(list)list.classList.toggle('expanded',checked);localStorage.setItem('report_hardCheck'+i,checked?'1':'0');}
+    function toggleHardCheckbox(i){const cb=document.getElementById('hardCheck'+i);if(!cb)return;cb.checked=!cb.checked;toggleHardCategory(i,cb.checked);}
 
     function toggleMenu() { const m = document.getElementById('sideMenu'); const o = document.getElementById('menuOverlay'); const a = m.classList.contains('active'); m.classList.toggle('active'); o.style.display = a ? 'none' : 'block'; }
 
@@ -997,8 +1014,8 @@
                 "하드합계":document.getElementById('hardTotalDisp').innerText,
                 "이슈사항":document.getElementById('workIssue').value
             };
-            softKeys.forEach((k,i)=>payload[k]=document.getElementById('s'+i).value);
-            hardCauses.forEach((c,i)=>{ hardActions.forEach((a,j)=>payload[`하드(${c}-${actionMap[a]})`]=document.getElementById(`h${i}_${j}`).value); });
+            softCategories.forEach((cat,i)=>cat.subs.forEach((sub,j)=>{payload[`소프트(${cat.name}-${sub})`]=document.getElementById('sc'+i+'_'+j).value;}));
+            hardCategories.forEach((cat,i)=>cat.subs.forEach((sub,j)=>{payload[`하드(${cat.name}-${sub})`]=document.getElementById('hc'+i+'_'+j).value;}));
             fetch(GAS_URL,{method:'POST',body:JSON.stringify(payload)})
                 .then(() => {
                     clearFormData('report');
@@ -1379,7 +1396,5 @@
     }
 </script>
 
-<div id="hardTakeoverModal" class="modal" style="display:none;">
-<div class="modal-content"><div class="modal-body"><h3 id="hardModalTitle" style="text-align:center"></h3><div style="display:flex;justify-content:center;align-items:center;gap:24px"><button class="circle-btn" onclick="changeHardModal(-1)">-</button><div id="hardModalValue" style="font-size:36px;font-weight:bold">0</div><button class="circle-btn" onclick="changeHardModal(1)">+</button></div></div><div class="modal-footer"><button class="modal-btn" onclick="closeHardModal()">확인</button></div></div></div>
 </body>
 </html>
